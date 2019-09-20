@@ -56,7 +56,7 @@ int bwsetspeed( int channel, int speed ) {
 		return 0;
 	case 2400:
 		*high = 0x0;
-		*low = 0x90;
+		*low = 0xBF;
 		return 0;
 	default:
 		return -1;
@@ -169,7 +169,7 @@ void bwui2a( unsigned int num, unsigned int base, char *bf ) {
 	int n = 0;
 	int dgt;
 	unsigned int d = 1;
-	
+
 	while( (num / d) >= base ) d *= base;
 	while( d != 0 ) {
 		dgt = num / d;
