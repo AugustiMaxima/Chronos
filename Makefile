@@ -15,24 +15,24 @@ LD = $(XBINDIR)/arm-elf-ld
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I../include
+CFLAGS = -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include
 
 # -static: force static linking
 # -e: set entry point
 # -nmagic: no page alignment
 # -T: use linker script
-LDFLAGS = -static -e main -nmagic -T ../../linker.ld -L ../../lib -L $(XLIBDIR2)
+LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
-all: iotest.elf
+all: kernel.elf
 
-iotest.s: iotest.c
-	$(CC) -S $(CFLAGS) iotest.c
+kernel.s: kernel.c
+	$(CC) -S $(CFLAGS) kernel.c
 
-iotest.o: iotest.s
-	$(AS) $(ASFLAGS) -o iotest.o iotest.s
+kernel.o: kernel.s
+	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-iotest.elf: iotest.o
-	$(LD) $(LDFLAGS) -o $@ iotest.o -lbwio -lgcc
+kernel.elf: kernel.o
+	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -lgcc
 
 clean:
-	-rm -f iotest.elf *.s *.o
+	-rm -f kernel.elf *.s *.o
