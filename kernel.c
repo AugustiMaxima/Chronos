@@ -22,8 +22,13 @@ void* enter_kernel() {
 
 void* leave_kernel() {
     bwprintf(COM2, "leave_kernel\r\n");
-    // asm volatile("ldr %r0", &call_first_user_task);
+
+    asm("stmfd sp!, {r0-r12, lr}");
+    asm("ldmfd sp!, {r0-r12, lr}");
+
     // some assembly code here to context switch to call_user_task
+    asm("mov pc, %[target]" :: [target] "r" (call_user_task));
+
     enter_kernel();
 }
 
