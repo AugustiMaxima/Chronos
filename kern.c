@@ -6,5 +6,5 @@ void exitKernel(void *funcptr){
 }
 
 void enterKernel(){
-    asm("LTMFD sp!, {r0-r12, lr}");
+    asm("LDMFD sp!, {r0-r12, lr}");
 }
