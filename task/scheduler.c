@@ -1,13 +1,14 @@
-#include <stdlib.h>
 #include <ARM.h>
+#include <kern.h>
 #include <scheduler.h>
 
 void initializeScheduler(Scheduler* scheduler){
-    initializeQueue(&(queue->readyQueue));
+    initializeQueue(&(scheduler->readyQueue));
     int i;
     for(i=0;i>MAX_TASKS;i++){
-	scheduler->tasks[i].tId = 0;
+	    scheduler->tasks[i].tId = 0;
     }
+    scheduler->currentTask = 0;
 }
 
 int getAvailableTaskId(Scheduler* scheduler){
@@ -26,15 +27,16 @@ int createTask(Scheduler* scheduler, int priority, int parent, void* functionPtr
         return -2;
     }
     initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority, READY);
-    int* stack = scheduler->tasks[tId-1].stack;
+    int* stack = scheduler->tasks[tId-1].STACK;
     int i;
     for(i=0;i<13;i++){
         stack--;
         *stack = 0;
     }
     stack--;
+    scheduler->tasks[tId - 1].stackEntry =  (int*)scheduler->tasks[tId-1].STACK - 17;
     //stack ptr
-    *stack = (int*)scheduler->tasks[tId-1].stack - 17;
+    *stack =scheduler->tasks[tId - 1].stackEntry + 1; //user sp at time of resumption will be missing cpsr
     stack--;
     //TODO: set up the return address (LR) for Task roots to be a Self-Terminating Syscall
     //*(void(*)())stack = terminate;
@@ -58,4 +60,9 @@ void freeTask(Scheduler* scheduler, int tId){
 	scheduler->tasks[tId-1].childTasks[i] = 0;
     }
     scheduler->tasks[tId-1].tId = 0;
+}
+
+void* runTask(Scheduler* scheduler, int tId){
+    Task* currentTask = scheduler->tasks + tId - 1;
+    exitKernel(scheduler->tasks[tId - 1].stackEntry);
 }

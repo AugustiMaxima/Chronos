@@ -1,8 +1,6 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include <state.h>
-
 #define MAX_CHILDREN 8
 #define STACK_SIZE 65536
 
@@ -18,6 +16,7 @@ typedef struct os_Task{
     int priority;
     int childTasks[MAX_CHILDREN];
     char STACK[STACK_SIZE];
+    int* stackEntry;
     taskStatus status;
 } Task;
 
