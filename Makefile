@@ -32,7 +32,7 @@ kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
 kernel.elf: kernel.o dump.a bwio.a task.a
-	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -ltask -lgcc
+	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -ltask -lscheduler -lgcc
 
 dump.s: dump.c
 	$(CC) -S $(CFLAGS) dump.c
