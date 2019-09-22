@@ -1,0 +1,2 @@
+void printSp();
+void printCurrentMode();

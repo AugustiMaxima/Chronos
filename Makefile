@@ -31,8 +31,17 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o
-	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -lgcc
+kernel.elf: kernel.o dump.a
+	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -lgcc
+
+dump.s: dump.c
+	$(CC) -S $(CFLAGS) dump.c
+
+dump.o: dump.s
+	$(AS) $(ASFLAGS) -o dump.o dump.s
+
+dump.a: dump.o
+	$(AR) $(ARFLAGS) $@ dump.o
 
 clean:
-	-rm -f kernel.elf *.s *.o
+	-rm -f kernel.elf *.s *.o *.a
