@@ -65,7 +65,7 @@ int main( int argc, char* argv[] ) {
 	bwsetfifo(COM2, OFF);
     installSwiHandler(handle_swi);
 
-    scheduleTask(&scheduler, 0, 0, );
+    scheduleTask(&scheduler, 0, 0, call_user_task);
 
     struct os_Task t1;
     initializeTask(&t1, 0, 0, 0);

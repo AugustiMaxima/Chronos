@@ -89,13 +89,13 @@ queue.a: queue.o
 	$(AR) $(ARFLAGS) $@ task.o
 
 scheduler.s: task/scheduler.c
-	$(CC) -S $(CFLAGS) task/task.c
+	$(CC) -S $(CFLAGS) task/scheduler.c
 
 scheduler.o: scheduler.s
-	$(AS) $(ASFLAGS) -o task.o task.s
+	$(AS) $(ASFLAGS) -o scheduler.o scheduler.s
 
 scheduler.a: scheduler.o
-	$(AR) $(ARFLAGS) $@ task.o
+	$(AR) $(ARFLAGS) $@ scheduler.o
 
 syslib.s: user/syslib.c
 	$(CC) -S $(CFLAGS) task/task.c
