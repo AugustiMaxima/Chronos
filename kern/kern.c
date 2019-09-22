@@ -1,16 +1,18 @@
 #include <kern.h>
 
 void exitKernel(void* processStackPtr){
-    asm("STMFD SP!, {R0-R12, LR}");
+    // save kernel registers on kernel stack
+    asm("stmfd sp!, {r0-r12, lr}");
 
     //change to user mode
-    asm("LDR R1, [R0]");
-    //we are now in user mode
-    asm("MSR CPSR_c, R1");
+    // cpsr <- *processStackPtr
+    asm("ldr r1, [r0]");
+    asm("msr cpsr_c, r1");
 
     //restores the stack pointer, minus the cpsr
-    asm("SUB SP, R0, #4");
-    
+    // sp <- r0 - 4
+    asm("sub sp, r0, #4");
+
     //loads user mode registers
     //includes the PC register, and starts executing
     asm("LDMFD SP!, {R0-PC}");

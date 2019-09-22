@@ -11,8 +11,8 @@ typedef enum{
 } taskStatus;
 
 typedef struct os_Task{
-    int pId;
-    int tId;
+    int pId; // parentId
+    int tId; // taskId
     int priority;
     int childTasks[MAX_CHILDREN];
     char STACK[STACK_SIZE];
@@ -20,7 +20,7 @@ typedef struct os_Task{
     taskStatus status;
 } Task;
 
-void initializeTask(Task* task, int tId, int pId, int priority, taskStatus status);
+void initializeTask(Task* task, int tId, int pId, int priority);
 
 int appendChildTasks(Task* task, int tId);
 

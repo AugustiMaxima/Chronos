@@ -31,8 +31,8 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a bwio.a
-	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -lgcc
+kernel.elf: kernel.o dump.a bwio.a task.a
+	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -ltask -lgcc
 
 dump.s: dump.c
 	$(CC) -S $(CFLAGS) dump.c
@@ -51,6 +51,15 @@ bwio.o: bwio.s
 
 bwio.a: bwio.o
 	$(AR) $(ARFLAGS) $@ bwio.o
+
+task.s: task/task.c
+	$(CC) -S $(CFLAGS) task/task.c
+
+task.o: task.s
+	$(AS) $(ASFLAGS) -o task.o task.s
+
+task.a: task.o
+	$(AR) $(ARFLAGS) $@ task.o
 
 .PHONY: install clean
 

@@ -35,3 +35,21 @@ void printCurrentMode() {
         bwprintf(COM2, "illegal mode\r\n");
     }
 }
+
+void installSwiHandler(void* handle_swi) {
+    /*
+    Install SWI handler
+    The swi instruction executes at address 0x8. The following two lines write
+    this to the memory addresses:
+
+    0x08        LDR pc, [pc, #0x18]
+    0x0c        ?
+    ...         ?
+    0x28        <absolute address of handle_swi>
+
+    Note that ARM prefetches 2 instructions ahead. Hence, after a software
+    interrupt, instruction 0x08 executes with pc=0x10.
+    */
+    *((unsigned*)0x8) = 0xe59ff018;
+    *((unsigned*)0x28) = handle_swi;
+}
