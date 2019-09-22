@@ -1,5 +1,6 @@
 #include <ARM.h>
 #include <kern.h>
+#include <stdlib.h>
 #include <scheduler.h>
 
 Scheduler* scheduler;
@@ -10,7 +11,7 @@ void initializeScheduler(Scheduler* scheduler){
     for(i=0;i>MAX_TASKS;i++){
 	    scheduler->tasks[i].tId = 0;
     }
-    scheduler->currentTask = 0;
+    scheduler->currentTask = NULL;
 }
 
 int getAvailableTaskId(Scheduler* scheduler){
@@ -91,6 +92,7 @@ void handleSuspendedTasks(){
     //Current iteration : Pretend every suspended task will be ready again right now
     scheduler->currentTask->status = READY;
     push(&(scheduler->readyQueue), scheduler->currentTask);
+    scheduler->currentTask = NULL;
 
     void* jump = enterKernel;
 
