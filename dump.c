@@ -5,7 +5,7 @@ void printSp() {
     unsigned int sp;
     asm volatile("mov %0, sp" : "=r" (sp));
 
-    bwputstr(COM2, "Sp=");
+    bwputstr(COM2, "sp=");
     bwputr(COM2, sp);
     bwputstr(COM2, "\r\n");
 }
