@@ -62,22 +62,22 @@ task.a: task.o
 	$(AR) $(ARFLAGS) $@ task.o
 
 kern.s: kern/kern.c
-	$(CC) -S $(CFLAGS) task/task.c
+	$(CC) -S $(CFLAGS) kern/kern.c
 
 kern.o: kern.s
-	$(AS) $(ASFLAGS) -o task.o task.s
+	$(AS) $(ASFLAGS) -o kern.o kern.s
 
 kern.a: kern.o
-	$(AR) $(ARFLAGS) $@ task.o
+	$(AR) $(ARFLAGS) $@ kern.o
 
 syscall.s: kern/syscall.c
-	$(CC) -S $(CFLAGS) task/task.c
+	$(CC) -S $(CFLAGS) kern/syscall.c
 
 syscall.o: syscall.s
-	$(AS) $(ASFLAGS) -o task.o task.s
+	$(AS) $(ASFLAGS) -o syscall.o syscall.s
 
 syscall.a: syscall.o
-	$(AR) $(ARFLAGS) $@ task.o
+	$(AR) $(ARFLAGS) $@ syscall.o
 
 queue.s: task/queue.c
 	$(CC) -S $(CFLAGS) task/task.c
@@ -91,7 +91,7 @@ scheduler.s: task/scheduler.c
 scheduler.o: scheduler.s
 	$(AS) $(ASFLAGS) -o scheduler.o scheduler.s
 
-scheduler.a: scheduler.o
+scheduler.a: scheduler.o queue.o
 	$(AR) $(ARFLAGS) $@ scheduler.o queue.o
 
 syslib.s: user/syslib.c
