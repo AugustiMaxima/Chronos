@@ -80,7 +80,7 @@ void handleSuspendedTasks(){
     asm("ADD R0, R0, #12");
     asm("MSR CPSR, R0");
 
-    asm("MOV %0 SP" ::"r"(stackPtr));
+    asm("MOV %0, SP" ::"r"(stackPtr));
 
     //changes back to svc
     asm("MRS R0, CPSR");
@@ -97,6 +97,6 @@ void handleSuspendedTasks(){
     void* jump = enterKernel;
 
     //jumps here to hand off handling suspended tasks
-    asm("mov pc %0" :"=r"(jump));
+    asm("mov pc, %0" :"=r"(jump));
 
 }
