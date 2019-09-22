@@ -8,6 +8,7 @@
 #include <ts7200.h>
 #include <dump.h>
 #include <task.h>
+#include <ARM.h>
 
 void __attribute__((naked)) handle_swi () {
     bwprintf(COM2, "handle_swi\r\n");
@@ -60,6 +61,23 @@ int main( int argc, char* argv[] ) {
 
     struct os_Task t1;
     initializeTask(&t1, 0, 0, 0);
+
+    /*
+    Install SWI handler
+    The swi instruction executes at address 0x8. The following two lines write
+    this to the memory addresses:
+
+    0x08        LDR pc, [pc, #0]
+    0x0c        ?
+    0x10        <absolute address of handle_swi>
+
+    Note that ARM prefetches 2 instructions ahead. Hence, after a software
+    interrupt, instruction 0x08 executes with pc=0x10.
+    */
+    *((unsigned*)0x8) = 0xe59ff000;
+    *((unsigned*)0x10) = handle_swi;
+
+    int i = CPSR_M_SVC;
 
     // kernel loop
     exitKernel();
