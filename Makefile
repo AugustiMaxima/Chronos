@@ -85,9 +85,6 @@ queue.s: task/queue.c
 queue.o: queue.s
 	$(AS) $(ASFLAGS) -o task.o task.s
 
-queue.a: queue.o
-	$(AR) $(ARFLAGS) $@ task.o
-
 scheduler.s: task/scheduler.c
 	$(CC) -S $(CFLAGS) task/scheduler.c
 
@@ -95,7 +92,7 @@ scheduler.o: scheduler.s
 	$(AS) $(ASFLAGS) -o scheduler.o scheduler.s
 
 scheduler.a: scheduler.o
-	$(AR) $(ARFLAGS) $@ scheduler.o
+	$(AR) $(ARFLAGS) $@ scheduler.o queue.o
 
 syslib.s: user/syslib.c
 	$(CC) -S $(CFLAGS) task/task.c
