@@ -30,14 +30,15 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
         return -2;
     }
     initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority);
-    int* stack = scheduler->tasks[tId-1].STACK;
+    int* stack = ((int)scheduler->tasks[tId-1].STACK + STACK_SIZE);
     int i;
+    // sets first 13 registers to 0
     for(i=0;i<13;i++){
         stack--;
         *stack = 0;
     }
     stack--;
-    scheduler->tasks[tId - 1].stackEntry =  (int*)scheduler->tasks[tId-1].STACK - 17;
+    scheduler->tasks[tId - 1].stackEntry =  (int*)((int)scheduler->tasks[tId-1].STACK + STACK_SIZE) - 17;
     //stack ptr
     *stack =scheduler->tasks[tId - 1].stackEntry + 1; //user sp at time of resumption will be missing cpsr
     stack--;

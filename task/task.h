@@ -15,8 +15,12 @@ typedef struct os_Task{
     int tId; // taskId
     int priority;
     int childTasks[MAX_CHILDREN];
+
     char STACK[STACK_SIZE];
+
+    // current sp
     int* stackEntry;
+
     taskStatus status;
 } Task;
 

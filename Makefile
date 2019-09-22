@@ -31,8 +31,8 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a bwio.a task.a scheduler.a
-	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -ltask -lscheduler -lgcc
+kernel.elf: kernel.o dump.a bwio.a scheduler.a
+	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -lscheduler -lgcc
 
 dump.s: dump.c
 	$(CC) -S $(CFLAGS) dump.c
@@ -57,9 +57,6 @@ task.s: task/task.c
 
 task.o: task.s
 	$(AS) $(ASFLAGS) -o task.o task.s
-
-task.a: task.o
-	$(AR) $(ARFLAGS) $@ task.o
 
 kern.s: kern/kern.c
 	$(CC) -S $(CFLAGS) kern/kern.c
@@ -88,18 +85,8 @@ scheduler.s: task/scheduler.c
 scheduler.o: scheduler.s
 	$(AS) $(ASFLAGS) -o scheduler.o scheduler.s
 
-scheduler.a: scheduler.o queue.o kern.o
-	$(AR) $(ARFLAGS) $@ scheduler.o queue.o kern.o
-
-syslib.s: user/syslib.c
-	$(CC) -S $(CFLAGS) task/task.c
-
-syslib.o: syslib.s
-	$(AS) $(ASFLAGS) -o task.o task.s
-
-syslib.a: syslib.o
-	$(AR) $(ARFLAGS) $@ task.o
-
+scheduler.a: scheduler.o queue.o kern.o task.o
+	$(AR) $(ARFLAGS) $@ scheduler.o queue.o kern.o task.o
 
 .PHONY: install clean
 
