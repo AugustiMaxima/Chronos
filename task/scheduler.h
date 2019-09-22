@@ -13,7 +13,7 @@ typedef struct os_Scheduler{
 } Scheduler;
 
 
-void intializeScheduler(Scheduler* scheduler);
+void initializeScheduler(Scheduler* scheduler);
 
 int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionPtr);
 

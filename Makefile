@@ -31,7 +31,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a bwio.a task.a
+kernel.elf: kernel.o dump.a bwio.a task.a scheduler.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -ltask -lscheduler -lgcc
 
 dump.s: dump.c
@@ -67,9 +67,6 @@ kern.s: kern/kern.c
 kern.o: kern.s
 	$(AS) $(ASFLAGS) -o kern.o kern.s
 
-kern.a: kern.o
-	$(AR) $(ARFLAGS) $@ kern.o
-
 syscall.s: kern/syscall.c
 	$(CC) -S $(CFLAGS) kern/syscall.c
 
@@ -80,10 +77,10 @@ syscall.a: syscall.o
 	$(AR) $(ARFLAGS) $@ syscall.o
 
 queue.s: task/queue.c
-	$(CC) -S $(CFLAGS) task/task.c
+	$(CC) -S $(CFLAGS) task/queue.c
 
 queue.o: queue.s
-	$(AS) $(ASFLAGS) -o task.o task.s
+	$(AS) $(ASFLAGS) -o queue.o queue.s
 
 scheduler.s: task/scheduler.c
 	$(CC) -S $(CFLAGS) task/scheduler.c
@@ -91,8 +88,8 @@ scheduler.s: task/scheduler.c
 scheduler.o: scheduler.s
 	$(AS) $(ASFLAGS) -o scheduler.o scheduler.s
 
-scheduler.a: scheduler.o queue.o
-	$(AR) $(ARFLAGS) $@ scheduler.o queue.o
+scheduler.a: scheduler.o queue.o kern.o
+	$(AR) $(ARFLAGS) $@ scheduler.o queue.o kern.o
 
 syslib.s: user/syslib.c
 	$(CC) -S $(CFLAGS) task/task.c

@@ -22,7 +22,7 @@ void sys_handler(int code){
     void* jump = handleSuspendedTasks;
 
     //jumps here to hand off handling suspended tasks
-    asm("mov pc %0", :"=r"(jump));
+    asm("mov pc, %0" :"=r"(jump));
 }
 
 void getPid(){

@@ -13,8 +13,8 @@ typedef struct task_Queue{
 
 void initializeQueue(Queue* queue);
 
-Task* pop(Queue* queue){};
+Task* pop(Queue* queue);
 
-int push(Queue* queue, Task* task){};
+int push(Queue* queue, Task* task);
 
 #endif

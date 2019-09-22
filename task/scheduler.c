@@ -98,5 +98,4 @@ void handleSuspendedTasks(){
 
     //jumps here to hand off handling suspended tasks
     asm("mov pc, %0" :"=r"(jump));
-
 }

@@ -37,8 +37,8 @@ void* __attribute__((naked)) call_user_task() {
     yield();
 }
 
-void* exitKernel() {
-    bwprintf(COM2, "exitKernel\r\n");
+void* leave_kernel() {
+    bwprintf(COM2, "leave_kernel\r\n");
 
     // save kernel registers on kernel stack
     asm volatile("stmfd sp!, {r0-r12, lr}");
@@ -60,7 +60,7 @@ void* exitKernel() {
 int main( int argc, char* argv[] ) {
 
     Scheduler scheduler;
-    intializeScheduler(&scheduler);
+    initializeScheduler(&scheduler);
 
 	bwsetfifo(COM2, OFF);
     installSwiHandler(handle_swi);
@@ -88,9 +88,9 @@ int main( int argc, char* argv[] ) {
     int i = CPSR_M_SVC;
 
     // kernel loop
-    exitKernel();
+    leave_kernel();
 
-    bwprintf(COM2, "after exitKernel\r\n");
+    bwprintf(COM2, "after leave_kernel\r\n");
 
 	return 0;
 }

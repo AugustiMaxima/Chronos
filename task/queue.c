@@ -1,15 +1,14 @@
-#include <stdlib>
 #include <queue.h>
 
 int ring(int num){
     return num % QUEUE_SIZE;
 }
 
-void ringCapacity(Queue* queue){
+int ringCapacity(Queue* queue){
     return QUEUE_SIZE - (ringFill(queue));
 }
 
-void ringFill(Queue* queue){
+int ringFill(Queue* queue){
     return queue->length - queue->cursor;
 }
 
@@ -20,9 +19,9 @@ void initializeQueue(Queue* queue){
 
 Task* pop(Queue* queue){
     if(ringFill(queue))    
-	return queue->queue[ring(queue->cursor++)];
+	    return queue->queue[ring(queue->cursor++)];
     else
-	return NULL;
+	    return 0;
 };
 
 int push(Queue* queue, Task* task){
