@@ -3,7 +3,7 @@
 
 #include <task.h>
 
-#define QUEUE_SIZE = 12;
+#define QUEUE_SIZE = 24;
 
 typedef struct task_Queue{
     int cursor;

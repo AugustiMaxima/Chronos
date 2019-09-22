@@ -2,6 +2,8 @@
 #include <kern.h>
 #include <scheduler.h>
 
+Scheduler* scheduler;
+
 void initializeScheduler(Scheduler* scheduler){
     initializeQueue(&(scheduler->readyQueue));
     int i;
@@ -21,7 +23,7 @@ int getAvailableTaskId(Scheduler* scheduler){
 }
 
 //Allocates, configures and setups the stack layout for context switch
-int createTask(Scheduler* scheduler, int priority, int parent, void* functionPtr){
+int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionPtr){
     int tId = getAvailableTaskId(scheduler);
     if (!tId){
         return -2;
@@ -65,4 +67,34 @@ void freeTask(Scheduler* scheduler, int tId){
 void* runTask(Scheduler* scheduler, int tId){
     Task* currentTask = scheduler->tasks + tId - 1;
     exitKernel(scheduler->tasks[tId - 1].stackEntry);
+}
+
+
+void handleSuspendedTasks(){
+    void* stackPtr;
+
+    //changes from svc to sys mode
+    asm("MRS R0, CPSR");
+    //12 is the distance from svc to sys mode
+    asm("ADD R0, R0, #12");
+    asm("MSR CPSR, R0");
+
+    asm("MOV %1 SP", ::"r"(stackPtr));
+
+    //changes back to svc
+    asm("MRS R0, CPSR");
+    asm("SUB R0, R0, #12");
+    asm("MSR CPSR, R0");
+
+    scheduler->currentTask->stackEntry = stackPtr;
+    //TODO: Figure out and design the blocked queue based on different conditions and status
+    //Current iteration : Pretend every suspended task will be ready again right now
+    scheduler->currentTask->status = READY;
+    push(&(scheduler->readyQueue), scheduler->currentTask);
+
+    void* jump = enterKernel;
+
+    //jumps here to hand off handling suspended tasks
+    asm("mov pc %0", :"=r"(jump));
+
 }

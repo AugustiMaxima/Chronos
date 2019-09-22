@@ -12,12 +12,16 @@ typedef struct os_Scheduler{
     Queue readyQueue;
 } Scheduler;
 
+
 void intializeScheduler(Scheduler* scheduler);
 
-int createTask(Scheduler* scheduler);
+int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionPtr);
 
 void freeTask(Scheduler* scheduler, int tId);
 
 void* runTask(Scheduler* scheduler, int tId);
+
+//
+void handleSuspendedTasks();
 
 #endif

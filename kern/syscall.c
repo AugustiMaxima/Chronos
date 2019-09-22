@@ -1,3 +1,4 @@
+#include <kern.h>
 #include <scheduler.h>
 #include <syscall.h>
 
@@ -14,30 +15,37 @@ void sys_handler(int code){
         case 0:
             getPid();
         case 1:
-            createTask();
+            sysCreateTask();
         default:
     }
+    
+    void* jump = handleSuspendedTasks;
+
+    //jumps here to hand off handling suspended tasks
+    asm("mov pc %0", :"=r"(jump));
 }
 
 void getPid(){
 
 }
 
-void createTask(){
+void sysCreateTask(){
     void* funcPtr;
     int priority;
-
     //goes into system mode, in order to unwind the stack and retrieve the additional arguments
     asm("MRS R0, CPSR");
     //12 is the distance from svc to sys mode
     asm("ADD R0, R0, #12");
+    asm("MSR CPSR, R0");
 
-    //R3 for first argument, the function pointer
-    //R4 for second argument, the priority 
-    asm("ldr %1, [SP]", :: "r" (funcPtr));
-    asm("add SP, SP, #4");
-    asm("ldr %1, [SP]", :: "r" (priority));
-    asm("add SP, SP, #4");
+    //arguments are stored and retrieved in ascending order
+    asm("LDR %1, [SP]", :: "r" (funcPtr));
+    asm("LDR %1, [SP, 4]", :: "r" (priority));
+    asm("ADD SP, SP, #8");
     
-    int pId = 
+    asm("MRS R0, CPSR");
+    asm("SUB R0, R0, #12");
+    asm("MSR CPSR, R0");
+    int pId = scheduler->currentTask->tId;
+    scheduleTask(scheduler, priority, pId, funcPtr);
 }

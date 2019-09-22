@@ -8,14 +8,15 @@
     Arg 0           <- SP currently points here
     ...             
     Arg N
-    CPSR
-    R0-15           <- Stored SP points here
+    CPSR            <- !!!! This where the stackEntry in the task descriptor should point to
+    R0-15           <- Stored SP state points here when restored
 
     Individual handlers are dispatched by the sys_handler, and will know the size of N since function signatures are fixed.
     With enough effort, you can implement variadic arguments on the sys calls, but it would be quite difficult to wind and unwind
 
     Since individual handler functions knows the number of arguments, we can safely unwind back to the CPSR point
-    At this point, the handlers functions are responsible for updating the stackEntry field in the current task to the content of the SP
+    At this point, the handlers functions are responsible for decrementing the stack pointer so that all the arguments received are popped off the stack
+    This will allow syscal handler to update the stackEntry field in the current task to be the position of the CPSR
     This order is important as stackEntry is used by the exitKernel to use as the beginning point of the function
 */
 
@@ -26,7 +27,7 @@ void sys_handler(int code);
 //Eventually
 //void interrupt_handler();
 
-void getPid();
+void sysGetPid();
 
 //no arguments because we will be manually retrieving it from the user stack
-void createTask();
+void sysCreateTask();
