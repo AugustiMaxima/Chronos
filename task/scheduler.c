@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <scheduler.h>
 
-Scheduler* scheduler;
+extern Scheduler* scheduler;
 
 void initializeScheduler(Scheduler* scheduler){
     initializeQueue(&(scheduler->readyQueue));

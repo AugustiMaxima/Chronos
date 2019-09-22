@@ -7,8 +7,11 @@
 #include <bwio.h>
 #include <ts7200.h>
 #include <dump.h>
+#include <scheduler.h>
 #include <task.h>
 #include <ARM.h>
+
+Scheduler* scheduler;
 
 void __attribute__((naked)) handle_swi () {
     bwprintf(COM2, "handle_swi\r\n");
@@ -56,8 +59,13 @@ void* exitKernel() {
 
 int main( int argc, char* argv[] ) {
 
+    Scheduler scheduler;
+    intializeScheduler(&scheduler);
+
 	bwsetfifo(COM2, OFF);
     installSwiHandler(handle_swi);
+
+    scheduleTask(&scheduler, 0, 0, );
 
     struct os_Task t1;
     initializeTask(&t1, 0, 0, 0);

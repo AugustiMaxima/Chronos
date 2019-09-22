@@ -61,6 +61,52 @@ task.o: task.s
 task.a: task.o
 	$(AR) $(ARFLAGS) $@ task.o
 
+kern.s: kern/kern.c
+	$(CC) -S $(CFLAGS) task/task.c
+
+kern.o: kern.s
+	$(AS) $(ASFLAGS) -o task.o task.s
+
+kern.a: kern.o
+	$(AR) $(ARFLAGS) $@ task.o
+
+syscall.s: kern/syscall.c
+	$(CC) -S $(CFLAGS) task/task.c
+
+syscall.o: syscall.s
+	$(AS) $(ASFLAGS) -o task.o task.s
+
+syscall.a: syscall.o
+	$(AR) $(ARFLAGS) $@ task.o
+
+queue.s: task/queue.c
+	$(CC) -S $(CFLAGS) task/task.c
+
+queue.o: queue.s
+	$(AS) $(ASFLAGS) -o task.o task.s
+
+queue.a: queue.o
+	$(AR) $(ARFLAGS) $@ task.o
+
+scheduler.s: task/scheduler.c
+	$(CC) -S $(CFLAGS) task/task.c
+
+scheduler.o: scheduler.s
+	$(AS) $(ASFLAGS) -o task.o task.s
+
+scheduler.a: scheduler.o
+	$(AR) $(ARFLAGS) $@ task.o
+
+syslib.s: user/syslib.c
+	$(CC) -S $(CFLAGS) task/task.c
+
+syslib.o: syslib.s
+	$(AS) $(ASFLAGS) -o task.o task.s
+
+syslib.a: syslib.o
+	$(AR) $(ARFLAGS) $@ task.o
+
+
 .PHONY: install clean
 
 clean:
