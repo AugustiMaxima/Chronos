@@ -32,22 +32,27 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority);
     int* stack = ((int)scheduler->tasks[tId-1].STACK + STACK_SIZE);
     int i;
-    // sets first 13 registers to 0
+    // set r0-r12 registers to 0
     for(i=0;i<13;i++){
         stack--;
         *stack = 0;
     }
     stack--;
     scheduler->tasks[tId - 1].stackEntry =  (int*)((int)scheduler->tasks[tId-1].STACK + STACK_SIZE) - 17;
-    //stack ptr
-    *stack =scheduler->tasks[tId - 1].stackEntry + 1; //user sp at time of resumption will be missing cpsr
+
+    // set r13 (aka sp)
+    *stack = scheduler->tasks[tId - 1].stackEntry + 1; //user sp at time of resumption will be missing cpsr
     stack--;
-    //TODO: set up the return address (LR) for Task roots to be a Self-Terminating Syscall
-    //*(void(*)())stack = terminate;
+
+    // here lies LR - dont write anything
+
     stack --;
+
     //PC
     *stack = functionPtr;
+
     stack --;
+
     int cpsr = 0 || CPSR_M_USR;
     //cpsr status, for hardware interrupt capable trap frame
     *stack = cpsr;
@@ -64,6 +69,11 @@ void freeTask(Scheduler* scheduler, int tId){
 	scheduler->tasks[tId-1].childTasks[i] = 0;
     }
     scheduler->tasks[tId-1].tId = 0;
+}
+
+void runFirstAvailableTask(Scheduler* scheduler){
+    Task* task = pop(&(scheduler->readyQueue));
+    runTask(scheduler, task->tId);
 }
 
 void* runTask(Scheduler* scheduler, int tId){

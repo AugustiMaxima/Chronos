@@ -59,20 +59,24 @@ void* leave_kernel() {
 
 int main( int argc, char* argv[] ) {
 
-    Scheduler scheduler;
-    initializeScheduler(&scheduler);
-
 	bwsetfifo(COM2, OFF);
     installSwiHandler(handle_swi);
 
+    Scheduler scheduler;
+    initializeScheduler(&scheduler);
+
     scheduleTask(&scheduler, 0, 0, call_user_task);
 
-    int i = CPSR_M_SVC;
+    runFirstAvailableTask(&scheduler);
 
-    // kernel loop
-    leave_kernel();
+    bwprintf(COM2, "after runFirst\r\n");
 
-    bwprintf(COM2, "after leave_kernel\r\n");
+
+
+    // // kernel loop
+    // leave_kernel();
+
+    // bwprintf(COM2, "after leave_kernel\r\n");
 
 	return 0;
 }
