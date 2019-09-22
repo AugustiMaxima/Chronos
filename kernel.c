@@ -9,6 +9,7 @@
 
 void __attribute__((naked)) handle_swi () {
     bwprintf(COM2, "handle_swi\r\n");
+    printCurrentMode();
     for (;;) {}
 }
 
@@ -20,9 +21,11 @@ void* yield() {
 
 void* first() {
     bwprintf(COM2, "First task\r\n");
+    printCurrentMode();
 }
 
-void* call_user_task() {
+void* __attribute__((naked)) call_user_task() {
+
     first();
     yield();
 }
@@ -31,19 +34,55 @@ void* call_user_task() {
 //     bwprintf(COM2, "enter_kernel\r\n");
 // }
 
-void* leave_kernel() {
-    bwprintf(COM2, "leave_kernel\r\n");
+void* exitKernel() {
+    bwprintf(COM2, "exitKernel\r\n");
 
     // save kernel registers
-    asm("stmfd sp!, {r0-r12, lr}");
+    asm volatile("stmfd sp!, {r0-r12, lr}");
 
-    // some assembly code here to context switch to call_user_task
-    asm("mov pc, %[target]" :: [target] "r" (call_user_task));
+    // set user mode
+    asm volatile("mrs r3, cpsr");
+    asm volatile("bic r3, r3, #0x1F");
+    asm volatile("orr r3, r3, #0x10");
+    asm volatile("msr cpsr_c, r3");
+
+    // give user some stack space
+    asm volatile("mov sp, #0x0070000");
+
+    asm volatile("bl call_user_task");
+}
+
+void printCurrentMode() {
+    unsigned int cpsr;
+    asm volatile("mrs %0, cpsr" : "=r" (cpsr));
+
+    cpsr = cpsr & 0x1F; // get last 5 bits
+
+    if (cpsr == 0x10) {
+        bwprintf(COM2, "user mode\r\n");
+    } else if (cpsr == 0x11) {
+        bwprintf(COM2, "fiq mode\r\n");
+    } else if (cpsr == 0x12) {
+        bwprintf(COM2, "irq mode\r\n");
+    } else if (cpsr == 0x13) {
+        bwprintf(COM2, "supervisor mode\r\n");
+    } else if (cpsr == 0x17) {
+        bwprintf(COM2, "abort mode\r\n");
+    } else if (cpsr == 0x1B) {
+        bwprintf(COM2, "undefined mode\r\n");
+    } else if (cpsr == 0x1F) {
+        bwprintf(COM2, "system mode\r\n");;
+    } else {
+        // we read something in the mode bits that's not supposed to be there
+        bwprintf(COM2, "illegal mode\r\n");
+    }
 }
 
 int main( int argc, char* argv[] ) {
 
 	bwsetfifo(COM2, OFF);
+
+    printCurrentMode();
 
     /*
     Install SWI handler
@@ -60,8 +99,12 @@ int main( int argc, char* argv[] ) {
     *((unsigned*)0x8) = 0xe59ff000;
     *((unsigned*)0x10) = handle_swi;
 
+
+
     // kernel loop
-    leave_kernel();
+    exitKernel();
+
+    bwprintf(COM2, "after exitKernel\r\n");
 
 	return 0;
 }
