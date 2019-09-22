@@ -9,8 +9,8 @@
 
 void __attribute__((naked)) handle_swi () {
     bwprintf(COM2, "handle_swi\r\n");
-    printCurrentMode();
-    for (;;) {}
+    asm("ldmfd SP!, {R0-R12, LR}");
+    asm("mov pc, lr");
 }
 
 void* yield() {
@@ -22,6 +22,7 @@ void* yield() {
 void* first() {
     bwprintf(COM2, "First task\r\n");
     printCurrentMode();
+    printSp();
 }
 
 void* __attribute__((naked)) call_user_task() {
@@ -50,6 +51,17 @@ void* exitKernel() {
     asm volatile("mov sp, #0x0070000");
 
     asm volatile("bl call_user_task");
+
+    bwprintf(COM2, "after bl\r\n");
+}
+
+void printSp() {
+    unsigned int sp;
+    asm volatile("mov %0, sp" : "=r" (sp));
+
+    bwputstr(COM2, "sp=");
+    bwputr(COM2, sp);
+    bwputstr(COM2, "\r\n");
 }
 
 void printCurrentMode() {
@@ -83,6 +95,7 @@ int main( int argc, char* argv[] ) {
 	bwsetfifo(COM2, OFF);
 
     printCurrentMode();
+    printSp();
 
     /*
     Install SWI handler
