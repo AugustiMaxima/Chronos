@@ -25,59 +25,14 @@ int getAvailableTaskId(Scheduler* scheduler){
     return 0;
 }
 
-//Allocates, configures and setups the stack layout for context switch
+
 int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionPtr){
     int tId = getAvailableTaskId(scheduler);
     if (!tId){
         return -2;
     }
-    initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority);
-    bwprintf(COM2, "%x\r\n", scheduler->tasks[tId-1].STACK);
-    bwprintf(COM2, "%x\r\n", STACK_SIZE);
-    int* stack = scheduler->tasks[tId-1].STACK + STACK_SIZE;
-    int* stack_view = stack;
-    bwprintf(COM2, "%x\r\n", stack_view);
-
-    stack --;
-    //PC
-    *stack = functionPtr;
-
-    stack--;
-    // here lies LR - dont write anything
-    *stack = 0xdeadbeef;
-    
-    stack--;
-    scheduler->tasks[tId - 1].stackEntry =  (int*)((int)scheduler->tasks[tId-1].STACK + STACK_SIZE) - 17;
-
-    bwprintf(COM2, "Stackentry: %x\r\n", scheduler->tasks[tId - 1].stackEntry);
-    // set r13 (aka sp)
-    *stack = scheduler->tasks[tId - 1].stackEntry + 1; //user sp at time of resumption will be missing cpsr
-
-    int i;
-    // set r0-r12 registers to 0
-    for(i=12;i>=0;i--){
-        stack--;
-        *stack = i;
-    }
-
-
-
-    stack --;
-
-    int cpsr;
-
-    asm("MRS %0, CPSR" : "=r"(cpsr));
-
-    cpsr &= ~CPSR_M_FLAG;
-    cpsr |= CPSR_M_USR;
-
-    //cpsr status, for hardware interrupt capable trap frame
-    *stack = cpsr;
+    initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority, );
     push(&(scheduler->readyQueue), &(scheduler->tasks[tId-1]));
-
-    for(i=1; i<18; i++){
-	    bwprintf(COM2, "R%d:\t%x at %u\r\n", i-1,  stack_view[-i], stack_view-i);
-    }
 }
 
 void freeTask(Scheduler* scheduler, int tId){
