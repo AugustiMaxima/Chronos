@@ -34,16 +34,7 @@ void exitKernel(void* processStackPtr){
 
     //loads user mode registers
     //includes the PC register, and starts executing
-    asm("ldmfd SP!, {r0-r14}");
-
-    asm("mov r1, r0");
-    asm("mov r0, #1");
-    asm("bl bwputr");
-
-
-
-    //note: requires syscall to be careful of where pc needs to go after execution
-    //should work well for interrupt
+    asm("ldmfd SP!, {r0-pc}");
 }
 
 void enterKernel(){
