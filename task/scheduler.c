@@ -2,6 +2,7 @@
 #include <kern.h>
 #include <stdlib.h>
 #include <scheduler.h>
+#include <bwio.h>
 
 extern Scheduler* scheduler;
 
@@ -78,6 +79,7 @@ void runFirstAvailableTask(Scheduler* scheduler){
 
 void* runTask(Scheduler* scheduler, int tId){
     Task* currentTask = scheduler->tasks + tId - 1;
+    bwprintf(COM2, "runtask\r\n");
     exitKernel(scheduler->tasks[tId - 1].stackEntry);
 }
 
