@@ -2,19 +2,14 @@
 #include <bwio.h>
 
 void exitKernel(void* processStackPtr){
+
+    bwprintf(COM2, "Ride to ruin and the world's ending\r\n") ;   
+
     // save kernel registers on kernel stack
     asm("stmfd sp!, {r0-r12, lr}");
 
     //change to user mode
     // cpsr <- *processStackPtr
-
-    int i=0;
-    int temp;
-    for(i=0; i<17; i++){
-        asm("ldr %1, [%0]" :"=r"(temp) :"r"(processStackPtr));
-        processStackPtr-=4;
-        bwprintf(COM2, "%x\r\n", temp);
-    }
 
     asm("ldr r1, [r0]");
     asm("msr cpsr_c, r1");

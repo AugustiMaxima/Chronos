@@ -9,8 +9,8 @@ extern Scheduler* scheduler;
 void initializeScheduler(Scheduler* scheduler){
     initializeQueue(&(scheduler->readyQueue));
     int i;
-    for(i=0;i>MAX_TASKS;i++){
-	    scheduler->tasks[i].tId = 0;
+    for(i=0;i<MAX_TASKS;i++){
+	scheduler->tasks[i].tId = 0;
     }
     scheduler->currentTask = NULL;
 }
@@ -18,7 +18,8 @@ void initializeScheduler(Scheduler* scheduler){
 int getAvailableTaskId(Scheduler* scheduler){
     int i;
     for(i=0; i<MAX_TASKS; i++){
-	if(!(scheduler->tasks[i].tId))
+	bwprintf(COM2, "%d %d\r\n", i, scheduler->tasks[i].tId);
+	if(scheduler->tasks[i].tId == 0)
 	    return i+1;
     }
     return 0;
@@ -31,9 +32,9 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
         return -2;
     }
     initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority);
-    bwprintf(COM2, "Would you fucking work if I stop using fancy prints\r\n");
     bwprintf(COM2, "%x\r\n", scheduler->tasks[tId-1].STACK);
-    int* stack = ((int)scheduler->tasks[tId-1].STACK + STACK_SIZE);
+    bwprintf(COM2, "%x\r\n", STACK_SIZE);
+    int* stack = scheduler->tasks[tId-1].STACK + STACK_SIZE;
     int* stack_view = stack;
     bwprintf(COM2, "%x\r\n", stack_view);
     int i;
@@ -45,6 +46,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     stack--;
     scheduler->tasks[tId - 1].stackEntry =  (int*)((int)scheduler->tasks[tId-1].STACK + STACK_SIZE) - 17;
 
+    bwprintf(COM2, "%x\r\n", scheduler->tasks[tId - 1].stackEntry);
     // set r13 (aka sp)
     *stack = scheduler->tasks[tId - 1].stackEntry + 1; //user sp at time of resumption will be missing cpsr
     stack--;
@@ -58,13 +60,19 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
 
     stack --;
 
-    int cpsr = 0 || CPSR_M_USR;
+    int cpsr;
+    
+    asm("MRS %0, CPSR" : "=r"(cpsr));
+
+    cpsr &= ~CPSR_M_FLAG;
+    cpsr |= CPSR_M_USR;
+
     //cpsr status, for hardware interrupt capable trap frame
     *stack = cpsr;
     push(&(scheduler->readyQueue), &(scheduler->tasks[tId-1]));
 
-    for(i=0; i<17; i++){
-	bwprintf(COM2, "R%d:\t%x\r\n", i,  stack_view[i]);
+    for(i=1; i<18; i++){
+	bwprintf(COM2, "R%d:\t%x\r\n", i-1,  stack_view[-i]);
     }
 }
 
@@ -87,7 +95,7 @@ void runFirstAvailableTask(Scheduler* scheduler){
 
 void* runTask(Scheduler* scheduler, int tId){
     Task* currentTask = scheduler->tasks + tId - 1;
-    bwprintf(COM2, "runtask\r\n");
+    bwprintf(COM2, "calling exitKernel runtask\r\n");
     exitKernel(scheduler->tasks[tId - 1].stackEntry);
 }
 
