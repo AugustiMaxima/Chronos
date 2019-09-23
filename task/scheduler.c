@@ -46,7 +46,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     stack--;
     scheduler->tasks[tId - 1].stackEntry =  (int*)((int)scheduler->tasks[tId-1].STACK + STACK_SIZE) - 17;
 
-    bwprintf(COM2, "%x\r\n", scheduler->tasks[tId - 1].stackEntry);
+    bwprintf(COM2, "Stackentry: %x\r\n", scheduler->tasks[tId - 1].stackEntry);
     // set r13 (aka sp)
     *stack = scheduler->tasks[tId - 1].stackEntry + 1; //user sp at time of resumption will be missing cpsr
     stack--;

@@ -8,13 +8,15 @@ void exitKernel(void* processStackPtr){
 
 
 //register level memory dump
+    bwprintf(COM2, "Stackptr: \t %x\r\n", processStackPtr);
+
 
     int i;
     int temp;
     for(i=0;i<17;i++){
         asm("ldr %0, [%1]" :"=r"(temp):"r"(processStackPtr));
         processStackPtr -= 4;
-        bwprintf(COM2, "R%d \t %x", 16-i, temp);
+        bwprintf(COM2, "R%d \t %x\r\n", 16-i, temp);
     }
 
 
