@@ -18,7 +18,7 @@ void initializeScheduler(Scheduler* scheduler){
 int getAvailableTaskId(Scheduler* scheduler){
     int i;
     for(i=0; i<MAX_TASKS; i++){
-	if(!scheduler->tasks[i].tId)
+	if(!(scheduler->tasks[i].tId))
 	    return i+1;
     }
     return 0;
@@ -31,7 +31,11 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
         return -2;
     }
     initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority);
+    bwprintf(COM2, "Would you fucking work if I stop using fancy prints\r\n");
+    bwprintf(COM2, "%x\r\n", scheduler->tasks[tId-1].STACK);
     int* stack = ((int)scheduler->tasks[tId-1].STACK + STACK_SIZE);
+    int* stack_view = stack;
+    bwprintf(COM2, "%x\r\n", stack_view);
     int i;
     // set r0-r12 registers to 0
     for(i=0;i<13;i++){
@@ -58,6 +62,10 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     //cpsr status, for hardware interrupt capable trap frame
     *stack = cpsr;
     push(&(scheduler->readyQueue), &(scheduler->tasks[tId-1]));
+
+    for(i=0; i<17; i++){
+	bwprintf(COM2, "R%d:\t%x\r\n", i,  stack_view[i]);
+    }
 }
 
 void freeTask(Scheduler* scheduler, int tId){

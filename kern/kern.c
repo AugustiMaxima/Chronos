@@ -11,8 +11,8 @@ void exitKernel(void* processStackPtr){
     int i=0;
     int temp;
     for(i=0; i<17; i++){
-        asm("ldr %1, [%0]", :"=r"(temp) :"r"(processStackPtr));
-        ((int*)processStackPtr)--;
+        asm("ldr %1, [%0]" :"=r"(temp) :"r"(processStackPtr));
+        processStackPtr-=4;
         bwprintf(COM2, "%x\r\n", temp);
     }
 

@@ -65,7 +65,11 @@ int main( int argc, char* argv[] ) {
     Scheduler scheduler;
     initializeScheduler(&scheduler);
 
-    scheduleTask(&scheduler, 0, 0, call_user_task);
+    int k = scheduleTask(&scheduler, 0, 0, call_user_task);
+    
+    if(k==-2){
+	bwprintf(COM2, "You dun goofed");
+    }
 
     bwprintf(COM2, "scheduleTask finished\r\n");
 
