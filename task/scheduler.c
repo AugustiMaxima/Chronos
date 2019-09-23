@@ -72,7 +72,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     push(&(scheduler->readyQueue), &(scheduler->tasks[tId-1]));
 
     for(i=1; i<18; i++){
-	bwprintf(COM2, "R%d:\t%x\r\n", i-1,  stack_view[-i]);
+	    bwprintf(COM2, "R%d:\t%x at %u\r\n", i-1,  stack_view[-i], stack_view-i);
     }
 }
 
@@ -89,10 +89,7 @@ void freeTask(Scheduler* scheduler, int tId){
 }
 
 void runFirstAvailableTask(Scheduler* scheduler){
-    bwprintf(COM2, "HELLO from runFirstAvailableTask\r\n");
     Task* task = pop(&(scheduler->readyQueue));
-
-    bwprintf(COM2, "task=%d\r\n", task);
     runTask(scheduler, task->tId);
 }
 
