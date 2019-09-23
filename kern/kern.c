@@ -3,10 +3,20 @@
 
 void exitKernel(void* processStackPtr){
 
-    bwprintf(COM2, "Ride to ruin and the world's ending\r\n") ;   
-
     // save kernel registers on kernel stack
     asm("stmfd sp!, {r0-r12, lr}");
+
+
+//register level memory dump
+
+    int i;
+    int temp;
+    for(i=0;i<17;i++){
+        asm("ldr %0, [%1]" :"=r"(temp):"r"(processStackPtr));
+        processStackPtr -= 4;
+        bwprintf(COM2, "R%d \t %x", 16-i, temp);
+    }
+
 
     //change to user mode
     // cpsr <- *processStackPtr
