@@ -1,5 +1,6 @@
 #include <kern.h>
 #include <bwio.h>
+#include <dump.h>
 
 void exitKernel(void* processStackPtr){
 
@@ -7,17 +8,18 @@ void exitKernel(void* processStackPtr){
     asm("stmfd sp!, {r0-r12, lr}");
 
 
-//register level memory dump
-    bwprintf(COM2, "Stackptr: \t %x\r\n", processStackPtr);
+    // //register level memory dump
+    // void* psp = processStackPtr;
+    // bwprintf(COM2, "Stackptr: \t %x\r\n", psp);
 
 
-    int i;
-    int temp;
-    for(i=0;i<17;i++){
-        asm("ldr %0, [%1]" :"=r"(temp):"r"(processStackPtr));
-        bwprintf(COM2, "R%d \t %x at %d\r\n", 16-i, temp, processStackPtr);
-        processStackPtr += 4;
-    }
+    // int i;
+    // int temp;
+    // for(i=0;i<17;i++){
+    //     asm("ldr %0, [%1]" :"=r"(temp):"r"(psp));
+    //     bwprintf(COM2, "R%d \t %x at %d\r\n", 16-i, temp, psp);
+    //     psp += 4;
+    // }
 
 
     //change to user mode
@@ -28,11 +30,18 @@ void exitKernel(void* processStackPtr){
 
     //restores the stack pointer, minus the cpsr
     // sp <- r0 - 4
-    asm("sub sp, r0, #4");
+    asm("add sp, r0, #4");
 
     //loads user mode registers
     //includes the PC register, and starts executing
-    asm("LDMFD SP!, {R0-PC}");
+    asm("ldmfd SP!, {r0-r14}");
+
+    asm("mov r1, r0");
+    asm("mov r0, #1");
+    asm("bl bwputr");
+
+
+
     //note: requires syscall to be careful of where pc needs to go after execution
     //should work well for interrupt
 }

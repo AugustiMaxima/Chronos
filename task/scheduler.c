@@ -41,7 +41,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     // set r0-r12 registers to 0
     for(i=0;i<13;i++){
         stack--;
-        *stack = 0;
+        *stack = i;
     }
     stack--;
     scheduler->tasks[tId - 1].stackEntry =  (int*)((int)scheduler->tasks[tId-1].STACK + STACK_SIZE) - 17;
@@ -52,6 +52,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     stack--;
 
     // here lies LR - dont write anything
+    *stack = 0xdeadbeef;
 
     stack --;
 
