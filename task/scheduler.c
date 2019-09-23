@@ -37,27 +37,30 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     int* stack = scheduler->tasks[tId-1].STACK + STACK_SIZE;
     int* stack_view = stack;
     bwprintf(COM2, "%x\r\n", stack_view);
-    int i;
-    // set r0-r12 registers to 0
-    for(i=0;i<13;i++){
-        stack--;
-        *stack = i;
-    }
+
+    stack --;
+    //PC
+    *stack = functionPtr;
+
+    stack--;
+    // here lies LR - dont write anything
+    *stack = 0xdeadbeef;
+    
     stack--;
     scheduler->tasks[tId - 1].stackEntry =  (int*)((int)scheduler->tasks[tId-1].STACK + STACK_SIZE) - 17;
 
     bwprintf(COM2, "Stackentry: %x\r\n", scheduler->tasks[tId - 1].stackEntry);
     // set r13 (aka sp)
     *stack = scheduler->tasks[tId - 1].stackEntry + 1; //user sp at time of resumption will be missing cpsr
-    stack--;
 
-    // here lies LR - dont write anything
-    *stack = 0xdeadbeef;
+    int i;
+    // set r0-r12 registers to 0
+    for(i=12;i>=0;i--){
+        stack--;
+        *stack = i;
+    }
 
-    stack --;
 
-    //PC
-    *stack = functionPtr;
 
     stack --;
 
