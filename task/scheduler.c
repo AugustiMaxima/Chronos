@@ -61,7 +61,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     stack --;
 
     int cpsr;
-    
+
     asm("MRS %0, CPSR" : "=r"(cpsr));
 
     cpsr &= ~CPSR_M_FLAG;
@@ -89,11 +89,15 @@ void freeTask(Scheduler* scheduler, int tId){
 }
 
 void runFirstAvailableTask(Scheduler* scheduler){
+    bwprintf(COM2, "HELLO from runFirstAvailableTask\r\n");
     Task* task = pop(&(scheduler->readyQueue));
+
+    bwprintf(COM2, "task=%d\r\n", task);
     runTask(scheduler, task->tId);
 }
 
 void* runTask(Scheduler* scheduler, int tId){
+    bwprintf(COM2, "HELLO from runTask \r\n");
     Task* currentTask = scheduler->tasks + tId - 1;
     bwprintf(COM2, "calling exitKernel runtask\r\n");
     exitKernel(scheduler->tasks[tId - 1].stackEntry);
