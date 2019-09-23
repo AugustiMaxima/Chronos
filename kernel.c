@@ -69,6 +69,8 @@ int main( int argc, char* argv[] ) {
 
     bwprintf(COM2, "scheduleTask finished\r\n");
 
+    bwprintf(COM2, "%x\r\n", call_user_task);
+
     runFirstAvailableTask(&scheduler);
 
     bwprintf(COM2, "after runFirst\r\n");

@@ -1,4 +1,5 @@
 #include <kern.h>
+#include <bwio.h>
 
 void exitKernel(void* processStackPtr){
     // save kernel registers on kernel stack
@@ -6,6 +7,15 @@ void exitKernel(void* processStackPtr){
 
     //change to user mode
     // cpsr <- *processStackPtr
+
+    int i=0;
+    int temp;
+    for(i=0; i<17; i++){
+        asm("ldr %1, [%0]", :"=r"(temp) :"r"(processStackPtr));
+        ((int*)processStackPtr)--;
+        bwprintf(COM2, "%x\r\n", temp);
+    }
+
     asm("ldr r1, [r0]");
     asm("msr cpsr_c, r1");
 
