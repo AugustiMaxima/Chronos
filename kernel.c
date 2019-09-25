@@ -10,6 +10,8 @@
 #include <scheduler.h>
 #include <task.h>
 #include <ARM.h>
+#include <syslib.h>
+#include <syscall.h>
 
 Scheduler* scheduler;
 
@@ -34,7 +36,7 @@ void* first() {
 
 void* __attribute__((naked)) call_user_task() {
     first();
-    yield();
+    getTId();
 }
 
 void* leave_kernel() {
@@ -60,7 +62,7 @@ void* leave_kernel() {
 int main( int argc, char* argv[] ) {
 
 	bwsetfifo(COM2, OFF);
-    installSwiHandler(handle_swi);
+    installSwiHandler(sys_handler);
 
     Scheduler scheduler;
     initializeScheduler(&scheduler);

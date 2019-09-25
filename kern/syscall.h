@@ -22,7 +22,7 @@
 
 //The generic handler
 //Redirects to the approrpiate handler based on the interrupt code
-void sys_handler(int code);
+void sys_handler();
 
 //Eventually
 //void interrupt_handler();

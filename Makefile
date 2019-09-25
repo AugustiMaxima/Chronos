@@ -73,6 +73,15 @@ syscall.o: syscall.s
 syscall.a: syscall.o
 	$(AR) $(ARFLAGS) $@ syscall.o
 
+syslib.s: user/syslib.c
+	$(CC) -S $(CFLAGS) user/syslib.c
+
+syslib.o: syslib.s
+	$(AS) $(ASFLAGS) -o syslib.o syslib.s
+
+syslib.a: syslib.o
+	$(AR) $(ARFLAGS) $@ syslib.o
+
 queue.s: task/queue.c
 	$(CC) -S $(CFLAGS) task/queue.c
 

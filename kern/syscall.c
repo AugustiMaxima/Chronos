@@ -16,7 +16,7 @@ __attribute__((naked)) void sys_handler(){
 
     switch (code){
         case 0:
-            getPid();
+            getTid();
         case 1:
             sysCreateTask();
         default:
@@ -30,6 +30,12 @@ __attribute__((naked)) void sys_handler(){
 
 __attribute__((naked)) void getPid(){
 
+}
+
+__attribute__((naked)) void getTid(){
+    int tId = scheduler->currentTask->tId;
+    scheduler->currentTask->stackEntry[1] = tId;
+    asm("mov pc, lr");
 }
 
 __attribute__((naked)) void sysCreateTask(){
