@@ -36,7 +36,8 @@ void* first() {
 
 void* __attribute__((naked)) call_user_task() {
     first();
-    getTId();
+    int tid = getTId();
+    bwprintf(COM2, "%d\n\r", tid);
 }
 
 void* leave_kernel() {
@@ -70,11 +71,12 @@ int main( int argc, char* argv[] ) {
     int k = scheduleTask(&scheduler, 0, 0, call_user_task);
 
     if(k==-2){
-	    bwprintf(COM2, "Warning: Insufficient task storage");
+	    bwprintf(COM2, "%s", "Warning: Insufficient task storage");
     }
 
     runFirstAvailableTask(&scheduler);
 
+    bwprintf(COM2, "%s", "I'm thinking I'm back\r\n");
 
 	return 0;
 }
