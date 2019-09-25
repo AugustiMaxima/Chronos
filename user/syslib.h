@@ -7,3 +7,5 @@ int createTask(void* functionPtr, int priority);
 int getPId();
 
 int getTId();
+
+int yield();

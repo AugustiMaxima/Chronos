@@ -57,6 +57,7 @@ void exitKernel(void* processStackPtr){
 }
 
 void __attribute__((naked)) enterKernel(){
+    bwprintf(COM2, "entering Kernel\r\n");
     asm("LDR R0, [SP]");
     asm("LDR R1, [SP, #4]");
     asm("LDR R2, [SP, #8]");

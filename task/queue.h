@@ -14,6 +14,7 @@ typedef struct task_Queue{
 void initializeQueue(Queue* queue);
 
 Task* peep(Queue* queue);
+
 Task* pop(Queue* queue);
 
 int push(Queue* queue, Task* task);

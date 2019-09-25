@@ -31,8 +31,8 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a bwio.a scheduler.a
-	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -lscheduler -lgcc
+kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a
+	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -lscheduler -lsyscall -luserprogram -lgcc
 
 dump.s: dump.c
 	$(CC) -S $(CFLAGS) dump.c
@@ -72,6 +72,21 @@ syscall.o: syscall.s
 
 syscall.a: syscall.o
 	$(AR) $(ARFLAGS) $@ syscall.o
+
+syslib.s: user/syslib.c
+	$(CC) -S $(CFLAGS) user/syslib.c
+
+syslib.o: syslib.s
+	$(AS) $(ASFLAGS) -o syslib.o syslib.s
+
+userprogram.s: user/userprogram.c
+	$(CC) -S $(CFLAGS) user/userprogram.c
+
+userprogram.o: userprogram.s
+	$(AS) $(ASFLAGS) -o userprogram.o userprogram.s
+
+userprogram.a: userprogram.o syslib.o
+	$(AR) $(ARFLAGS) $@ userprogram.o syslib.o
 
 queue.s: task/queue.c
 	$(CC) -S $(CFLAGS) task/queue.c

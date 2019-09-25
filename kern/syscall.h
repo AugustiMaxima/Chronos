@@ -1,3 +1,5 @@
+#ifndef SYSCALL_H
+#define SYSCALL_H
 /*
     Interface for all the kernel end sys call handlers
 
@@ -22,12 +24,19 @@
 
 //The generic handler
 //Redirects to the approrpiate handler based on the interrupt code
-void sys_handler(int code);
+void sys_handler();
 
 //Eventually
 //void interrupt_handler();
 
-void sysGetPid();
+void sysYield();
 
+void sysGetTid();
+
+void sysGetPid();
 //no arguments because we will be manually retrieving it from the user stack
 void sysCreateTask();
+
+void setUpSWIHandler(void* handle_swi);
+
+#endif

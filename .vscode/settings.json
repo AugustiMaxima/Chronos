@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "task.h": "c",
-        "scheduler.h": "c"
-    }
-}
