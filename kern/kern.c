@@ -2,7 +2,7 @@
 #include <bwio.h>
 #include <dump.h>
 
-void exitKernel(void* processStackPtr){
+__attribute__((naked)) void exitKernel(void* processStackPtr){
 
     // save kernel registers on kernel stack
     asm("stmfd sp!, {r0-r12, lr}");
@@ -37,7 +37,7 @@ void exitKernel(void* processStackPtr){
     asm("ldmfd SP!, {r0-pc}");
 }
 
-void enterKernel(){
+__attribute__((naked)) void enterKernel(){
     asm("LDMFD SP!, {R0-R12, LR}");
     asm("MOV PC, LR");
 }

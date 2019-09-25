@@ -6,10 +6,10 @@
 extern Scheduler* scheduler;
 
 //TODO: Consider switching this logic to jump table
-void sys_handler(int code){
+__attribute__((naked)) void sys_handler(){
+    int code;
 
-    //First order of business: Update current StackPtr
-    asm("ADD R0, R0, #12");
+    asm("ldr %0, [LR, #-4]" :"=r"(code));
 
     switch (code){
         case 0:
@@ -25,11 +25,11 @@ void sys_handler(int code){
     asm("mov pc, %0" :"=r"(jump));
 }
 
-void getPid(){
+__attribute__((naked)) void getPid(){
 
 }
 
-void sysCreateTask(){
+__attribute__((naked)) void sysCreateTask(){
     void* funcPtr;
     int priority;
     //goes into system mode, in order to unwind the stack and retrieve the additional arguments

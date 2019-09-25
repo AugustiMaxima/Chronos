@@ -31,7 +31,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     if (!tId){
         return -2;
     }
-    initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority, );
+    initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority, READY, functionPtr);
     push(&(scheduler->readyQueue), &(scheduler->tasks[tId-1]));
 }
 

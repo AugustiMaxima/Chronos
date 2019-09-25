@@ -57,7 +57,7 @@ void initializeStack(Task* task, void* functionPtr){
     *stack = cpsr;
 
     bwprintf(COM2, "CPSR:\t%x\r\n", *(task->stackEntry));
-    for(int i=0;i<16;i++){
+    for(i=0;i<16;i++){
         bwprintf("R%d:\t%x\r\n", task->stackEntry[i+1]);
     }
 }
