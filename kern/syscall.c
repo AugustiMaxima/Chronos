@@ -1,3 +1,4 @@
+#include <ARM.h>
 #include <kern.h>
 #include <scheduler.h>
 #include <syscall.h>
@@ -7,9 +8,11 @@ extern Scheduler* scheduler;
 
 //TODO: Consider switching this logic to jump table
 __attribute__((naked)) void sys_handler(){
+    
     int code;
-
     asm("ldr %0, [LR, #-4]" :"=r"(code));
+
+    code &= SWI_OPCODE_MASK;
 
     switch (code){
         case 0:

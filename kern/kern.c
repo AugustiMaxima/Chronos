@@ -5,8 +5,10 @@
 __attribute__((naked)) void exitKernel(void* processStackPtr){
 
     // save kernel registers on kernel stack
-    asm("stmfd sp!, {r0-r12, lr}");
-
+    asm("STMFD SP!, {R0-R15}");
+    asm("ADD R2, PC, #24");
+    //sets where the return address should be
+    asm("STR R2, [SP, #60]");
 
     // //register level memory dump
     // void* psp = processStackPtr;
@@ -25,19 +27,20 @@ __attribute__((naked)) void exitKernel(void* processStackPtr){
     //change to user mode
     // cpsr <- *processStackPtr
 
-    asm("ldr r1, [r0]");
-    asm("msr cpsr_c, r1");
+    asm("LDR R1, [R0]");
+    asm("MSR CPSR_C, R1");
 
     //restores the stack pointer, minus the cpsr
     // sp <- r0 - 4
-    asm("add sp, r0, #4");
+    asm("ADD SP, R0, #4");
 
     //loads user mode registers
     //includes the PC register, and starts executing
-    asm("ldmfd SP!, {r0-pc}");
+    asm("LDMFD SP!, {R0-PC}");
+
+    asm("MOV PC, LR");
 }
 
 __attribute__((naked)) void enterKernel(){
-    asm("LDMFD SP!, {R0-R12, LR}");
-    asm("MOV PC, LR");
+    asm("LDMFD SP!, {R0-R15}");
 }
