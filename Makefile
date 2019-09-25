@@ -31,8 +31,8 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a bwio.a scheduler.a
-	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -lscheduler -lgcc
+kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a syslib.a
+	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -lscheduler -lsyscall -lsyslib -lgcc
 
 dump.s: dump.c
 	$(CC) -S $(CFLAGS) dump.c
