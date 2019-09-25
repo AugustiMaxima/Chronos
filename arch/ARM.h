@@ -1,6 +1,3 @@
-#ifndef ARM_H
-#define ARM_H
-
 /*
     Some much needed header for common constants
 */
@@ -33,8 +30,3 @@
 #define CPSR_F_FLAG 0x00000040
 #define CPSR_T_FLAG 0x00000020
 #define CPSR_M_FLAG 0x0000001f
-
-
-#define SWI_OPCODE_MASK 0x00ffffff
-
-#endif

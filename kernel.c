@@ -10,8 +10,6 @@
 #include <scheduler.h>
 #include <task.h>
 #include <ARM.h>
-#include <syslib.h>
-#include <syscall.h>
 
 Scheduler* scheduler;
 
@@ -36,8 +34,7 @@ void* first() {
 
 void* __attribute__((naked)) call_user_task() {
     first();
-    int tid = getTId();
-    bwprintf(COM2, "%d\n\r", tid);
+    yield();
 }
 
 void* leave_kernel() {
@@ -63,7 +60,7 @@ void* leave_kernel() {
 int main( int argc, char* argv[] ) {
 
 	bwsetfifo(COM2, OFF);
-    installSwiHandler(sys_handler);
+    installSwiHandler(handle_swi);
 
     Scheduler scheduler;
     initializeScheduler(&scheduler);
@@ -71,12 +68,20 @@ int main( int argc, char* argv[] ) {
     int k = scheduleTask(&scheduler, 0, 0, call_user_task);
 
     if(k==-2){
-	    bwprintf(COM2, "%s", "Warning: Insufficient task storage\r\n");
+	    bwprintf(COM2, "You dun goofed");
     }
 
+    bwprintf(COM2, "scheduleTask finished, calling runfirst available task\r\n");
     runFirstAvailableTask(&scheduler);
 
-    bwprintf(COM2, "%s", "I'm thinking I'm back\r\n");
+    bwprintf(COM2, "after runFirst\r\n");
+
+
+
+    // // kernel loop
+    // leave_kernel();
+
+    // bwprintf(COM2, "after leave_kernel\r\n");
 
 	return 0;
 }

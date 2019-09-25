@@ -22,14 +22,12 @@
 
 //The generic handler
 //Redirects to the approrpiate handler based on the interrupt code
-void sys_handler();
+void sys_handler(int code);
 
 //Eventually
 //void interrupt_handler();
 
-void sysGetPId();
+void sysGetPid();
 
 //no arguments because we will be manually retrieving it from the user stack
 void sysCreateTask();
-
-void sysGetTId();

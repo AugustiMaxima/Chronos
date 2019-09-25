@@ -24,7 +24,7 @@ typedef struct os_Task{
     taskStatus status;
 } Task;
 
-void initializeTask(Task* task, int tId, int pId, int priority, taskStatus status, void* entryPoint);
+void initializeTask(Task* task, int tId, int pId, int priority);
 
 int appendChildTasks(Task* task, int tId);
 

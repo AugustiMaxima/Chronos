@@ -1,4 +1,3 @@
-#include <ARM.h>
 #include <kern.h>
 #include <scheduler.h>
 #include <syscall.h>
@@ -7,20 +6,17 @@
 extern Scheduler* scheduler;
 
 //TODO: Consider switching this logic to jump table
-__attribute__((naked)) void sys_handler(){
-    
-    int code;
-    asm("ldr %0, [LR, #-4]" :"=r"(code));
+void sys_handler(int code){
 
-    code &= SWI_OPCODE_MASK;
+    //First order of business: Update current StackPtr
+    asm("ADD R0, R0, #12");
 
     switch (code){
         case 0:
-            sysGetTId();
+            getPid();
         case 1:
             sysCreateTask();
         default:
-            ;
     }
     
     void* jump = handleSuspendedTasks;
@@ -29,17 +25,11 @@ __attribute__((naked)) void sys_handler(){
     asm("mov pc, %0" :"=r"(jump));
 }
 
-__attribute__((naked)) void sysGetPId(){
+void getPid(){
 
 }
 
-__attribute__((naked)) void sysGetTId(){
-    int tId = scheduler->currentTask->tId;
-    scheduler->currentTask->stackEntry[1] = tId;
-    asm("mov pc, lr");
-}
-
-__attribute__((naked)) void sysCreateTask(){
+void sysCreateTask(){
     void* funcPtr;
     int priority;
     //goes into system mode, in order to unwind the stack and retrieve the additional arguments
@@ -49,8 +39,8 @@ __attribute__((naked)) void sysCreateTask(){
     asm("MSR CPSR, R0");
 
     //arguments are stored and retrieved in ascending order
-    asm("LDR %0, [SP]" : "=r" (funcPtr));
-    asm("LDR %0, [SP, #4]" : "=r" (priority));
+    asm("LDR %1, [SP]", :: "r" (funcPtr));
+    asm("LDR %1, [SP, 4]", :: "r" (priority));
     asm("ADD SP, SP, #8");
     
     asm("MRS R0, CPSR");
