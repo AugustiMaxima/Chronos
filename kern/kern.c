@@ -34,7 +34,7 @@ void exitKernel(void* processStackPtr){
 
     //loads user mode registers
     //includes the PC register, and starts executing
-    asm("ldmfd SP!, {r0-pc}");
+    asm("ldmfd SP, {r0-pc}");
 }
 
 void enterKernel(){
