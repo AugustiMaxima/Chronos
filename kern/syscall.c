@@ -28,11 +28,11 @@ __attribute__((naked)) void sys_handler(){
     asm("mov pc, %0" :"=r"(jump));
 }
 
-__attribute__((naked)) void getPid(){
+__attribute__((naked)) void sysGetPId(){
 
 }
 
-__attribute__((naked)) void getTid(){
+__attribute__((naked)) void sysGetTId(){
     int tId = scheduler->currentTask->tId;
     scheduler->currentTask->stackEntry[1] = tId;
     asm("mov pc, lr");

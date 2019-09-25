@@ -27,7 +27,9 @@ void sys_handler();
 //Eventually
 //void interrupt_handler();
 
-void sysGetPid();
+void sysGetPId();
 
 //no arguments because we will be manually retrieving it from the user stack
 void sysCreateTask();
+
+void sysGetTId();
