@@ -45,7 +45,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     stack--;
     // here lies LR - dont write anything
     *stack = 0xdeadbeef;
-    
+
     stack--;
     scheduler->tasks[tId - 1].stackEntry =  (int*)((int)scheduler->tasks[tId-1].STACK + STACK_SIZE) - 17;
 
@@ -97,10 +97,7 @@ void runFirstAvailableTask(Scheduler* scheduler){
     runTask(scheduler, task->tId);
 }
 
-void* runTask(Scheduler* scheduler, int tId){
-    bwprintf(COM2, "HELLO from runTask \r\n");
-    Task* currentTask = scheduler->tasks + tId - 1;
-    bwprintf(COM2, "calling exitKernel runtask\r\n");
+void runTask(Scheduler* scheduler, int tId){
     exitKernel(scheduler->tasks[tId - 1].stackEntry);
 }
 

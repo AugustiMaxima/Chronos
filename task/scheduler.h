@@ -21,7 +21,7 @@ void freeTask(Scheduler* scheduler, int tId);
 
 void runFirstAvailableTask(Scheduler* scheduler);
 
-void* runTask(Scheduler* scheduler, int tId);
+void runTask(Scheduler* scheduler, int tId);
 
 void handleSuspendedTasks();
 

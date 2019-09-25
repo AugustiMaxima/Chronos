@@ -5,12 +5,12 @@ int ring(int num){
     return num % QUEUE_SIZE;
 }
 
-int ringCapacity(Queue* queue){
-    return QUEUE_SIZE - (ringFill(queue));
-}
-
 int ringFill(Queue* queue){
     return queue->length - queue->cursor;
+}
+
+int ringCapacity(Queue* queue){
+    return QUEUE_SIZE - (ringFill(queue));
 }
 
 void initializeQueue(Queue* queue){
