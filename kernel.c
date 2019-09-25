@@ -29,9 +29,25 @@ void __attribute__((naked)) handle_swi () {
     asm("MRS R0, CPSR");
     asm("SUB R0, R0, #12");
     asm("MSR CPSR, R0");
+    
+    asm("LDR R0, [SP]");
+    asm("LDR R1, [SP, #4]");
+    asm("LDR R2, [SP, #8]");
+    asm("LDR R3, [SP, #12]");
+    asm("LDR R4, [SP, #16]");
+    asm("LDR R5, [SP, #20]");
+    asm("LDR R6, [SP, #24]");
+    asm("LDR R7, [SP, #28]");
+    asm("LDR R8, [SP, #32]");
+    asm("LDR R9, [SP, #36]");
+    asm("LDR R10, [SP, #40]");
+    asm("LDR R11, [SP, #44]");
+    asm("LDR R12, [SP, #48]");
+    asm("LDR R13, [SP, #52]");
+    asm("LDR R14, [SP, #56]");
+    asm("ADD SP, SP, #64");
+    asm("LDR R15, [SP, #-4]");
 
-
-    asm("LDMFD SP!, {R0-R12, LR}");
     asm("mov pc, lr");
 }
 
@@ -85,7 +101,7 @@ int main( int argc, char* argv[] ) {
     int k = scheduleTask(&scheduler, 0, 0, call_user_task);
 
     if (k==-2){
-	    bwprintf(COM2, "You dun goofed");
+	bwprintf(COM2, "You dun goofed");
     }
 
     int firstTid = getFirstAvailableTask(&scheduler);
@@ -95,8 +111,8 @@ int main( int argc, char* argv[] ) {
 
     // the following lines are not interchangeable
 
-    runTask(&scheduler, firstTid);
-    // exitKernel(scheduler.tasks[firstTid - 1].stackEntry);
+    //runTask(&scheduler, firstTid);
+    exitKernel(scheduler.tasks[firstTid - 1].stackEntry);
 
     bwprintf(COM2, "runTask done\r\n");
     printSp();
