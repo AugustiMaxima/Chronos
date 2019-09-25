@@ -62,6 +62,6 @@ int getTId(){
     asm("STR R2, [SP]");
     //argument stuffing now
     asm("SWI 0");
-    asm("mov %0, R0", :"=r"(tId));
+    asm("mov %0, R0" :"=r"(tId));
     return tId;
 }
