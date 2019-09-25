@@ -21,7 +21,15 @@ void initializeQueue(Queue* queue){
 Task* pop(Queue* queue){
     if (ringFill(queue)) {
         Task* ret = queue->queue[ring(queue->cursor++)];
-        bwprintf(COM2, "returning %d\r\n", ret);
+	    return ret;
+    } else {
+	    return 0;
+    }
+};
+
+Task* peep(Queue* queue){
+    if (ringFill(queue)) {
+        Task* ret = queue->queue[ring(queue->cursor)];
 	    return ret;
     } else {
 	    return 0;

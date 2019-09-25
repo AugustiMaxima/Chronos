@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <scheduler.h>
 #include <bwio.h>
+#include <dump.h>
 
 extern Scheduler* scheduler;
 
@@ -92,7 +93,12 @@ void freeTask(Scheduler* scheduler, int tId){
     scheduler->tasks[tId-1].tId = 0;
 }
 
-void runFirstAvailableTask(Scheduler* scheduler){
+int getFirstAvailableTask(Scheduler* scheduler) {
+    Task* task = peep(&(scheduler->readyQueue));
+    return task->tId;
+}
+
+void runFirstAvailableTask(Scheduler* scheduler) {
     Task* task = pop(&(scheduler->readyQueue));
     runTask(scheduler, task->tId);
 }
@@ -102,7 +108,7 @@ void runTask(Scheduler* scheduler, int tId){
 }
 
 
-void handleSuspendedTasks(){
+void __attribute__((naked)) handleSuspendedTasks(){
     void* stackPtr;
 
     //changes from svc to sys mode
@@ -110,6 +116,9 @@ void handleSuspendedTasks(){
     //12 is the distance from svc to sys mode
     asm("ADD R0, R0, #12");
     asm("MSR CPSR, R0");
+
+    bwprintf(COM2, "handleSuspendedTask\r\n");
+    printCurrentMode();
 
     asm("MOV %0, SP" ::"r"(stackPtr));
 
@@ -120,7 +129,7 @@ void handleSuspendedTasks(){
 
     scheduler->currentTask->stackEntry = stackPtr;
     //TODO: Figure out and design the blocked queue based on different conditions and status
-    //Current iteration : Pretend every suspended task will be ready again right now
+    // Current iteration : Pretend every suspended task will be ready again right now
     scheduler->currentTask->status = READY;
     push(&(scheduler->readyQueue), scheduler->currentTask);
     scheduler->currentTask = NULL;

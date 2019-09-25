@@ -7,24 +7,6 @@ void exitKernel(void* processStackPtr){
     // save kernel registers on kernel stack
     asm("stmfd sp!, {r0-r12, lr}");
 
-
-    // //register level memory dump
-    // void* psp = processStackPtr;
-    // bwprintf(COM2, "Stackptr: \t %x\r\n", psp);
-
-
-    // int i;
-    // int temp;
-    // for(i=0;i<17;i++){
-    //     asm("ldr %0, [%1]" :"=r"(temp):"r"(psp));
-    //     bwprintf(COM2, "R%d \t %x at %d\r\n", 16-i, temp, psp);
-    //     psp += 4;
-    // }
-
-
-    //change to user mode
-    // cpsr <- *processStackPtr
-
     asm("ldr r1, [r0]");
     asm("msr cpsr_c, r1");
 
