@@ -39,7 +39,6 @@ void* yield() {
     bwprintf(COM2, "yielding\r\n");
     asm("MOV %0, SP" :"=r"(stackPtr));
 
-
     // asm("STMFD SP, {R0-PC}");
     // asm("MOV R2, PC"); // <--------------- This is the point where the PC is stored, count downwards from here
     // asm("ADD R2, r2, #24");
@@ -57,6 +56,7 @@ void* yield() {
 
 void* first() {
     bwprintf(COM2, "First task\r\n");
+    asm("mov r4, #0x42");
     printCurrentMode();
     printSp();
 }
@@ -64,6 +64,14 @@ void* first() {
 void* __attribute__((naked)) call_user_task() {
     first();
     yield();
+}
+
+void printSavedContext(int* sp) {
+    bwprintf(COM2, "printSavedContext\r\n");
+    int i;
+    for (i = 0; i < 17; i++) {
+        bwprintf(COM2, "%x\t\t%x\r\n", sp + i, *(sp + i));
+    }
 }
 
 int main( int argc, char* argv[] ) {
@@ -76,20 +84,22 @@ int main( int argc, char* argv[] ) {
 
     int k = scheduleTask(&scheduler, 0, 0, call_user_task);
 
-    if(k==-2){
+    if (k==-2){
 	    bwprintf(COM2, "You dun goofed");
     }
 
     int firstTid = getFirstAvailableTask(&scheduler);
 
-    bwprintf(COM2, "runFirstAvailableTask\r\n");
+    bwprintf(COM2, "runTask\r\n");
+    printSp();
+
+    // the following lines are not interchangeable
+
     runTask(&scheduler, firstTid);
-    bwprintf(COM2, "ran first\r\n");
+    // exitKernel(scheduler.tasks[firstTid - 1].stackEntry);
 
-    // asm("msr cpsr_c, %0" : "=r" (stackPtr));
-
-    // printCurrentMode();
-
+    bwprintf(COM2, "runTask done\r\n");
+    printSp();
 
 
 

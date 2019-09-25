@@ -33,9 +33,14 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
         return -2;
     }
     initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority);
-    bwprintf(COM2, "%x\r\n", scheduler->tasks[tId-1].STACK);
+
+    char* stack_base = scheduler->tasks[tId-1].STACK;
+    // debug only; separate user and kernel stack by large offsets
+    stack_base = 0x0070000;
+
+    bwprintf(COM2, "%x\r\n", stack_base);
     bwprintf(COM2, "%x\r\n", STACK_SIZE);
-    int* stack = scheduler->tasks[tId-1].STACK + STACK_SIZE;
+    int* stack = stack_base + STACK_SIZE;
     int* stack_view = stack;
     bwprintf(COM2, "%x\r\n", stack_view);
 
@@ -48,7 +53,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     *stack = 0xdeadbeef;
 
     stack--;
-    scheduler->tasks[tId - 1].stackEntry =  (int*)((int)scheduler->tasks[tId-1].STACK + STACK_SIZE) - 17;
+    scheduler->tasks[tId - 1].stackEntry =  (int*)((int)stack_base + STACK_SIZE) - 17;
 
     bwprintf(COM2, "Stackentry: %x\r\n", scheduler->tasks[tId - 1].stackEntry);
     // set r13 (aka sp)
@@ -60,8 +65,6 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
         stack--;
         *stack = i;
     }
-
-
 
     stack --;
 
@@ -84,11 +87,11 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
 void freeTask(Scheduler* scheduler, int tId){
     int i;
     for(i=0;i<MAX_CHILDREN;i++){
-	int cId = scheduler->tasks[tId-1].childTasks[i];
-	if(cId){
-	    scheduler->tasks[cId-1].pId = 0;
-	}
-	scheduler->tasks[tId-1].childTasks[i] = 0;
+        int cId = scheduler->tasks[tId-1].childTasks[i];
+        if(cId){
+            scheduler->tasks[cId-1].pId = 0;
+        }
+        scheduler->tasks[tId-1].childTasks[i] = 0;
     }
     scheduler->tasks[tId-1].tId = 0;
 }
@@ -105,6 +108,7 @@ void runFirstAvailableTask(Scheduler* scheduler) {
 
 void runTask(Scheduler* scheduler, int tId){
     exitKernel(scheduler->tasks[tId - 1].stackEntry);
+    bwprintf(COM2, "end of runTask\r\n");
 }
 
 
