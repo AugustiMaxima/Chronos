@@ -50,7 +50,7 @@ __attribute__((naked)) void sysCreateTask(){
 
     //arguments are stored and retrieved in ascending order
     asm("LDR %0, [SP]" : "=r" (funcPtr));
-    asm("LDR %0, [SP, 4]" : "=r" (priority));
+    asm("LDR %0, [SP, #4]" : "=r" (priority));
     asm("ADD SP, SP, #8");
     
     asm("MRS R0, CPSR");
