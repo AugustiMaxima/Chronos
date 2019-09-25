@@ -76,7 +76,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     push(&(scheduler->readyQueue), &(scheduler->tasks[tId-1]));
 
     for(i=1; i<18; i++){
-	    bwprintf(COM2, "R%d:\t%x at %u\r\n", i-1,  stack_view[-i], stack_view-i);
+	    bwprintf(COM2, "R%d:\t%x  \t%x\r\n", 16-i,  stack_view-i, stack_view[-i]);
     }
 }
 
