@@ -71,7 +71,7 @@ int main( int argc, char* argv[] ) {
     int k = scheduleTask(&scheduler, 0, 0, call_user_task);
 
     if(k==-2){
-	    bwprintf(COM2, "%s", "Warning: Insufficient task storage");
+	    bwprintf(COM2, "%s", "Warning: Insufficient task storage\r\n");
     }
 
     runFirstAvailableTask(&scheduler);
