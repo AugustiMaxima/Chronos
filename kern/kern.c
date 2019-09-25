@@ -5,7 +5,7 @@
 __attribute__((naked)) void exitKernel(void* processStackPtr){
 
     // save kernel registers on kernel stack
-    asm("STMFD SP!, {R0-R15}");
+    asm("STMFD SP!, {R0-PC}");
     asm("ADD R2, PC, #24");
     //sets where the return address should be
     asm("STR R2, [SP, #60]");
@@ -28,7 +28,7 @@ __attribute__((naked)) void exitKernel(void* processStackPtr){
     // cpsr <- *processStackPtr
 
     asm("LDR R1, [R0]");
-    asm("MSR CPSR_C, R1");
+    asm("MSR CPSR_c, R1");
 
     //restores the stack pointer, minus the cpsr
     // sp <- r0 - 4
@@ -42,5 +42,5 @@ __attribute__((naked)) void exitKernel(void* processStackPtr){
 }
 
 __attribute__((naked)) void enterKernel(){
-    asm("LDMFD SP!, {R0-R15}");
+    asm("LDMFD SP!, {R0-PC}");
 }
