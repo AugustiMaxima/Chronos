@@ -58,21 +58,46 @@ Lennox Fei
 
 \subsection*{Context Switch}
 
-Context switch from user mode to kernel is done by the \texttt{SWI <n>} instruction, and context switch from kernel to user mode is done by restoring a saved user mode CPSR register from memory which sets the processor mode to user mode.
+Context switch from user mode to kernel is done by the \texttt{SWI <n>} instruction, where \texttt{<n>} specifies which syscall should be made, and context switch from kernel to user mode is done by restoring a saved user mode CPSR register from memory which sets the processor mode to user mode.
 
 At startup, the \texttt{setUpSWIHandler} handler function is used to install the \texttt{sys\_handler} as the handler for \texttt{SWI}. This is done by writing the absolute address of \texttt{sys\_handler} to \texttt{0x28} and the instruction \texttt{LDR pc, [pc, \#0x18]} to \texttt{0x08}. \texttt{sys\_handler} expects to be in svc mode, with the sp pointing to a trap frame with the saved kernel context. It
 
 \begin{enumerate}
-\item Get the exact \texttt{SWI} instruction and pass it to the syscall handling system
+\item Get the exact \texttt{SWI} instruction and pass it to the kernel syscall handling system
 \item Get the user mode sp and write it to the current TD
 \item Restore kernel context from the trap frame
 \end{enumerate}
 
+The kernel syscall handling system is responsibe for removing syscall arguments from the stack and doing the call (e.g. creating a new task) and writing the syscall return value into the task's memory.
 
-\subsection*{Task Descriptiors}
+When a syscall is made from the user side, the following steps are taken:
 
-\subsection*{Syscalls}
+\begin{enumerate}
+\item User context is saved on the stack as a trap frame, with a modified PC
+\item Syscall arguments are pushed onto the stack
+\item \texttt{SWI <n>}
+\end{enumerate}
 
+Modified PC: the PC saved in the trap frame is the instruction after the SWI, instead of the PC at the time when the trap frame is created.
+
+Within the kernel, a loop runs the next available task by switching from kernel to user. The SWI handler returns control to immediately after, i.e., into a new iteration of the loop. The switch from kernel to user does:
+
+\begin{enumerate}
+\item Save kernel context onto a trap frame, with modified PC
+\item Restore user context (including CPSR)
+\end{enumerate}
+
+\subsection*{Task Descriptors}
+
+Task descriptors are stored a struct with the TID, the parent TID, the task priority, the stack base, and the task stack entry. The stack base is declared as \texttt{char STACK[STACK\_SIZE]}. Since the TDs have static storage (via the global scheduler variable), the compiler allocates \texttt{STACK\_SIZE} worth of space within the struct.
+
+\subsection*{Task Initialization}
+
+When a task is created (e.g. first user task or via \texttt{Create}), we initialize the memory by creating an appropriate trap frame.
+
+\subsection*{Scheduling}
+
+[TODO]: ring, priority queues
 
 \section*{4. Code repository}
 
