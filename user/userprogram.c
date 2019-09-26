@@ -22,7 +22,6 @@ void userCall(){
     bwprintf(COM2, "Created: %d\r\n", ret);
     bwprintf(COM2, "FirstUserTask: Exit\r\n");
 
-    Exit();
 }
 
 void magicExit(){

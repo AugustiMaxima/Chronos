@@ -23,7 +23,8 @@ CFLAGS = -O0 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 # -T: use linker script
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
-LIBS = -lbwio -ldump -lscheduler -lsyscall -luserprogram -lgcc
+LIBS = -lbwio -ldump -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -lsyslib -ltask -lgcc
+
 all: kernel.elf
 
 kernel.s: kernel.c
@@ -32,7 +33,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a
+kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a syslib.a queue.a kern.a task.a priorityQueue.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: dump.c
@@ -59,11 +60,17 @@ task.s: task/task.c
 task.o: task.s
 	$(AS) $(ASFLAGS) -o task.o task.s
 
+task.a: task.o
+	$(AR) $(ARFLAGS) $@ task.o
+
 kern.s: kern/kern.c
 	$(CC) -S $(CFLAGS) kern/kern.c
 
 kern.o: kern.s
 	$(AS) $(ASFLAGS) -o kern.o kern.s
+
+kern.a: kern.o
+	$(AR) $(ARFLAGS) $@ kern.o
 
 syscall.s: kern/syscall.c
 	$(CC) -S $(CFLAGS) kern/syscall.c
@@ -80,14 +87,17 @@ syslib.s: user/syslib.c
 syslib.o: syslib.s
 	$(AS) $(ASFLAGS) -o syslib.o syslib.s
 
+syslib.a: syslib.o
+	$(AR) $(ARFLAGS) $@ syslib.o
+
 userprogram.s: user/userprogram.c
 	$(CC) -S $(CFLAGS) user/userprogram.c
 
 userprogram.o: userprogram.s
 	$(AS) $(ASFLAGS) -o userprogram.o userprogram.s
 
-userprogram.a: userprogram.o syslib.o
-	$(AR) $(ARFLAGS) $@ userprogram.o syslib.o
+userprogram.a: userprogram.o
+	$(AR) $(ARFLAGS) $@ userprogram.o
 
 queue.s: task/queue.c
 	$(CC) -S $(CFLAGS) task/queue.c
@@ -95,14 +105,26 @@ queue.s: task/queue.c
 queue.o: queue.s
 	$(AS) $(ASFLAGS) -o queue.o queue.s
 
+queue.a: queue.o
+	$(AR) $(ARFLAGS) $@ queue.o
+
+priorityQueue.s: task/priorityQueue.c
+	$(CC) -S $(CFLAGS) task/priorityQueue.c
+
+priorityQueue.o: priorityQueue.s
+	$(AS) $(ASFLAGS) -o priorityQueue.o priorityQueue.s
+
+priorityQueue.a: priorityQueue.o
+	$(AR) $(ARFLAGS) $@ priorityQueue.o
+
 scheduler.s: task/scheduler.c
 	$(CC) -S $(CFLAGS) task/scheduler.c
 
 scheduler.o: scheduler.s
 	$(AS) $(ASFLAGS) -o scheduler.o scheduler.s
 
-scheduler.a: scheduler.o queue.o kern.o task.o
-	$(AR) $(ARFLAGS) $@ scheduler.o queue.o kern.o task.o
+scheduler.a: scheduler.o
+	$(AR) $(ARFLAGS) $@ scheduler.o
 
 .PHONY: install clean
 
