@@ -2,6 +2,7 @@
 #include <bwio.h>
 
 int createTask(void* functionPtr, int priority){
+    bwprintf("Meta column A: %d, %x\r\n", priority, functionPtr);
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -30,6 +31,7 @@ int createTask(void* functionPtr, int priority){
     asm("STR R1, [SP, #4]");
     asm("SWI 1");
     //<---- PC return points here
+    bwprintf(COM2, "Task created!\r\n");
 }
 
 int getPId(){
@@ -41,15 +43,15 @@ int getTId(){
 }
 
 int yield(){
-    int* sp, pc;
-    asm("mov %0, PC" : "=r"(pc));
-    asm("mov %0, SP" :"=r"(sp));
-    int i=0;
-    bwprintf(COM2, "\r\nPC: %x\r\n", pc);
-    for(i=0;i<5;i++){
-        bwprintf(COM2, "SP drift: %x\r\n", sp[i]);
-    }
-    bwprintf(COM2, "SP drift: %x\r\n", sp);
+    // int* sp, pc;
+    // asm("mov %0, PC" : "=r"(pc));
+    // asm("mov %0, SP" :"=r"(sp));
+    // int i=0;
+    // bwprintf(COM2, "\r\nPC: %x\r\n", pc);
+    // for(i=0;i<5;i++){
+    //     bwprintf(COM2, "SP drift: %x\r\n", sp[i]);
+    // }
+    // bwprintf(COM2, "SP drift: %x\r\n", sp);
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -73,11 +75,12 @@ int yield(){
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
     asm("SWI 0");
+    return 0;
     //<---- PC return points here    
-    asm("mov %0, SP" :"=r"(sp));
-    for(i=0;i<5;i++){
-        bwprintf(COM2, "SP drift: %x\r\n", sp[i]);
-    }
+    // asm("mov %0, SP" :"=r"(sp));
+    // for(i=0;i<5;i++){
+    //     bwprintf(COM2, "SP drift: %x\r\n", sp[i]);
+    // }
     // bwprintf(COM2, "SP drift: %x\r\n", sp);
 }
 

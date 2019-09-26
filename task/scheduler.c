@@ -47,6 +47,8 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority, READY, functionPtr);
 
     push(&(scheduler->readyQueue), &(scheduler->tasks[tId-1]));
+
+    return 0;
 }
 
 void freeTask(Scheduler* scheduler, int tId){
@@ -114,6 +116,9 @@ void __attribute__((naked)) handleSuspendedTasks(){
     scheduler->currentTask->status = READY;
     int cod = push(&(scheduler->readyQueue), scheduler->currentTask);
     scheduler->currentTask = NULL;
+
+    bwprintf(COM2,"User program halt, trapframe printing!\r\n");
+    printRegisters(stackPtr);
 
     void* jump = enterKernel;
 

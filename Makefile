@@ -109,4 +109,4 @@ clean:
 	-rm -f kernel.elf *.s *.o *.a
 
 install: kernel.elf
-	-cp kernel.elf /u/cs452/tftp/ARM/x538li
+	-cp kernel.elf /u/cs452/tftp/ARM/f5fei

@@ -30,3 +30,5 @@
 #define CPSR_F_FLAG 0x00000040
 #define CPSR_T_FLAG 0x00000020
 #define CPSR_M_FLAG 0x0000001f
+
+#define SWI_OPCODE_FLAG 0x00ffffff
