@@ -9,7 +9,7 @@
 typedef struct os_Scheduler{
     Task tasks[MAX_TASKS];
     Task* currentTask;
-    Queue readyQueue;
+    Queue readyQueue[3];
 } Scheduler;
 
 
@@ -22,6 +22,8 @@ void freeTask(Scheduler* scheduler, int tId);
 void runFirstAvailableTask(Scheduler* scheduler);
 
 void runTask(Scheduler* scheduler, int tId);
+
+int insertTaskToQueue(Scheduler* scheduler, Task* task);
 
 void handleSuspendedTasks();
 

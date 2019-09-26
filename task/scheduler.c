@@ -23,10 +23,12 @@ void printTask(Task* task){
 }
 
 void initializeScheduler(Scheduler* scheduler){
-    initializeQueue(&(scheduler->readyQueue));
+    initializeQueue(&(scheduler->readyQueue[0]));
+    initializeQueue(&(scheduler->readyQueue[1]));
+    initializeQueue(&(scheduler->readyQueue[2]));
     int i;
     for(i=0;i<MAX_TASKS;i++){
-	scheduler->tasks[i].tId = 0;
+	    scheduler->tasks[i].tId = 0;
     }
     scheduler->currentTask = NULL;
 }
@@ -49,7 +51,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     }
     initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority, READY, functionPtr);
 
-    push(&(scheduler->readyQueue), &(scheduler->tasks[tId-1]));
+    insertTaskToQueue(scheduler, &(scheduler->tasks[tId-1]));
 
     return 0;
 }
@@ -72,7 +74,11 @@ int getFirstAvailableTask(Scheduler* scheduler) {
 }
 
 void runFirstAvailableTask(Scheduler* scheduler) {
-    Task* task = pop(&(scheduler->readyQueue));
+    Task* task = NULL;
+    int i=0;
+    for(i=0;i<3 & !task;i++){
+        task = pop(&scheduler->readyQueue[i]);
+    }
     if(task){
         runTask(scheduler, task->tId);
     } else{
@@ -89,6 +95,17 @@ void runTask(Scheduler* scheduler, int tId){
     // bwprintf(COM2, "end of runTask\r\n");
 }
 
+int insertTaskToQueue(Scheduler* scheduler, Task* task){
+    if(task->priority>0){
+        push(&(scheduler->readyQueue[0]), task);
+    }
+    if(task->priority==0){
+        push(&(scheduler->readyQueue[1]), task);
+    }
+    if(task->priority<0){
+        push(&(scheduler->readyQueue[2]), task);
+    }
+}
 
 void handleSuspendedTasks(){
     void* stackPtr;
@@ -117,7 +134,8 @@ void handleSuspendedTasks(){
     //TODO: Figure out and design the blocked queue based on different conditions and status
     // Current iteration : Pretend every suspended task will be ready again right now
     if(scheduler->currentTask->status == RUNNING){
-        int code = push(&(scheduler->readyQueue), scheduler->currentTask);
+        scheduler->currentTask->status == READY;
+        int code = insertTaskToQueue(scheduler, scheduler->currentTask);
     }
     scheduler->currentTask = NULL;
 
