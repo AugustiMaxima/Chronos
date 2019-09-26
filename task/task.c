@@ -1,5 +1,6 @@
 #include <ARM.h>
 #include <task.h>
+#include <syslib.h>
 #include <bwio.h>
 
 
@@ -29,7 +30,7 @@ void initializeStack(Task* task, void* functionPtr){
     stack--;
 
     //TODO: Set up exit handler
-    *stack = 0xdeadbeef;
+    *stack = exit;
 
     stack--;
 

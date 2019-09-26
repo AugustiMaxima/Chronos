@@ -19,5 +19,4 @@ void userCall(){
 
     bwprintf(COM2, "%s", "Look at that, I survived bitch\r\n");
 
-    exit();
 }
