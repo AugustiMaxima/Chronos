@@ -29,11 +29,12 @@ int main( int argc, char* argv[] ) {
 
     scheduleTask(scheduler, 0, 0, userCall);
 
-    runFirstAvailableTask(scheduler);
+    int i;
+    for (i=0; i<50; i++) {
+        runFirstAvailableTask(scheduler);
+    }
 
-    bwprintf(COM2, "%s\r\n", "Back!");
-
-    runFirstAvailableTask(scheduler);
+    bwprintf(COM2, "size: %d\r\n", ringFill(&(scheduler->readyQueue)));
 
 	return 0;
 }
