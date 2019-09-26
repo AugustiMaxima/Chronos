@@ -53,7 +53,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
 
     insertTaskToQueue(scheduler, &(scheduler->tasks[tId-1]));
 
-    return 0;
+    return tId;
 }
 
 void freeTask(Scheduler* scheduler, int tId){
