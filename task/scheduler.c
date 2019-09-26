@@ -87,7 +87,7 @@ void runTask(Scheduler* scheduler, int tId){
 }
 
 
-void __attribute__((naked)) handleSuspendedTasks(){
+void handleSuspendedTasks(){
     void* stackPtr;
     //changes from svc to sys mode
     asm("MRS R0, CPSR");
@@ -119,9 +119,4 @@ void __attribute__((naked)) handleSuspendedTasks(){
 
     bwprintf(COM2,"User program halt, trapframe printing!\r\n");
     printRegisters(stackPtr);
-
-    void* jump = enterKernel;
-
-    //jumps here to hand off handling suspended tasks
-    asm("mov pc, %0" :"=r"(jump));
 }

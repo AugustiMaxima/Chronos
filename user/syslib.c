@@ -43,15 +43,6 @@ int getTId(){
 }
 
 int yield(){
-    // int* sp, pc;
-    // asm("mov %0, PC" : "=r"(pc));
-    // asm("mov %0, SP" :"=r"(sp));
-    // int i=0;
-    // bwprintf(COM2, "\r\nPC: %x\r\n", pc);
-    // for(i=0;i<5;i++){
-    //     bwprintf(COM2, "SP drift: %x\r\n", sp[i]);
-    // }
-    // bwprintf(COM2, "SP drift: %x\r\n", sp);
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -76,12 +67,6 @@ int yield(){
     asm("STR R2, [SP]");
     asm("SWI 0");
     return 0;
-    //<---- PC return points here    
-    // asm("mov %0, SP" :"=r"(sp));
-    // for(i=0;i<5;i++){
-    //     bwprintf(COM2, "SP drift: %x\r\n", sp[i]);
-    // }
-    // bwprintf(COM2, "SP drift: %x\r\n", sp);
 }
 
 int border(){

@@ -18,18 +18,19 @@ void jumpTable(int code){
         default:
             ;
     }
-    
 }
 
 //TODO: Consider switching this logic to jump table
 void __attribute__((naked)) sys_handler(){
-    asm("LDR %0, [LR, #-4]":"=r");
-    
+    asm("LDR R0, [LR, #-4]");
 
-    void* jump = handleSuspendedTasks;
+    asm("BL jumpTable");
 
-    //jumps here to hand off handling suspended tasks
-    asm("mov pc, %0" :"=r"(jump));
+    //jumps here to hand off suspendedTask resumptions    
+    asm("BL handleSuspendedTasks");
+
+    asm("LDR LR, =enterKernel");
+    asm("MOV PC, LR");
 }
 
 void sysYield(){

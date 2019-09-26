@@ -7,7 +7,8 @@
 typedef enum{
     RUNNING,
     READY,
-    BLOCKED
+    BLOCKED,
+    EXITED
 } taskStatus;
 
 typedef struct os_Task{
