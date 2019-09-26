@@ -13,8 +13,10 @@ void jumpTable(int code){
     switch (code){
         case 0:
             sysYield();
+            break;
         case 1:
             sysCreateTask();
+            break;
         default:
             ;
     }
@@ -72,7 +74,7 @@ void sysCreateTask(){
     int result = scheduleTask(scheduler, priority, pId, funcPtr);
     //stores the result in the user stack
     sp[1] = result;
-    bwprintf(COM2, "CreateTask Meta: %d, %x\r\n", priority, funcPtr);
+    bwprintf(COM2, "CreateTask Meta: %d, %x, %d, %x\r\n", priority, funcPtr, sp[-2], sp[-1]);
 }
 
 void setUpSWIHandler(void* handle_swi) {

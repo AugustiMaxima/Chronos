@@ -6,8 +6,6 @@
 
 extern Scheduler* scheduler;
 
-static 
-
 void printRegisters(int* stack){
     bwprintf(COM2, "Stack pointer : %x\r\n", stack);
     bwprintf(COM2, "CPSR [%x]: %x\r\n", stack, *stack);
@@ -17,6 +15,11 @@ void printRegisters(int* stack){
         bwprintf(COM2, "R%d [%x]: %x\r\n", i, stack, *stack);
         stack++;
     }
+}
+
+void printTask(Task* task){
+    bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
+    printRegisters(task->stackEntry);
 }
 
 void initializeScheduler(Scheduler* scheduler){
@@ -81,7 +84,7 @@ void runTask(Scheduler* scheduler, int tId){
     Task* task = &(scheduler->tasks[tId - 1]);
     scheduler->currentTask = task;    
     task->status = RUNNING;
-    printRegisters(task->stackEntry);
+    printTask(task);
     exitKernel(task->stackEntry);
     // bwprintf(COM2, "end of runTask\r\n");
 }

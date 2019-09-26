@@ -3,7 +3,6 @@
 #include <dump.h>
 
 void exitKernel(void* processStackPtr){
-
     // save kernel registers on kernel stack
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");

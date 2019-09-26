@@ -17,15 +17,6 @@ void* stackPtr;
 
 int main( int argc, char* argv[] ) {
 
-    int* sp;
-    int lr;
-    asm("MOV %0, SP":"=r"(sp));    asm("MOV %0, lr":"=r"(lr));
-    int i=0;
-    bwprintf(COM2, "LR: %x\r\n", lr);
-    for(i=0;i<20;i++){
-        bwprintf(COM2, "SP pointer dump: %x\r\n", sp[i-10]);
-    }
-
 	bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
 

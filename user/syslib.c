@@ -2,7 +2,7 @@
 #include <bwio.h>
 
 int createTask(void* functionPtr, int priority){
-    bwprintf("Meta column A: %d, %x\r\n", priority, functionPtr);
+    bwprintf(COM2, "Creating Task Request with function %x\r\n", functionPtr);
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -27,8 +27,8 @@ int createTask(void* functionPtr, int priority){
     asm("STR R2, [SP]");
     //argument stuffing now
     asm("SUB SP, SP, #8");
-    asm("STR R0, [SP]");
-    asm("STR R1, [SP, #4]");
+    asm("STR %0, [SP]": "=r"(functionPtr));
+    asm("STR %0, [SP, #4]": "=r"(priority));
     asm("SWI 1");
     //<---- PC return points here
     bwprintf(COM2, "Task created!\r\n");
@@ -66,7 +66,7 @@ int yield(){
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
     asm("SWI 0");
-    return 0;
+    bwprintf(COM2, "Yielded\r\n");
 }
 
 int border(){
