@@ -54,10 +54,6 @@ void sysCreateTask(){
     asm("ADD R0, R0, #12");
     asm("MSR CPSR, R0");
 
-    //arguments are stored and retrieved in ascending order
-    asm("LDR R3, [SP]");
-    asm("LDR R4, [SP, #4]");
-
     asm("ADD SP, SP, #8");
 
     asm("MOV R2, SP");
@@ -67,14 +63,13 @@ void sysCreateTask(){
     asm("MSR CPSR, R0");
     
     asm("MOV %0, R2": "=r"(sp));
-    asm("MOV %0, R3": "=r"(funcPtr));
-    asm("MOV %0, R4": "=r"(priority));
+    funcPtr = sp[-2];
+    priority = sp[-1];
 
     int pId = scheduler->currentTask->tId;
     int result = scheduleTask(scheduler, priority, pId, funcPtr);
     //stores the result in the user stack
     sp[1] = result;
-    bwprintf(COM2, "CreateTask Meta: %d, %x, %d, %x\r\n", priority, funcPtr, sp[-2], sp[-1]);
 }
 
 void setUpSWIHandler(void* handle_swi) {
