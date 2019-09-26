@@ -30,7 +30,7 @@ void initializeStack(Task* task, void* functionPtr){
     stack--;
 
     //TODO: Set up exit handler
-    *stack = exit;
+    *stack = Exit;
 
     stack--;
 

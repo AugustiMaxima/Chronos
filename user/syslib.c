@@ -1,7 +1,7 @@
 #include <syslib.h>
 #include <bwio.h>
 
-int createTask(void* functionPtr, int priority){
+int Create(void* functionPtr, int priority){
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -32,7 +32,7 @@ int createTask(void* functionPtr, int priority){
     //<---- PC return points here
 }
 
-int getPId(){
+int GetPid(){
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -58,7 +58,7 @@ int getPId(){
     asm("SWI 3");
 }
 
-int getTId(){
+int GetTid(){
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -84,7 +84,7 @@ int getTId(){
     asm("SWI 2");
 }
 
-void yield(){
+void Yield(){
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -111,7 +111,7 @@ void yield(){
     bwprintf(COM2, "Yielded\r\n");
 }
 
-void exit(){
+void Exit(){
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");

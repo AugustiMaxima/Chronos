@@ -13,9 +13,7 @@ void userCall(){
     asm("MOV R1, PC");
     asm("BL bwputr(PLT)");
 
-    //createTask(userCall, 1);
-
-    yield();
+    int i = GetTid();
 
     bwprintf(COM2, "%s", "Look at that, I survived bitch\r\n");
 

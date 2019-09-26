@@ -112,7 +112,7 @@ void sysCreateTask(){
 }
 
 void sysExit(){
-    Scheduler->currentTask->status = EXITED;
+    scheduler->currentTask->status = EXITED;
 }
 
 void setUpSWIHandler(void* handle_swi) {
