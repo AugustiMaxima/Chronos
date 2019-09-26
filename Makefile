@@ -23,6 +23,7 @@ CFLAGS = -O0 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 # -T: use linker script
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
+LIBS = -lbwio -ldump -lscheduler -lsyscall -luserprogram -lgcc
 all: kernel.elf
 
 kernel.s: kernel.c
@@ -32,7 +33,7 @@ kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
 kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a
-	$(LD) $(LDFLAGS) -o $@ kernel.o -lbwio -ldump -lscheduler -lsyscall -luserprogram -lgcc
+	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: dump.c
 	$(CC) -S $(CFLAGS) dump.c
@@ -109,4 +110,4 @@ clean:
 	-rm -f kernel.elf *.s *.o *.a
 
 install: kernel.elf
-	-cp kernel.elf /u/cs452/tftp/ARM/f5fei
+	-cp kernel.elf /u/cs452/tftp/ARM/$(shell whoami)

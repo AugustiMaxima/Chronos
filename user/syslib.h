@@ -9,3 +9,5 @@ int getPId();
 int getTId();
 
 int yield();
+
+void Exit();
