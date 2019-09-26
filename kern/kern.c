@@ -52,11 +52,11 @@ void exitKernel(void* processStackPtr){
     asm("ADD SP, SP, #64");
     asm("LDR R15, [SP, #-4]");
 
-    bwprintf(COM2, "end of exitKernel\r\n");
+    // bwprintf(COM2, "end of exitKernel\r\n");
 }
 
 void __attribute__((naked)) enterKernel(){
-    bwprintf(COM2, "entering Kernel\r\n");
+    // bwprintf(COM2, "entering Kernel\r\n");
     asm("LDR R0, [SP]");
     asm("LDR R1, [SP, #4]");
     asm("LDR R2, [SP, #8]");

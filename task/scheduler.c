@@ -18,8 +18,8 @@ void printRegisters(int* stack){
 }
 
 void printTask(Task* task){
-    bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
-    printRegisters(task->stackEntry);
+    // bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
+    // printRegisters(task->stackEntry);
 }
 
 void initializeScheduler(Scheduler* scheduler){
@@ -82,13 +82,13 @@ void runFirstAvailableTask(Scheduler* scheduler) {
     if(task){
         runTask(scheduler, task->tId);
     } else{
-        bwprintf(COM2, "No Task Available!\r\n");
+        // bwprintf(COM2, "No Task Available!\r\n");
     }
 }
 
 void runTask(Scheduler* scheduler, int tId){
     Task* task = &(scheduler->tasks[tId - 1]);
-    scheduler->currentTask = task;    
+    scheduler->currentTask = task;
     task->status = RUNNING;
     printTask(task);
     exitKernel(task->stackEntry);
@@ -139,6 +139,6 @@ void handleSuspendedTasks(){
     }
     scheduler->currentTask = NULL;
 
-    bwprintf(COM2,"User program halt, trapframe printing!\r\n");
-    printRegisters(stackPtr);
+    // bwprintf(COM2,"User program halt, trapframe printing!\r\n");
+    // printRegisters(stackPtr);
 }

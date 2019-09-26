@@ -23,8 +23,6 @@ int main( int argc, char* argv[] ) {
     Scheduler base_scheduler;
     scheduler = &base_scheduler;
 
-    bwprintf(COM2, "Scheduler Ptr: %x\r\n", scheduler);
-
     initializeScheduler(scheduler);
 
     scheduleTask(scheduler, 0, 0, userCall);

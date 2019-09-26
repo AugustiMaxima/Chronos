@@ -32,7 +32,7 @@ int Create(void* functionPtr, int priority){
     //<---- PC return points here
 }
 
-int GetPid(){
+int MyTid(){
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -58,7 +58,7 @@ int GetPid(){
     asm("SWI 3");
 }
 
-int GetTid(){
+int MyParentTid(){
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -108,7 +108,6 @@ void Yield(){
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
     asm("SWI 0");
-    bwprintf(COM2, "Yielded\r\n");
 }
 
 void Exit(){

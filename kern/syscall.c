@@ -37,7 +37,7 @@ void __attribute__((naked)) sys_handler(){
 
     asm("BL jumpTable");
 
-    //jumps here to hand off suspendedTask resumptions    
+    //jumps here to hand off suspendedTask resumptions
     asm("BL handleSuspendedTasks");
 
     asm("LDR LR, =enterKernel");
@@ -45,11 +45,11 @@ void __attribute__((naked)) sys_handler(){
 }
 
 void sysYield(){
-    bwprintf(COM2, "%s", "Yielding!\r\n");
+    // bwprintf(COM2, "%s", "Yielding!\r\n");
 }
 
 void sysGetTid(){
-    bwprintf(COM2, "%s", "getting tid\r\n");
+    // bwprintf(COM2, "%s", "getting tid\r\n");
     asm("MRS R0, CPSR");
     //12 is the distance from svc to sys mode
     asm("ADD R0, R0, #12");
@@ -66,7 +66,7 @@ void sysGetTid(){
 }
 
 void sysGetPid(){
-    bwprintf(COM2, "%s", "getting pid\r\n");
+    // bwprintf(COM2, "%s", "getting pid\r\n");
     asm("MRS R0, CPSR");
     //12 is the distance from svc to sys mode
     asm("ADD R0, R0, #12");
@@ -100,7 +100,7 @@ void sysCreateTask(){
     asm("MRS R0, CPSR");
     asm("SUB R0, R0, #12");
     asm("MSR CPSR, R0");
-    
+
     asm("MOV %0, R2": "=r"(sp));
     funcPtr = sp[-2];
     priority = sp[-1];
