@@ -2,3 +2,8 @@
 *.o
 *.s
 *.elf
+*.aux
+*.fdb_latexmk
+*.fls
+README.log
+README.synctex.gz
