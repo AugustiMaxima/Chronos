@@ -17,6 +17,12 @@ void jumpTable(int code){
         case 1:
             sysCreateTask();
             break;
+        case 2:
+            sysGetTid();
+            break;
+        case 3:
+            sysGetPid();
+            break;
         case 4:
             sysExit();
             break;
@@ -42,9 +48,39 @@ void sysYield(){
     bwprintf(COM2, "%s", "Yielding!\r\n");
 }
 
-void sysGetTid(){}
+void sysGetTid(){
+    bwprintf(COM2, "%s", "getting tid\r\n");
+    asm("MRS R0, CPSR");
+    //12 is the distance from svc to sys mode
+    asm("ADD R0, R0, #12");
+    asm("MSR CPSR, R0");
 
-void sysGetPid(){}
+    asm("MOV R2, SP");
+
+    asm("MRS R0, CPSR");
+    asm("SUB R0, R0, #12");
+    asm("MSR CPSR, R0");
+    int* sp;
+    asm("MOV %0, R2":"=r"(sp));
+    sp[1] = scheduler->currentTask->tId;
+}
+
+void sysGetPid(){
+    bwprintf(COM2, "%s", "getting pid\r\n");
+    asm("MRS R0, CPSR");
+    //12 is the distance from svc to sys mode
+    asm("ADD R0, R0, #12");
+    asm("MSR CPSR, R0");
+
+    asm("MOV R2, SP");
+
+    asm("MRS R0, CPSR");
+    asm("SUB R0, R0, #12");
+    asm("MSR CPSR, R0");
+    int* sp;
+    asm("MOV %0, R2":"=r"(sp));
+    sp[1] = scheduler->currentTask->pId;
+}
 
 
 void sysCreateTask(){
