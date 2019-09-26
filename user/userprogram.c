@@ -26,7 +26,10 @@ void userCall(){
 }
 
 void magicExit(){
+    asm("MOV R1, LR");
+    asm("MOV R0, #1");
+    asm("BL bwputr");
     int i = MyTid();
 
-    bwprintf(COM2, "Register %d\r\n", i);
+    bwprintf(COM2, "Task ID %d\r\n", i);
 }

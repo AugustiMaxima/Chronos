@@ -1,1 +1,3 @@
 void userCall();
+
+void magicExit();
