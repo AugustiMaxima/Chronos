@@ -10,11 +10,23 @@ void testTask() {
 void userCall(){
 
     int i;
-    for (i=0; i<4; i++) {
-        int ret = Create(testTask, 1);
-        bwprintf(COM2, "Created: %d\r\n", ret);
-    }
+
+    int ret = Create(testTask, -1);
+    bwprintf(COM2, "Created: %d\r\n", ret);
+
+    ret = Create(testTask, -1);
+    bwprintf(COM2, "Created: %d\r\n", ret);
+    ret = Create(testTask, 1);
+    bwprintf(COM2, "Created: %d\r\n", ret);
+    ret = Create(testTask, 1);
+    bwprintf(COM2, "Created: %d\r\n", ret);
     bwprintf(COM2, "FirstUserTask: Exit\r\n");
 
     Exit();
+}
+
+void magicExit(){
+    int i = MyTid();
+
+    bwprintf(COM2, "Register %d\r\n", i);
 }

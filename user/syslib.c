@@ -32,7 +32,7 @@ int Create(void* functionPtr, int priority){
     //<---- PC return points here
 }
 
-int MyTid(){
+int MyParentTid(){
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
@@ -58,7 +58,7 @@ int MyTid(){
     asm("SWI 3");
 }
 
-int MyParentTid(){
+int MyTid(){
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
