@@ -17,6 +17,9 @@ void jumpTable(int code){
         case 1:
             sysCreateTask();
             break;
+        case 4:
+            sysExit();
+            break;
         default:
             ;
     }
@@ -70,6 +73,10 @@ void sysCreateTask(){
     int result = scheduleTask(scheduler, priority, pId, funcPtr);
     //stores the result in the user stack
     sp[1] = result;
+}
+
+void sysExit(){
+    Scheduler->currentTask->status = EXITED;
 }
 
 void setUpSWIHandler(void* handle_swi) {

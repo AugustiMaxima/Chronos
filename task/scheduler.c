@@ -116,8 +116,9 @@ void handleSuspendedTasks(){
     scheduler->currentTask->stackEntry = stackPtr;
     //TODO: Figure out and design the blocked queue based on different conditions and status
     // Current iteration : Pretend every suspended task will be ready again right now
-    scheduler->currentTask->status = READY;
-    int cod = push(&(scheduler->readyQueue), scheduler->currentTask);
+    if(scheduler->currentTask->status == READY){
+        int code = push(&(scheduler->readyQueue), scheduler->currentTask);
+    }
     scheduler->currentTask = NULL;
 
     bwprintf(COM2,"User program halt, trapframe printing!\r\n");

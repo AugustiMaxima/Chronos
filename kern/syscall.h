@@ -37,6 +37,8 @@ void sysGetPid();
 //no arguments because we will be manually retrieving it from the user stack
 void sysCreateTask();
 
+void sysExit();
+
 void setUpSWIHandler(void* handle_swi);
 
 #endif
