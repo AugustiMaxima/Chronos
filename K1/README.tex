@@ -56,7 +56,23 @@ Lennox Fei
 
 \section*{3. Kernel Structure}
 
-[TODO]
+\subsection*{Context Switch}
+
+Context switch from user mode to kernel is done by the \texttt{SWI <n>} instruction, and context switch from kernel to user mode is done by restoring a saved user mode CPSR register from memory which sets the processor mode to user mode.
+
+At startup, the \texttt{setUpSWIHandler} handler function is used to install the \texttt{sys\_handler} as the handler for \texttt{SWI}. This is done by writing the absolute address of \texttt{sys\_handler} to \texttt{0x28} and the instruction \texttt{LDR pc, [pc, \#0x18]} to \texttt{0x08}. \texttt{sys\_handler} expects to be in svc mode, with the sp pointing to a trap frame with the saved kernel context. It
+
+\begin{enumerate}
+\item Get the exact \texttt{SWI} instruction and pass it to the syscall handling system
+\item Get the user mode sp and write it to the current TD
+\item Restore kernel context from the trap frame
+\end{enumerate}
+
+
+\subsection*{Task Descriptiors}
+
+\subsection*{Syscalls}
+
 
 \section*{4. Code repository}
 
