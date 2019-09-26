@@ -116,7 +116,7 @@ void handleSuspendedTasks(){
     scheduler->currentTask->stackEntry = stackPtr;
     //TODO: Figure out and design the blocked queue based on different conditions and status
     // Current iteration : Pretend every suspended task will be ready again right now
-    if(scheduler->currentTask->status == READY){
+    if(scheduler->currentTask->status == RUNNING){
         int code = push(&(scheduler->readyQueue), scheduler->currentTask);
     }
     scheduler->currentTask = NULL;
