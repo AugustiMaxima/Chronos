@@ -1,22 +1,20 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include <task.h>
-
 #define QUEUE_SIZE 24
 
-typedef struct task_Queue{
+typedef struct int_Queue{
     int cursor;
     int length;
-    Task* queue[QUEUE_SIZE];
+    int queue[QUEUE_SIZE];
 } Queue;
 
 void initializeQueue(Queue* queue);
 
-Task* peep(Queue* queue);
+int peep(Queue* queue);
 
-Task* pop(Queue* queue);
+int pop(Queue* queue);
 
-int push(Queue* queue, Task* task);
+int push(Queue* queue, int obj);
 
 #endif

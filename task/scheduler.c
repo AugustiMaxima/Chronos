@@ -68,19 +68,14 @@ void freeTask(Scheduler* scheduler, int tId){
     scheduler->tasks[tId-1].tId = 0;
 }
 
-int getFirstAvailableTask(Scheduler* scheduler) {
-    Task* task = peep(&(scheduler->readyQueue));
-    return task->tId;
-}
-
 void runFirstAvailableTask(Scheduler* scheduler) {
-    Task* task = NULL;
+    int tId = 0;
     int i=0;
-    for(i=0;i<3 & !task;i++){
-        task = pop(&scheduler->readyQueue[i]);
+    for(i=0;i<3 & !tId;i++){
+        tId = pop(&scheduler->readyQueue[i]);
     }
-    if(task){
-        runTask(scheduler, task->tId);
+    if(tId){
+        runTask(scheduler, tId);
     } else{
         // bwprintf(COM2, "No Task Available!\r\n");
     }
@@ -96,16 +91,23 @@ void runTask(Scheduler* scheduler, int tId){
 }
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
+    int status = 0;
     if(task->priority>0){
-        push(&(scheduler->readyQueue[0]), task);
+        status = push(&(scheduler->readyQueue[0]), task->tId);
     }
-    if(task->priority==0){
-        push(&(scheduler->readyQueue[1]), task);
+    if(task->priority==0 || status){
+        status = push(&(scheduler->readyQueue[1]), task->tId);
     }
-    if(task->priority<0){
-        push(&(scheduler->readyQueue[2]), task);
+    if(task->priority<0 || status){
+        status = push(&(scheduler->readyQueue[2]), task->tId);
     }
+    return status;
 }
+
+Task* getTask(Scheduler* scheduler, int tId){
+    return &(scheduler->tasks[tId - 1]);
+}
+
 
 void handleSuspendedTasks(){
     void* stackPtr;

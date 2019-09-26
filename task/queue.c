@@ -18,27 +18,27 @@ void initializeQueue(Queue* queue){
     queue->length = 0;
 }
 
-Task* pop(Queue* queue){
+int pop(Queue* queue){
     if (ringFill(queue)) {
-        Task* ret = queue->queue[ring(queue->cursor++)];
+        int ret = queue->queue[ring(queue->cursor++)];
 	    return ret;
     } else {
 	    return 0;
     }
 };
 
-Task* peep(Queue* queue){
+int peep(Queue* queue){
     if (ringFill(queue)) {
-        Task* ret = queue->queue[ring(queue->cursor)];
+        int ret = queue->queue[ring(queue->cursor)];
 	    return ret;
     } else {
 	    return 0;
     }
 };
 
-int push(Queue* queue, Task* task){
+int push(Queue* queue, int obj){
     if(ringCapacity(queue)){
-	    queue->queue[ring(queue->length++)] = task;
+	    queue->queue[ring(queue->length++)] = obj;
 	    return 0;
     } else {
 	    return 1;
