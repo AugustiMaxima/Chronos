@@ -2,12 +2,12 @@
     Library exposing syscall functionalities to user programs
 */
 
-int CreateF(void* functionPtr, int priority);
+int Create(int priority, void (*function)());
 
 int MyTid();
 
 int MyParentTid();
 
-int yield();
+int Yield();
 
 void Exit();

@@ -102,8 +102,8 @@ void sysCreateTask(){
     asm("MSR CPSR, R0");
 
     asm("MOV %0, R2": "=r"(sp));
-    funcPtr = sp[-2];
-    priority = sp[-1];
+    priority = sp[-2];
+    funcPtr = sp[-1];
 
     int pId = scheduler->currentTask->tId;
     int result = scheduleTask(scheduler, priority, pId, funcPtr);

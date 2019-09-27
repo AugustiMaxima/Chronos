@@ -4,6 +4,8 @@
 
 void testTask() {
     bwprintf(COM2, "%d %d\r\n", MyTid(), MyParentTid());
+    Yield();
+    bwprintf(COM2, "%d %d\r\n", MyTid(), MyParentTid());
     Exit();
 }
 
@@ -11,14 +13,13 @@ void userCall(){
 
     int i;
 
-    int ret = Create(testTask, -1);
+    int ret = Create(testTask, -2);
     bwprintf(COM2, "Created: %d\r\n", ret);
-
     ret = Create(testTask, -1);
     bwprintf(COM2, "Created: %d\r\n", ret);
     ret = Create(testTask, 1);
     bwprintf(COM2, "Created: %d\r\n", ret);
-    ret = Create(testTask, 1);
+    ret = Create(testTask, 2);
     bwprintf(COM2, "Created: %d\r\n", ret);
     bwprintf(COM2, "FirstUserTask: Exit\r\n");
 
