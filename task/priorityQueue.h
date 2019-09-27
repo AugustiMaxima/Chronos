@@ -16,7 +16,7 @@ typedef struct osPQueue{
 
 } PriorityQueue;
 
-void intializePriority()
+void intializePriorityQueue(PriorityQueue* queue);
 
 Task* removeMin(PriorityQueue* queue);
 

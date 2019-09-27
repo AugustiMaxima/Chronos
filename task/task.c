@@ -28,7 +28,6 @@ void initializeStack(Task* task, void* functionPtr){
 
     //TODO: Set up exit handler
     *stack = Exit;
-    bwprintf(COM2, "Magic exit location: %x\r\n", *stack);
 
     stack--;
 

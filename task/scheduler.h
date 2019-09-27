@@ -2,14 +2,14 @@
 #define SCHEDULER_H
 
 #include <task.h>
-#include <queue.h>
+#include <priorityQueue.h>
 
 #define MAX_TASKS 24
 
 typedef struct os_Scheduler{
     Task tasks[MAX_TASKS];
     Task* currentTask;
-    Queue readyQueue[3];
+    PriorityQueue queue;
 } Scheduler;
 
 

@@ -23,9 +23,7 @@ void printTask(Task* task){
 }
 
 void initializeScheduler(Scheduler* scheduler){
-    initializeQueue(&(scheduler->readyQueue[0]));
-    initializeQueue(&(scheduler->readyQueue[1]));
-    initializeQueue(&(scheduler->readyQueue[2]));
+    intializePriorityQueue(&(scheduler->queue));
     int i;
     for(i=0;i<MAX_TASKS;i++){
 	    scheduler->tasks[i].tId = 0;
@@ -37,8 +35,8 @@ int getAvailableTaskId(Scheduler* scheduler){
     int i;
     for(i=0; i<MAX_TASKS; i++){
 	// bwprintf(COM2, "%d %d\r\n", i, scheduler->tasks[i].tId);
-	if(scheduler->tasks[i].tId == 0)
-	    return i+1;
+        if(scheduler->tasks[i].tId == 0)
+            return i+1;
     }
     return 0;
 }
@@ -50,8 +48,8 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
         return -2;
     }
     initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority, READY, functionPtr);
-
-    insertTaskToQueue(scheduler, &(scheduler->tasks[tId-1]));
+    
+    insertTaskToQueue(scheduler, &(scheduler->tasks[tId - 1]));
 
     return tId;
 }
@@ -69,13 +67,11 @@ void freeTask(Scheduler* scheduler, int tId){
 }
 
 void runFirstAvailableTask(Scheduler* scheduler) {
-    int tId = 0;
+    Task* task;
     int i=0;
-    for(i=0;i<3 & !tId;i++){
-        tId = pop(&scheduler->readyQueue[i]);
-    }
-    if(tId){
-        runTask(scheduler, tId);
+    task = removeMin(&(scheduler->queue));
+    if(task){
+        runTask(scheduler, task->tId);
     } else{
         // bwprintf(COM2, "No Task Available!\r\n");
     }
@@ -91,17 +87,7 @@ void runTask(Scheduler* scheduler, int tId){
 }
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
-    int status = 0;
-    if(task->priority>0){
-        status = push(&(scheduler->readyQueue[0]), task->tId);
-    }
-    if(task->priority==0 || status){
-        status = push(&(scheduler->readyQueue[1]), task->tId);
-    }
-    if(task->priority<0 || status){
-        status = push(&(scheduler->readyQueue[2]), task->tId);
-    }
-    return status;
+    return insert(&(scheduler->queue), task);
 }
 
 Task* getTask(Scheduler* scheduler, int tId){

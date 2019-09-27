@@ -2,6 +2,10 @@
 #include <priorityQueue.h>
 #include <bwio.h>
 
+void intializePriorityQueue(PriorityQueue* queue){
+    queue->length = 0;
+}
+
 void reposition(PriorityQueue* queue, int index){
     Task* task = queue->queue[index];
     Task* temp;
@@ -46,14 +50,16 @@ Task* removeMin(PriorityQueue* queue){
     if(queue->length==0){
         return NULL;
     }
-    Task* result = queue->queue[0];
+    Task* result = queue->queue[0];    
     queue->queue[0] = queue->queue[--queue->length];
     reposition(queue, 0);
+    return result;
 }
 
 int insert(PriorityQueue* queue, Task* payload){
-    if(queue->length+1 == P_QUEUE_SIZE)
+    if(queue->length+1 == P_QUEUE_SIZE){
         return -1;
+    }
     queue->queue[queue->length++] = payload;
     reposition(queue, queue->length - 1);
     return 0;
