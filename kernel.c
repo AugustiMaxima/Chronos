@@ -27,13 +27,11 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
 
     scheduleTask(scheduler, 0, 0, userCall);
-
+    
     int i;
     for (i=0; i<50; i++) {
         runFirstAvailableTask(scheduler);
     }
-// TODO: fix this one
-//    bwprintf(COM2, "size: %d\r\n", ringFill(&(scheduler->readyQueue)));
 
 	return 0;
 }
