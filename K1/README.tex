@@ -46,7 +46,7 @@
 
 \section*{1. How To Operate Program}
 
-The .elf artifact is committed in the git repository at [TODO]. See section 4 for a link to the code repsoitory. Alternatively see section 5 for instructions to build from source. Once the artifact is obtained, load it into redboot and run \texttt{go}.
+The .elf artifact is committed in the git repository at https://git.uwaterloo.ca/f5fei/chos. See section 4 for a link to the code repsoitory. Alternatively see section 5 for instructions to build from source. Once the artifact is obtained, load it into redboot and run \texttt{go}.
 
 \section*{2. Group Member Names}
 
@@ -89,11 +89,11 @@ Within the kernel, a loop runs the next available task by switching from kernel 
 
 \subsection*{Task Descriptors}
 
-Task descriptors are stored a struct with the TID, the parent TID, the task priority, the stack base, and the task stack entry. The stack base is declared as \texttt{char STACK[STACK\_SIZE]}. Since the TDs have static storage (via the global scheduler variable), the compiler allocates \texttt{STACK\_SIZE} worth of space within the struct.
+Task descriptors are stored a struct with the TID, the parent TID, the task priority, the current status of a task, the stack base, and the task stack entry. The stack base is declared as \texttt{char STACK[STACK\_SIZE]}. Since the TDs have static storage (via the global scheduler variable), the compiler allocates \texttt{STACK\_SIZE} worth of space within the struct. We use the task status for the indication of status exit.
 
 \subsection*{Task Initialization}
 
-When a task is created (e.g. first user task or via \texttt{Create}), we initialize the memory by creating an appropriate trap frame.
+When a task is created (e.g. first user task or via \texttt{Create}), we initialize the memory by creating an appropriate trap frame. We place the pc to the beginning of the requested user function, and place Exit in LR, so the user automatically exits their program without the need for a manual exit call.
 
 \subsection*{Scheduling}
 
@@ -103,7 +103,20 @@ The TDs are stored in a priority queue (keyed with task priority).
 
 https://git.uwaterloo.ca/f5fei/chos
 
-\section*{5. Output and explanation}
+\section*{5. Build and Execution}
+
+When you are in the root directory of the repo (chos/), run the following commands
+
+make
+make install
+
+Make should build everything, and make install will move it to ARM/<uwid>, this allows for parallel testing.
+In case you get issues with missing linker libraries, do the following to regenerate the symbol link
+
+cd lib
+./rebuildLib.sh
+
+\section*{6. Output and explanation}
 
 \begin{verbatim}
 Created: 2
