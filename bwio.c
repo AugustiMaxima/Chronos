@@ -64,7 +64,7 @@ int bwsetspeed( int channel, int speed ) {
 }
 
 int bwputc( int channel, char c ) {
-	int *flags, *data;
+	int volatile *flags, *data;
 	switch( channel ) {
 	case COM1:
 		flags = (int *)( UART1_BASE + UART_FLAG_OFFSET );

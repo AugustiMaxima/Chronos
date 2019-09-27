@@ -84,6 +84,9 @@ void runTask(Scheduler* scheduler, int tId){
     task->status = RUNNING;
     printTask(task);
     exitKernel(task->stackEntry);
+    // asm("MOV R0, #1");
+    // asm("MOV R1, SP");
+    // asm("BL bwputr(PLT)");
     // bwprintf(COM2, "end of runTask\r\n");
 }
 
@@ -96,30 +99,28 @@ Task* getTask(Scheduler* scheduler, int tId){
 }
 
 
-void handleSuspendedTasks(){
-    void* stackPtr;
+void handleSuspendedTasks(void* lr){
+    int* stackPtr;
     //changes from svc to sys mode
     asm("MRS R0, CPSR");
     //12 is the distance from svc to sys mode
     asm("ADD R0, R0, #12");
     asm("MSR CPSR, R0");
 
-    // asm("MOV R0, #1");
-    // asm("MOV R1, SP");
-    // asm("BL bwputr(PLT)");
-    asm("MOV R3, SP");
+    asm("MOV R0, SP");
 
     //changes back to svc
-    asm("MRS R0, CPSR");
-    asm("SUB R0, R0, #12");
-    asm("MSR CPSR, R0");
-    asm("MOV %0, R3":"=r"(stackPtr));
+    asm("MRS R3, CPSR");
+    asm("SUB R3, R3, #12");
+    asm("MSR CPSR, R3");
+    asm("MOV %0, R0":"=r"(stackPtr));
 
     // bwprintf(COM2, "\r\n");
     // bwprintf(COM2, "Scheduler Ptr: %x\r\n", scheduler);
     // bwprintf(COM2, "acquired stackPtr: %x\r\n", stackPtr);
 
     scheduler->currentTask->stackEntry = stackPtr;
+    stackPtr[16] = lr;
     //TODO: Figure out and design the blocked queue based on different conditions and status
     // Current iteration : Pretend every suspended task will be ready again right now
     if(scheduler->currentTask->status == RUNNING){

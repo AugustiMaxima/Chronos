@@ -12,6 +12,7 @@ typedef struct os_Scheduler{
     PriorityQueue queue;
 } Scheduler;
 
+void printRegisters(int* stack);
 
 void initializeScheduler(Scheduler* scheduler);
 
@@ -27,6 +28,6 @@ int insertTaskToQueue(Scheduler* scheduler, Task* task);
 
 Task* getTask(Scheduler* scheduler, int tId);
 
-void handleSuspendedTasks();
+void handleSuspendedTasks(void* lr);
 
 #endif

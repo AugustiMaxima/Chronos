@@ -1,5 +1,6 @@
 #include <syslib.h>
 #include <bwio.h>
+#include <scheduler.h>
 
 int Create(int priority, void (*function)()){
     asm("SUB SP, SP, #64");
@@ -18,9 +19,6 @@ int Create(int priority, void (*function)()){
     asm("STR R12, [SP, #48]");
     asm("STR R13, [SP, #52]");
     asm("STR R14, [SP, #56]");
-    asm("ADD R2, PC, #28");
-    //sets where the return address should be
-    asm("STR R2, [SP, #60]");
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
@@ -28,6 +26,9 @@ int Create(int priority, void (*function)()){
     asm("SUB SP, SP, #8");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
+    // int* stack;
+    // asm("MOV %0, SP":"=r"(stack));
+    // printRegisters(stack+2);
     asm("SWI 1");
     //<---- PC return points here
 }
@@ -49,9 +50,6 @@ int MyTid(){
     asm("STR R12, [SP, #48]");
     asm("STR R13, [SP, #52]");
     asm("STR R14, [SP, #56]");
-    asm("ADD R2, PC, #16");
-    //sets where the return address should be
-    asm("STR R2, [SP, #60]");
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
@@ -75,9 +73,6 @@ int MyParentTid(){
     asm("STR R12, [SP, #48]");
     asm("STR R13, [SP, #52]");
     asm("STR R14, [SP, #56]");
-    asm("ADD R2, PC, #16");
-    //sets where the return address should be
-    asm("STR R2, [SP, #60]");
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
@@ -101,9 +96,6 @@ void Yield(){
     asm("STR R12, [SP, #48]");
     asm("STR R13, [SP, #52]");
     asm("STR R14, [SP, #56]");
-    asm("ADD R2, PC, #16");
-    //sets where the return address should be
-    asm("STR R2, [SP, #60]");
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
@@ -127,9 +119,6 @@ void Exit(){
     asm("STR R12, [SP, #48]");
     asm("STR R13, [SP, #52]");
     asm("STR R14, [SP, #56]");
-    asm("ADD R2, PC, #16");
-    //sets where the return address should be
-    asm("STR R2, [SP, #60]");
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");

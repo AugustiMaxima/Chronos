@@ -14,7 +14,6 @@
 #include <priorityQueue.h>
 
 Scheduler* scheduler;
-void* stackPtr;
 
 int main( int argc, char* argv[] ) {
 
