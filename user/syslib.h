@@ -8,6 +8,6 @@ int MyTid();
 
 int MyParentTid();
 
-int Yield();
+void Yield();
 
 void Exit();
