@@ -26,9 +26,9 @@ int Create(int priority, void (*function)()){
     asm("SUB SP, SP, #8");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
-    int* stack;
-    asm("MOV %0, SP":"=r"(stack));
-    printRegisters(stack+2);
+    // int* stack;
+    // asm("MOV %0, SP":"=r"(stack));
+    // printRegisters(stack+2);
     asm("SWI 1");
     //<---- PC return points here
 }

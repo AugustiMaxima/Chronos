@@ -49,11 +49,11 @@ void __attribute__((naked)) sys_handler(){
 }
 
 void sysYield(){
-    bwprintf(COM2, "%s", "Yielding!\r\n");
+    //bwprintf(COM2, "%s", "Yielding!\r\n");
 }
 
 void sysGetTid(){    
-    bwprintf(COM2, "%s", "getTid!\r\n");
+    //bwprintf(COM2, "%s", "getTid!\r\n");
     // bwprintf(COM2, "%s", "getting tid\r\n");
     asm("MRS R0, CPSR");
     //12 is the distance from svc to sys mode
@@ -71,7 +71,7 @@ void sysGetTid(){
 }
 
 void sysGetPid(){    
-    bwprintf(COM2, "%s", "GetPid!\r\n");
+    //bwprintf(COM2, "%s", "GetPid!\r\n");
     // bwprintf(COM2, "%s", "getting pid\r\n");
     asm("MRS R0, CPSR");
     //12 is the distance from svc to sys mode
@@ -90,7 +90,7 @@ void sysGetPid(){
 
 
 void sysCreateTask(){    
-    bwprintf(COM2, "%s", "Create task!\r\n");
+    //bwprintf(COM2, "%s", "Create task!\r\n");
     void* funcPtr;
     int priority;
     int* sp;
@@ -118,8 +118,8 @@ void sysCreateTask(){
     sp[1] = result;
 }
 
-void sysExit(){    bwprintf(COM2, "%s", "Exit!\r\n");
-
+void sysExit(){
+    //bwprintf(COM2, "%s", "Exit!\r\n");
     scheduler->currentTask->status = EXITED;
 }
 

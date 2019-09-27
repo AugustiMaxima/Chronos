@@ -18,8 +18,8 @@ void printRegisters(int* stack){
 }
 
 void printTask(Task* task){
-    bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
-    printRegisters(task->stackEntry);
+    // bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
+    // printRegisters(task->stackEntry);
 }
 
 void initializeScheduler(Scheduler* scheduler){
@@ -84,6 +84,9 @@ void runTask(Scheduler* scheduler, int tId){
     task->status = RUNNING;
     printTask(task);
     exitKernel(task->stackEntry);
+    // asm("MOV R0, #1");
+    // asm("MOV R1, SP");
+    // asm("BL bwputr(PLT)");
     // bwprintf(COM2, "end of runTask\r\n");
 }
 
@@ -104,16 +107,13 @@ void handleSuspendedTasks(void* lr){
     asm("ADD R0, R0, #12");
     asm("MSR CPSR, R0");
 
-    // asm("MOV R0, #1");
-    // asm("MOV R1, SP");
-    // asm("BL bwputr(PLT)");
-    asm("MOV R3, SP");
+    asm("MOV R0, SP");
 
     //changes back to svc
-    asm("MRS R0, CPSR");
-    asm("SUB R0, R0, #12");
-    asm("MSR CPSR, R0");
-    asm("MOV %0, R3":"=r"(stackPtr));
+    asm("MRS R3, CPSR");
+    asm("SUB R3, R3, #12");
+    asm("MSR CPSR, R3");
+    asm("MOV %0, R0":"=r"(stackPtr));
 
     // bwprintf(COM2, "\r\n");
     // bwprintf(COM2, "Scheduler Ptr: %x\r\n", scheduler);
