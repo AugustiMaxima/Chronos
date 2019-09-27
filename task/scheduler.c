@@ -18,8 +18,8 @@ void printRegisters(int* stack){
 }
 
 void printTask(Task* task){
-    // bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
-    // printRegisters(task->stackEntry);
+    bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
+    printRegisters(task->stackEntry);
 }
 
 void initializeScheduler(Scheduler* scheduler){

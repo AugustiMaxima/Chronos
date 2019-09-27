@@ -12,6 +12,7 @@ typedef struct os_Scheduler{
     PriorityQueue queue;
 } Scheduler;
 
+void printRegisters(int* stack);
 
 void initializeScheduler(Scheduler* scheduler);
 
