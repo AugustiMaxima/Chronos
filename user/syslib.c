@@ -18,9 +18,6 @@ int Create(int priority, void (*function)()){
     asm("STR R12, [SP, #48]");
     asm("STR R13, [SP, #52]");
     asm("STR R14, [SP, #56]");
-    asm("ADD R2, PC, #28");
-    //sets where the return address should be
-    asm("STR R2, [SP, #60]");
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
@@ -49,9 +46,6 @@ int MyTid(){
     asm("STR R12, [SP, #48]");
     asm("STR R13, [SP, #52]");
     asm("STR R14, [SP, #56]");
-    asm("ADD R2, PC, #16");
-    //sets where the return address should be
-    asm("STR R2, [SP, #60]");
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
@@ -75,9 +69,6 @@ int MyParentTid(){
     asm("STR R12, [SP, #48]");
     asm("STR R13, [SP, #52]");
     asm("STR R14, [SP, #56]");
-    asm("ADD R2, PC, #16");
-    //sets where the return address should be
-    asm("STR R2, [SP, #60]");
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
@@ -101,9 +92,6 @@ void Yield(){
     asm("STR R12, [SP, #48]");
     asm("STR R13, [SP, #52]");
     asm("STR R14, [SP, #56]");
-    asm("ADD R2, PC, #16");
-    //sets where the return address should be
-    asm("STR R2, [SP, #60]");
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
@@ -127,9 +115,6 @@ void Exit(){
     asm("STR R12, [SP, #48]");
     asm("STR R13, [SP, #52]");
     asm("STR R14, [SP, #56]");
-    asm("ADD R2, PC, #16");
-    //sets where the return address should be
-    asm("STR R2, [SP, #60]");
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");

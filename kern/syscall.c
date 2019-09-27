@@ -33,11 +33,15 @@ void jumpTable(int code){
 
 //TODO: Consider switching this logic to jump table
 void __attribute__((naked)) sys_handler(){
+    asm("SUB SP, SP, #4");
+    asm("STR LR, [SP]");
     asm("LDR R0, [LR, #-4]");
 
     asm("BL jumpTable");
 
     //jumps here to hand off suspendedTask resumptions
+    asm("LDR R0, [SP]");
+    asm("ADD SP, SP, #4");
     asm("BL handleSuspendedTasks");
 
     asm("LDR LR, =enterKernel");

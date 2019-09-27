@@ -27,6 +27,6 @@ int insertTaskToQueue(Scheduler* scheduler, Task* task);
 
 Task* getTask(Scheduler* scheduler, int tId);
 
-void handleSuspendedTasks();
+void handleSuspendedTasks(void* lr);
 
 #endif

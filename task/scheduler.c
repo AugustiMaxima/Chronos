@@ -96,8 +96,8 @@ Task* getTask(Scheduler* scheduler, int tId){
 }
 
 
-void handleSuspendedTasks(){
-    void* stackPtr;
+void handleSuspendedTasks(void* lr){
+    int* stackPtr;
     //changes from svc to sys mode
     asm("MRS R0, CPSR");
     //12 is the distance from svc to sys mode
@@ -120,6 +120,7 @@ void handleSuspendedTasks(){
     // bwprintf(COM2, "acquired stackPtr: %x\r\n", stackPtr);
 
     scheduler->currentTask->stackEntry = stackPtr;
+    stackPtr[16] = lr;
     //TODO: Figure out and design the blocked queue based on different conditions and status
     // Current iteration : Pretend every suspended task will be ready again right now
     if(scheduler->currentTask->status == RUNNING){
