@@ -10,13 +10,13 @@ void testTask() {
 }
 
 void userCall(){
-    int ret = Create(-2, testTask);
+    int ret = Create(-1, testTask);
     bwprintf(COM2, "Created: %d\r\n", ret);
     ret = Create(-1, testTask);
     bwprintf(COM2, "Created: %d\r\n", ret);
     ret = Create(1, testTask);
     bwprintf(COM2, "Created: %d\r\n", ret);
-    ret = Create(2, testTask);
+    ret = Create(1, testTask);
     bwprintf(COM2, "Created: %d\r\n", ret);
     bwprintf(COM2, "FirstUserTask: Exit\r\n");
 

@@ -97,7 +97,7 @@ When a task is created (e.g. first user task or via \texttt{Create}), we initial
 
 \subsection*{Scheduling}
 
-[TODO]: ring, priority queues
+The TDs are stored in a priority queue (keyed with task priority).
 
 \section*{4. Code repository}
 
@@ -105,6 +105,23 @@ https://git.uwaterloo.ca/f5fei/chos
 
 \section*{5. Output and explanation}
 
-[TODO]
+\verbatim
+Created: 2
+Created: 3
+4 1
+4 1
+Created: 4
+5 1
+5 1
+Created: 5
+FirstUserTask: Exit
+2 1
+3 1
+2 1
+3 1
+\end{verbatim}
+
+The first two tasks (TID 2 and 3) don't run until FirstUserTask exits, since they are of lower priority. The next task (TID 4) has higher priority and so completes execution before FirstUserTask gets scheduled again (wherein it prints the return code from the Create). FirstUserTask must get scheduled again in order for the netx task (TID 5) to be created. When it is created, it completes execution between FirstUserTask gets scheduled again.
+
 
 \end{document}
