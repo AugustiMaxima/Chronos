@@ -27,10 +27,11 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
 
     scheduleTask(scheduler, 0, 0, userCall);
-    
-    int i;
-    for (i=0; i<50; i++) {
-        runFirstAvailableTask(scheduler);
+
+    while(1) {
+        if (-1 == runFirstAvailableTask(scheduler)) {
+            return;
+        }
     }
 
 	return 0;

@@ -19,7 +19,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
 
 void freeTask(Scheduler* scheduler, int tId);
 
-void runFirstAvailableTask(Scheduler* scheduler);
+int runFirstAvailableTask(Scheduler* scheduler);
 
 void runTask(Scheduler* scheduler, int tId);
 

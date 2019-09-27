@@ -48,7 +48,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
         return -2;
     }
     initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority, READY, functionPtr);
-    
+
     insertTaskToQueue(scheduler, &(scheduler->tasks[tId - 1]));
 
     return tId;
@@ -66,14 +66,15 @@ void freeTask(Scheduler* scheduler, int tId){
     scheduler->tasks[tId-1].tId = 0;
 }
 
-void runFirstAvailableTask(Scheduler* scheduler) {
+int runFirstAvailableTask(Scheduler* scheduler) {
     Task* task;
     int i=0;
     task = removeMin(&(scheduler->queue));
     if(task){
         runTask(scheduler, task->tId);
+        return 0;
     } else{
-        // bwprintf(COM2, "No Task Available!\r\n");
+        return -1;
     }
 }
 
