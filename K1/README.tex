@@ -93,11 +93,11 @@ Task descriptors are stored a struct with the TID, the parent TID, the task prio
 
 \subsection*{Task Initialization}
 
-When a task is created (e.g. first user task or via \texttt{Create}), we initialize the memory by creating an appropriate trap frame. We place the pc to the beginning of the requested user function, and place Exit in LR, so the user automatically exits their program without the need for a manual exit call.
+When a task is created (e.g. first user task or via \texttt{Create}), we initialize the memory by creating an appropriate trap frame and stack entry. The appropriate trap frame has slots that are reloaded into registers. The slot corresponding to pc contains the beginning of the requested user function, and the one corresponding to LR gets a pointer to the Exit user-side syscall, so the user automatically exits their program without the need for a manual exit call. The slot corresponding to SP is set to the stack address after the trap frame has been pushed onto it; similarly for the stack entry.
 
 \subsection*{Scheduling}
 
-The TDs are stored in a priority queue (keyed with task priority).
+The TDs are stored in a priority queue (keyed with task priority). This allows large ints for the priority without using separate queues for each possible priority. We force same keys to continue bubbling down in the priority queue so that rescheduled tasks are added ``to the end of the queue'' of tasks at the same priority.
 
 \section*{4. Code repository}
 
@@ -108,9 +108,10 @@ https://git.uwaterloo.ca/f5fei/chos
 When you are in the root directory of the repo (chos/), run the following commands
 
 make
+
 make install
 
-Make should build everything, and make install will move it to ARM/<uwid>, this allows for parallel testing.
+Make should build everything, and make install will move it to \texttt{ARM/[uwid]}, this allows for parallel testing.
 In case you get issues with missing linker libraries, do the following to regenerate the symbol link
 
 cd lib
