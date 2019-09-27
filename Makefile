@@ -23,7 +23,7 @@ CFLAGS = -O0 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 # -T: use linker script
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
-LIBS = -lbwio -ldump -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -lsyslib -ltask -lgcc
+LIBS = -lbwio -ldump -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lgcc
 
 all: kernel.elf
 
@@ -33,7 +33,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a syslib.a queue.a kern.a task.a priorityQueue.a
+kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: dump.c

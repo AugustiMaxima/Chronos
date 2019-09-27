@@ -11,6 +11,7 @@
 #include <ARM.h>
 #include <syscall.h>
 #include <userprogram.h>
+#include <priorityQueue.h>
 
 Scheduler* scheduler;
 void* stackPtr;

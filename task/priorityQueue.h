@@ -8,14 +8,15 @@
  **/
 
 //Has to be pure exponents of 2 - 1
-#define QUEUE_SIZE 127
+#define P_QUEUE_SIZE 127
 
 typedef struct osPQueue{
     int length;
-    Task* queue[QUEUE_SIZE];
+    Task* queue[P_QUEUE_SIZE];
 
 } PriorityQueue;
 
+void intializePriority()
 
 Task* removeMin(PriorityQueue* queue);
 

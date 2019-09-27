@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <priorityQueue.h>
 #include <bwio.h>
 
@@ -42,24 +43,30 @@ void reposition(PriorityQueue* queue, int index){
 }
 
 Task* removeMin(PriorityQueue* queue){
+    if(queue->length==0){
+        return NULL;
+    }
     Task* result = queue->queue[0];
-    queue->queue[0] = queue->queue[queue->length--];
+    queue->queue[0] = queue->queue[--queue->length];
     reposition(queue, 0);
 }
 
 int insert(PriorityQueue* queue, Task* payload){
+    if(queue->length+1 == P_QUEUE_SIZE)
+        return -1;
     queue->queue[queue->length++] = payload;
     reposition(queue, queue->length - 1);
+    return 0;
 }
 
 void printStack(PriorityQueue* queue){
     int i=0;
     int upgrade = 1;
-    for(i=0;i<queue->length;i++){
-        bwprintf(COM2, " %d ", queue->queue[i]);
-        if(i+1==upgrade){
+    for(i=0;i<queue->length;i++){        
+        if(i==upgrade){
            bwprintf(COM2, "\r\n");
            upgrade*= 2;
         }
+        bwprintf(COM2, " %d ", queue->queue[i]);
     }
 }
