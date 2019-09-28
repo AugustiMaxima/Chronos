@@ -9,7 +9,7 @@
 typedef struct os_Scheduler{
     Task tasks[MAX_TASKS];
     Task* currentTask;
-    PriorityQueue queue;
+    PriorityQueue readyQueue;
 } Scheduler;
 
 void printRegisters(int* stack);

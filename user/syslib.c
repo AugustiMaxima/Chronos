@@ -33,7 +33,6 @@ int Create(int priority, void (*function)()){
     asm("STR R1, [SP, #4]");
 
     asm("SWI " TOSTRING(CREATE_CODE));
-    //<---- PC return points here
 }
 
 int MyTid(){

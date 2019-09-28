@@ -23,7 +23,7 @@ void printTask(Task* task){
 }
 
 void initializeScheduler(Scheduler* scheduler){
-    intializePriorityQueue(&(scheduler->queue));
+    intializePriorityQueue(&(scheduler->readyQueue));
     int i;
     for(i=0;i<MAX_TASKS;i++){
         scheduler->tasks[i].tId = 0;
@@ -68,7 +68,7 @@ void freeTask(Scheduler* scheduler, int tId){
 int runFirstAvailableTask(Scheduler* scheduler) {
     Task* task;
     int i=0;
-    task = removeMin(&(scheduler->queue));
+    task = removeMin(&(scheduler->readyQueue));
     if(task){
         runTask(scheduler, task->tId);
         return 0;
@@ -90,7 +90,7 @@ void runTask(Scheduler* scheduler, int tId){
 }
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
-    return insert(&(scheduler->queue), task);
+    return insert(&(scheduler->readyQueue), task);
 }
 
 Task* getTask(Scheduler* scheduler, int tId){

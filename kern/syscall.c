@@ -91,7 +91,6 @@ void sysGetPid(){
 
 
 void sysCreateTask(){
-    //bwprintf(COM2, "%s", "Create task!\r\n");
     void* funcPtr;
     int priority;
     int* sp;
