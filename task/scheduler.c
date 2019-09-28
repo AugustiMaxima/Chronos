@@ -26,7 +26,7 @@ void initializeScheduler(Scheduler* scheduler){
     intializePriorityQueue(&(scheduler->queue));
     int i;
     for(i=0;i<MAX_TASKS;i++){
-	    scheduler->tasks[i].tId = 0;
+        scheduler->tasks[i].tId = 0;
     }
     scheduler->currentTask = NULL;
 }
@@ -34,7 +34,6 @@ void initializeScheduler(Scheduler* scheduler){
 int getAvailableTaskId(Scheduler* scheduler){
     int i;
     for(i=0; i<MAX_TASKS; i++){
-	// bwprintf(COM2, "%d %d\r\n", i, scheduler->tasks[i].tId);
         if(scheduler->tasks[i].tId == 0)
             return i+1;
     }

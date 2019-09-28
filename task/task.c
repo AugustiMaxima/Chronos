@@ -62,7 +62,7 @@ void initializeTask(Task* task, int tId, int pId, int priority, taskStatus statu
     task->priority = priority;
     int i;
     for(i=0;i<MAX_CHILDREN;i++){
-	    task->childTasks[i] = 0;
+        task->childTasks[i] = 0;
     }
     task->status = status;
     initializeStack(task, functionPtr);
