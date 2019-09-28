@@ -124,3 +124,19 @@ void Exit(){
     asm("STR R2, [SP]");
     asm("SWI 4");
 }
+
+void Destroy() {
+    bwprintf(COM2, "not implemented\r\n");
+}
+
+int Send(int tid, const char *msg, int msglen, char *reply, int replylen) {
+    bwprintf(COM2, "not implemented\r\n");
+}
+
+int Receive(int *tid, char *msg, int msglen) {
+    bwprintf(COM2, "not implemented\r\n");
+}
+
+int Reply( int tid, void *reply, int replylen ) {
+    bwprintf(COM2, "not implemented\r\n");
+}
