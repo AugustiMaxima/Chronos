@@ -1,4 +1,5 @@
 #include <ARM.h>
+#include <syscode.h>
 #include <kern.h>
 #include <scheduler.h>
 #include <syscall.h>
@@ -11,19 +12,19 @@ extern Scheduler* scheduler;
 void jumpTable(int code){
     code &= SWI_OPCODE_FLAG;
     switch (code){
-        case 0:
+        case YIELD_CODE:
             sysYield();
             break;
-        case 1:
+        case CREATE_CODE:
             sysCreateTask();
             break;
-        case 2:
+        case MYTID_CODE:
             sysGetTid();
             break;
-        case 3:
+        case MYPARENTTID_CODE:
             sysGetPid();
             break;
-        case 4:
+        case EXIT_CODE:
             sysExit();
             break;
         default:
@@ -52,7 +53,7 @@ void sysYield(){
     //bwprintf(COM2, "%s", "Yielding!\r\n");
 }
 
-void sysGetTid(){    
+void sysGetTid(){
     //bwprintf(COM2, "%s", "getTid!\r\n");
     // bwprintf(COM2, "%s", "getting tid\r\n");
     asm("MRS R0, CPSR");
@@ -70,7 +71,7 @@ void sysGetTid(){
     sp[1] = scheduler->currentTask->tId;
 }
 
-void sysGetPid(){    
+void sysGetPid(){
     //bwprintf(COM2, "%s", "GetPid!\r\n");
     // bwprintf(COM2, "%s", "getting pid\r\n");
     asm("MRS R0, CPSR");
@@ -89,7 +90,7 @@ void sysGetPid(){
 }
 
 
-void sysCreateTask(){    
+void sysCreateTask(){
     //bwprintf(COM2, "%s", "Create task!\r\n");
     void* funcPtr;
     int priority;

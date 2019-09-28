@@ -1,3 +1,4 @@
+#include <syscode.h>
 #include <syslib.h>
 #include <bwio.h>
 #include <scheduler.h>
@@ -29,7 +30,7 @@ int Create(int priority, void (*function)()){
     // int* stack;
     // asm("MOV %0, SP":"=r"(stack));
     // printRegisters(stack+2);
-    asm("SWI 1");
+    asm("SWI " TOSTRING(CREATE_CODE));
     //<---- PC return points here
 }
 
@@ -53,7 +54,7 @@ int MyTid(){
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
-    asm("SWI 2");
+    asm("SWI " TOSTRING(MYTID_CODE));
 }
 
 int MyParentTid(){
@@ -76,7 +77,7 @@ int MyParentTid(){
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
-    asm("SWI 3");
+    asm("SWI " TOSTRING(MYPARENTTID_CODE));
 }
 
 void Yield(){
@@ -99,7 +100,7 @@ void Yield(){
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
-    asm("SWI 0");
+    asm("SWI " TOSTRING(YIELD_CODE));
 }
 
 void Exit(){
@@ -122,7 +123,7 @@ void Exit(){
     asm("SUB SP, SP, #4");
     asm("MRS R2, CPSR");
     asm("STR R2, [SP]");
-    asm("SWI 4");
+    asm("SWI " TOSTRING(EXIT_CODE));
 }
 
 void Destroy() {
