@@ -11,7 +11,7 @@ typedef struct os_Scheduler{
     Task tasks[MAX_TASKS];
     Queue freeQueue;
     Task* currentTask;
-    PriorityQueue queue;
+    PriorityQueue readyQueue;
 } Scheduler;
 
 //TODO: This probably should be in some debugging file

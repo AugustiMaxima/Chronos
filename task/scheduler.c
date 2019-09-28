@@ -25,7 +25,7 @@ void printTask(Task* task){
 }
 
 void initializeScheduler(Scheduler* scheduler){
-    intializePriorityQueue(&(scheduler->queue));
+    intializePriorityQueue(&(scheduler->readyQueue));
     initializeQueue(&(scheduler->freeQueue));
     int i;
     for(i=0;i<MAX_TASKS;i++){
@@ -52,7 +52,7 @@ void freeTask(Scheduler* scheduler, Task* task){
 
 int runFirstAvailableTask(Scheduler* scheduler) {
     Task* task;
-    task = removeMin(&(scheduler->queue));
+    task = removeMin(&(scheduler->readyQueue));
     if(task){
         runTask(scheduler, task);
         return 0;
@@ -73,7 +73,7 @@ void runTask(Scheduler* scheduler, Task* task){
 }
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
-    return insert(&(scheduler->queue), task);
+    return insert(&(scheduler->readyQueue), task);
 }
 
 void handleSuspendedTasks(void* lr){

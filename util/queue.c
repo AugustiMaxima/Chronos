@@ -21,26 +21,26 @@ void initializeQueue(Queue* queue){
 void* pop(Queue* queue){
     if (ringFill(queue)) {
         int ret = queue->queue[ring(queue->cursor++)];
-	    return ret;
+        return ret;
     } else {
-	    return 0;
+        return 0;
     }
 };
 
 int peep(Queue* queue){
     if (ringFill(queue)) {
         int ret = queue->queue[ring(queue->cursor)];
-	    return ret;
+        return ret;
     } else {
-	    return 0;
+        return 0;
     }
 };
 
 int push(Queue* queue, void* obj){
     if(ringCapacity(queue)){
-	    queue->queue[ring(queue->length++)] = obj;
-	    return 0;
+        queue->queue[ring(queue->length++)] = obj;
+        return 0;
     } else {
-	    return 1;
+        return 1;
     }
 }

@@ -17,7 +17,7 @@ Scheduler* scheduler;
 
 int main( int argc, char* argv[] ) {
 
-	bwsetfifo(COM2, OFF);
+    bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
 
     Scheduler base_scheduler;
@@ -36,5 +36,5 @@ int main( int argc, char* argv[] ) {
         }
     }
 
-	return 0;
+    return 0;
 }
