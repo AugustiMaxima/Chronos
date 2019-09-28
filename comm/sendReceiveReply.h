@@ -22,7 +22,7 @@ typedef struct receiverConstruct{
 
 typedef struct SendReceiveReply{
     Sender sendPool[MAX_SENDER];
-    Receiver receivePool[MAX_REICEIVER];
+    Receiver receivePool[MAX_RECEIVER];
     Map senderTable;
     Map senderRequestTable;
     Map receiverTable;

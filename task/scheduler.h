@@ -3,6 +3,7 @@
 
 #include <task.h>
 #include <queue.h>
+#include <map.h>
 #include <priorityQueue.h>
 
 #define MAX_TASKS 24
@@ -11,6 +12,7 @@ typedef struct os_Scheduler{
     Task tasks[MAX_TASKS];
     Queue freeQueue;
     Task* currentTask;
+    Map taskTable;
     PriorityQueue readyQueue;
 } Scheduler;
 
@@ -28,6 +30,8 @@ int runFirstAvailableTask(Scheduler* scheduler);
 void runTask(Scheduler* scheduler, Task* task);
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task);
+
+Task* getTask(int tId);
 
 void handleSuspendedTasks(void* lr);
 

@@ -27,6 +27,7 @@ void printTask(Task* task){
 void initializeScheduler(Scheduler* scheduler){
     intializePriorityQueue(&(scheduler->readyQueue));
     initializeQueue(&(scheduler->freeQueue));
+    initializeMap(&(scheduler->taskTable));
     int i;
     for(i=0;i<MAX_TASKS;i++){
 	    push(&(scheduler->freeQueue), scheduler->tasks + i);
@@ -42,6 +43,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     }
     int tId = taskID++;
     initializeTask(task, tId, parent, priority, READY, functionPtr);
+    insertMap(&(scheduler->taskTable), tId, task);
     insertTaskToQueue(scheduler, task);
     return tId;
 }
@@ -75,6 +77,12 @@ void runTask(Scheduler* scheduler, Task* task){
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
     return insert(&(scheduler->readyQueue), task);
 }
+
+//TODO: Delete entries from taskTable when they are destroyed
+Task* getTask(Scheduler* schedule, int tId){
+    return getMap(&(schedule->taskTable), tId);
+}
+
 
 void handleSuspendedTasks(void* lr){
     int* stackPtr;
