@@ -1,6 +1,8 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <queue.h>
+
 #define MAP_SIZE 100
 
 typedef struct genericNode{
@@ -14,6 +16,7 @@ typedef struct genericNode{
 typedef struct genericMap{
     Node* root;
     Node nodes[MAP_SIZE];
+    Queue freeQueue;
 } Map;
 
 void initializeMap(Map* map);

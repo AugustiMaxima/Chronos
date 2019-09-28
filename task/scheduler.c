@@ -6,6 +6,8 @@
 
 extern Scheduler* scheduler;
 
+int taskID = 1;
+
 void printRegisters(int* stack){
     bwprintf(COM2, "Stack pointer : %x\r\n", stack);
     bwprintf(COM2, "CPSR [%x]: %x\r\n", stack, *stack);
@@ -24,62 +26,42 @@ void printTask(Task* task){
 
 void initializeScheduler(Scheduler* scheduler){
     intializePriorityQueue(&(scheduler->queue));
+    initializeQueue(&(scheduler->freeQueue));
     int i;
     for(i=0;i<MAX_TASKS;i++){
-	    scheduler->tasks[i].tId = 0;
+	    push(&(scheduler->freeQueue), scheduler->tasks + i);
     }
     scheduler->currentTask = NULL;
 }
 
-int getAvailableTaskId(Scheduler* scheduler){
-    int i;
-    for(i=0; i<MAX_TASKS; i++){
-	// bwprintf(COM2, "%d %d\r\n", i, scheduler->tasks[i].tId);
-        if(scheduler->tasks[i].tId == 0)
-            return i+1;
-    }
-    return 0;
-}
-
 //Allocates, configures and setups the stack layout for context switch
 int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionPtr){
-    int tId = getAvailableTaskId(scheduler);
-    if (!tId){
+    Task* task = pop(&(scheduler->freeQueue));
+    if (!task){
         return -2;
     }
-    initializeTask(&(scheduler->tasks[tId-1]), tId, parent, priority, READY, functionPtr);
-
-    insertTaskToQueue(scheduler, &(scheduler->tasks[tId - 1]));
-
+    int tId = taskID++;
+    initializeTask(task, tId, parent, priority, READY, functionPtr);
+    insertTaskToQueue(scheduler, task);
     return tId;
 }
 
-void freeTask(Scheduler* scheduler, int tId){
-    int i;
-    for(i=0;i<MAX_CHILDREN;i++){
-        int cId = scheduler->tasks[tId-1].childTasks[i];
-        if(cId){
-            scheduler->tasks[cId-1].pId = 0;
-        }
-        scheduler->tasks[tId-1].childTasks[i] = 0;
-    }
-    scheduler->tasks[tId-1].tId = 0;
+void freeTask(Scheduler* scheduler, Task* task){
+    push(&(scheduler->freeQueue), task);
 }
 
 int runFirstAvailableTask(Scheduler* scheduler) {
     Task* task;
-    int i=0;
     task = removeMin(&(scheduler->queue));
     if(task){
-        runTask(scheduler, task->tId);
+        runTask(scheduler, task);
         return 0;
     } else{
         return -1;
     }
 }
 
-void runTask(Scheduler* scheduler, int tId){
-    Task* task = &(scheduler->tasks[tId - 1]);
+void runTask(Scheduler* scheduler, Task* task){
     scheduler->currentTask = task;
     task->status = RUNNING;
     printTask(task);
@@ -93,11 +75,6 @@ void runTask(Scheduler* scheduler, int tId){
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
     return insert(&(scheduler->queue), task);
 }
-
-Task* getTask(Scheduler* scheduler, int tId){
-    return &(scheduler->tasks[tId - 1]);
-}
-
 
 void handleSuspendedTasks(void* lr){
     int* stackPtr;

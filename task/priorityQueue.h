@@ -13,7 +13,6 @@
 typedef struct osPQueue{
     int length;
     Task* queue[P_QUEUE_SIZE];
-
 } PriorityQueue;
 
 void intializePriorityQueue(PriorityQueue* queue);

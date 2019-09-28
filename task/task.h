@@ -15,7 +15,6 @@ typedef struct os_Task{
     int pId; // parentId
     int tId; // taskId
     int priority;
-    int childTasks[MAX_CHILDREN];
 
     char STACK[STACK_SIZE];
 
@@ -26,7 +25,5 @@ typedef struct os_Task{
 } Task;
 
 void initializeTask(Task* task, int tId, int pId, int priority, taskStatus status, void* functionPtr);
-
-int appendChildTasks(Task* task, int tId);
 
 #endif

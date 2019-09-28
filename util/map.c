@@ -15,19 +15,16 @@ void initializeNode(Node* node, int key, void* value){
     node->right = NULL;
 }
 
-void freeNode(Node* node){
-    node->key = 0;
-    node->value = NULL;
-    node->height = 0;
-    node->left = NULL;
-    node->right = NULL;
+void freeNode(Map* map, Node* node){
+    push(&(map->freeQueue), node);
 }
 
 void initializeMap(Map* map){
     map->root = NULL;
+    initializeQueue(&(map->freeQueue));
     int i=0;
     for(i=0;i<MAP_SIZE;i++){
-        freeNode(map->nodes+i);
+        push(&(map->freeQueue), map->nodes + i);
     }
 }
 
@@ -98,19 +95,12 @@ Node* rotation(Node* position){
 
 
 Node* insertNode(Node* position, Node* node){
-    //bwprintf(COM2, "Insert\r\n");
+    if(!position)
+        return node;
     if(position->key>node->key){
-        if(position->left){
-            position->left = insertNode(position->left, node);
-        } else {
-            position->left = node;
-        }
+        position->left = insertNode(position->left, node);
     } else {
-        if(position->right){
-            position->right = insertNode(position->right, node);
-        } else {
-            position->right = node;
-        }
+        position->right = insertNode(position->right, node);
     }
     return rotation(position);
 }
@@ -144,7 +134,7 @@ Node* promote(Node* position, bool left){
     return chosen;
 }
 
-Node* successor(Node* position){
+Node* successor(Map* map, Node* position){
     Node* candidate = NULL;
     if(position->right){
         if(!position->right->left){
@@ -165,23 +155,21 @@ Node* successor(Node* position){
             candidate->right = position->right;
         }
     }
-    freeNode(position);
+    freeNode(map, position);
     updateHeight(candidate);
     return candidate;
 }
 
-Node* removeNode(Node* position, int key){
-    int lh = 0, rh = 0;
+Node* removeNode(Map* map, Node* position, int key){
+    if(!position)
+        return NULL;
     if(position->key>key){
-        if(position->left){
-            position->left = removeNode(position->left, key);
-        }
+        position->left = removeNode(map, position->left, key);
+
     } else if(position->key == key) {
-        position = successor(position);
+        position = successor(map, position);
     } else {
-        if(position->right){
-            position->right = removeNode(position->right, key);
-        }
+        position->right = removeNode(map, position->right, key);
     }
     updateHeight(position);
     return rotation(position);
@@ -200,19 +188,11 @@ void* search(Node* node, int key){
 }
 
 int insertMap(Map* map, int key, void* value){
-    int i;
-    for(i=0;i<MAP_SIZE;i++){
-        if(!map->nodes[i].height){
-            initializeNode(map->nodes+i, key, value);
-            if(map->root){
-                map->root = insertNode(map->root, map->nodes+i);
-            } else {
-                map->root = map->nodes + i;
-            }
-            return 0;
-        }
-    }
-    return -1;
+    Node* node = pop(&(map->freeQueue));
+    if(!node)
+        return -1;
+    initializeNode(node, key, value);
+    map->root = insertNode(map->root, node);
 }
 
 void* getMap(Map* map, int key){
@@ -220,15 +200,7 @@ void* getMap(Map* map, int key){
 }
 
 void removeMap(Map* map, int key){
-    map->root = removeNode(map->root, key);
-}
-
-
-void printTree(Map* map){
-    int i,j;
-    bwprintf(COM2,"Printing trees\r\n");
-    debugTree(map->root);
-    bwprintf(COM2,"Doneish\r\n");
+    map->root = removeNode(map, map->root, key);
 }
 
 void debugTree(Node* node){
@@ -236,4 +208,9 @@ void debugTree(Node* node){
     bwprintf(COM2, " %d " ,node->key);
     debugTree(node->left);
     debugTree(node->right);
+}
+void printTree(Map* map){
+    bwprintf(COM2,"Printing trees\r\n");
+    debugTree(map->root);
+    bwprintf(COM2,"Doneish\r\n");
 }

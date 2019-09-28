@@ -99,8 +99,8 @@ userprogram.o: userprogram.s
 userprogram.a: userprogram.o
 	$(AR) $(ARFLAGS) $@ userprogram.o
 
-queue.s: task/queue.c
-	$(CC) -S $(CFLAGS) task/queue.c
+queue.s: util/queue.c
+	$(CC) -S $(CFLAGS) util/queue.c
 
 queue.o: queue.s
 	$(AS) $(ASFLAGS) -o queue.o queue.s
