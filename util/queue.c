@@ -18,7 +18,7 @@ void initializeQueue(Queue* queue){
     queue->length = 0;
 }
 
-int pop(Queue* queue){
+void* pop(Queue* queue){
     if (ringFill(queue)) {
         int ret = queue->queue[ring(queue->cursor++)];
         return ret;
@@ -36,7 +36,7 @@ int peep(Queue* queue){
     }
 };
 
-int push(Queue* queue, int obj){
+int push(Queue* queue, void* obj){
     if(ringCapacity(queue)){
         queue->queue[ring(queue->length++)] = obj;
         return 0;

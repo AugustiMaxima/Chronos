@@ -15,7 +15,7 @@ LD = $(XBINDIR)/arm-elf-ld
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user
+CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I util
 
 # -static: force static linking
 # -e: set entry point
@@ -23,7 +23,7 @@ CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 # -T: use linker script
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
-LIBS = -lbwio -ldump -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lgcc
+LIBS = -lbwio -ldump -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lgcc
 
 all: kernel.elf
 
@@ -33,7 +33,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a
+kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: dump.c
@@ -99,8 +99,8 @@ userprogram.o: userprogram.s
 userprogram.a: userprogram.o
 	$(AR) $(ARFLAGS) $@ userprogram.o
 
-queue.s: task/queue.c
-	$(CC) -S $(CFLAGS) task/queue.c
+queue.s: util/queue.c
+	$(CC) -S $(CFLAGS) util/queue.c
 
 queue.o: queue.s
 	$(AS) $(ASFLAGS) -o queue.o queue.s
@@ -125,6 +125,15 @@ scheduler.o: scheduler.s
 
 scheduler.a: scheduler.o
 	$(AR) $(ARFLAGS) $@ scheduler.o
+
+map.s: util/map.c
+	$(CC) -S $(CFLAGS) util/map.c
+
+map.o: map.s
+	$(AS) $(ASFLAGS) -o map.o map.s
+
+map.a: map.o
+	$(AR) $(ARFLAGS) $@ map.o
 
 .PHONY: install clean
 
