@@ -42,16 +42,6 @@ void user_main() {
     bwprintf(COM2, "[user_main]\tCreate(-1, sender)=%d\r\n", Create(-1, sender));
 }
 
-
-void magicExit(){
-    asm("MOV R1, LR");
-    asm("MOV R0, #1");
-    asm("BL bwputr");
-    int i = MyTid();
-
-    bwprintf(COM2, "Task ID %d\r\n", i);
-}
-
 void MapTest(){
     Map map;
     Map* m = &map;
