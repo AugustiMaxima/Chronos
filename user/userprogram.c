@@ -123,6 +123,10 @@ strlen (const char *s) {
 
 char* SIGNUP_MSG = "signup";
 char* FIRSTCHOICE_MSG = "first";
+char* WON_MSG = "won";
+char* LOST_MSG = "lost";
+char* ROCK_MSG = "rock";
+
 
 void trace_Send(const char* taskName, int tid, const char* msg, char* reply) {
     int ret = Send(tid, msg, strlen(msg), reply, 100);
@@ -132,7 +136,6 @@ void trace_Send(const char* taskName, int tid, const char* msg, char* reply) {
 void trace_Receive(const char* taskName, int* tid, char* msg) {
     int ret = Receive(tid, msg, 100);
     bwprintf(COM2, "[%s %d]\t%d = Receive(=%d, =%s)\r\n", taskName, MyTid(), ret, *tid, msg);
-
 }
 
 void rpsServer() {
@@ -142,6 +145,8 @@ void rpsServer() {
     int who;
     int p1 = -1;
     int p2 = -1;
+    char p1Move = 'x';
+    char p2Move = 'x';
 
     initializeQueue(&signups);
 
@@ -151,6 +156,10 @@ void rpsServer() {
         // handle receive
         if (0 == strcmp(buf, SIGNUP_MSG)) {
             push(&signups, who);
+        } else if (p1 == who) {
+            p1Move = buf[0];
+        } else if (p2 == who) {
+            p2Move = buf[0];
         } else {
             bwprintf(COM2, "[rpsServer]\tUnknown message\r\n");
         }
@@ -160,6 +169,10 @@ void rpsServer() {
             p2 = pop(&signups);
             Reply(p1, FIRSTCHOICE_MSG, strlen(FIRSTCHOICE_MSG));
             Reply(p2, FIRSTCHOICE_MSG, strlen(FIRSTCHOICE_MSG));
+        } else if (p1Move != 'x' && p2Move != 'x') {
+            int p1Won = 1; // todo: check who won
+            Reply(p1, WON_MSG, strlen(WON_MSG));
+            Reply(p2, LOST_MSG, strlen(LOST_MSG));
         }
     }
 }
@@ -167,6 +180,11 @@ void rpsServer() {
 void rpsClient() {
     char buf[100];
     trace_Send("rpsClient", 2, SIGNUP_MSG, buf);
+    if (0 == strcmp(buf, FIRSTCHOICE_MSG)) {
+        trace_Send("rpsClient", 2, ROCK_MSG, buf);
+        trace_Send("rpsClient", 2, ROCK_MSG, buf);
+        trace_Send("rpsClient", 2, ROCK_MSG, buf);
+    }
 }
 
 void k2_main() {
