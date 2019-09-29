@@ -103,7 +103,7 @@ int insertSender(COMM* com, int tId, int requestTId, const char* source, int len
         return -1;
     sender->tId = tId;
     sender->requestTId = requestTId;
-    sender->source = source;
+    sender->source = (char*) source;
     sender->sourceLength = length;
     sender->receiveBuffer = receive;
     sender->receiveLength = rlength;
@@ -129,5 +129,5 @@ int reply(COMM* com, const char* reply, int length, int tId){
     if(!sender){
         return -2;
     }
-    replyMsg(com, reply, length, sender);
+    return replyMsg(com, reply, length, sender);
 }

@@ -50,7 +50,7 @@ Task* removeMin(PriorityQueue* queue){
     if(queue->length==0){
         return NULL;
     }
-    Task* result = queue->queue[0];    
+    Task* result = queue->queue[0];
     queue->queue[0] = queue->queue[--queue->length];
     reposition(queue, 0);
     return result;
@@ -68,7 +68,7 @@ int insert(PriorityQueue* queue, Task* payload){
 void printStack(PriorityQueue* queue){
     int i=0;
     int upgrade = 1;
-    for(i=0;i<queue->length;i++){        
+    for(i=0;i<queue->length;i++){
         if(i==upgrade){
            bwprintf(COM2, "\r\n");
            upgrade*= 2;

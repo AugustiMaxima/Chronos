@@ -201,6 +201,7 @@ int insertMap(Map* map, int key, void* value){
         return -1;
     initializeNode(node, key, value);
     map->root = insertNode(map->root, node);
+    return 0;
 }
 
 void* getMap(Map* map, int key){
