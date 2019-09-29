@@ -10,5 +10,9 @@
 #define MYTID_CODE 2
 #define MYPARENTTID_CODE 3
 #define EXIT_CODE 4
+#define DESTROY_CODE 5
+#define SEND_CODE 6
+#define RECEIVE_CODE 7
+#define REPLY_CODE 8
 
 #endif

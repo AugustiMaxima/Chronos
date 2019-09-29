@@ -16,6 +16,6 @@ void Destroy();
 
 int Send(int tid, const char *msg, int msglen, char *reply, int replylen);
 
-int Receive(int *tid, char *msg, int msglen);
+int Receive(int* tid, char *msg, int msglen);
 
 int Reply( int tid, void *reply, int replylen );
