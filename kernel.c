@@ -4,16 +4,16 @@
  * Minimal code for developing context switch
  */
 
-#include <bwio.h>
 #include <ts7200.h>
-#include <scheduler.h>
-#include <task.h>
 #include <ARM.h>
 #include <syscall.h>
+#include <scheduler.h>
+#include <sendReceiveReply.h>
 #include <userprogram.h>
-#include <priorityQueue.h>
+#include <bwio.h>
 
 Scheduler* scheduler;
+COMM* com;
 
 int main( int argc, char* argv[] ) {
 
@@ -23,11 +23,15 @@ int main( int argc, char* argv[] ) {
     Scheduler base_scheduler;
     scheduler = &base_scheduler;
 
+    COMM commRelay;
+    com = &commRelay;
+
     initializeScheduler(scheduler);
+    initializeCOMM(com);
 
     // scheduleTask(scheduler, 0, 0, userCall);
     
-    scheduleTask(scheduler, 0, 0, MapTest);
+    // scheduleTask(scheduler, 0, 0, MapTest);
 
 
     while(1) {

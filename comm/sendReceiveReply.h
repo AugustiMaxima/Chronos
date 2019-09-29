@@ -43,10 +43,6 @@ int insertSender(COMM* com, int tId, int requestTId, char* source, int length, c
 
 int insertReceiver(COMM* com, int tId, char* receive, int length);
 
-int reply(COMM* com, int replyTid, const char* reply, int length, int tId);
-
-int SendMsg(COMM* com, Sender* sender, Receiver* receiver);
-
-int replyMsg(COMM* com, const char* reply, int length, Sender* sender);
+int reply(COMM* com, const char* reply, int length, int tId);
 
 #endif
