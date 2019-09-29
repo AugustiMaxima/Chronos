@@ -6,7 +6,7 @@
 #include <map.h>
 #include <priorityQueue.h>
 
-#define MAX_TASKS 24
+#define MAX_TASKS 64
 
 typedef struct os_Scheduler{
     Task tasks[MAX_TASKS];

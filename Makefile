@@ -23,7 +23,7 @@ CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 # -T: use linker script
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
-LIBS = -lbwio -ldump -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lgcc
 
 all: kernel.elf
 
@@ -33,7 +33,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a
+kernel.elf: kernel.o dump.a arm.A bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: dump.c
@@ -44,6 +44,15 @@ dump.o: dump.s
 
 dump.a: dump.o
 	$(AR) $(ARFLAGS) $@ dump.o
+
+arm.s: arch/ARM.c
+	$(CC) -S $(CFLAGS) arch/ARM.c
+
+arm.o: arm.s
+	$(AS) $(ASFLAGS) -o arm.o arm.s
+
+arm.A: arm.o
+	$(AR) $(ARFLAGS) $@ arm.o
 
 bwio.s: bwio.c
 	$(CC) -S $(CFLAGS) bwio.c

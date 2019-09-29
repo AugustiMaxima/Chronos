@@ -14,7 +14,7 @@ Scheduler* scheduler;
 COMM* com;
 
 int main( int argc, char* argv[] ) {
-
+    hypeTrain();
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
 
@@ -27,7 +27,7 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    scheduleTask(scheduler, 0, 0, user_main);
+    scheduleTask(scheduler, 0, 0, FireStrike);
 
 
     while(1) {

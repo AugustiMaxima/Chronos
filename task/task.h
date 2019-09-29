@@ -1,7 +1,6 @@
 #ifndef TASK_H
 #define TASK_H
 
-#define MAX_CHILDREN 8
 #define STACK_SIZE 65536
 
 typedef enum task_Status{
