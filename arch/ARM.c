@@ -30,7 +30,7 @@ void disableICache(){
 }
 
 void enableICache(){
-    asm("MCR p15,0,Rd,c7,c5,0");
+    asm("MCR p15, 0, R0, c7, c5, 0");
     int mode;
     asm("MRC p15, 0, R0, c1, c0, 0");
     asm("MOV %0, R0":"=r"(mode));
@@ -40,7 +40,7 @@ void enableICache(){
 }
 
 void hypeTrain(){
-    asm("MCR p15,0,Rd,c7,c7,0");
+    asm("MCR p15, 0, R0, c7, c7, 0");
     int mode;
     asm("MRC p15, 0, R0, c1, c0, 0");
     asm("MOV %0, R0":"=r"(mode));

@@ -4,3 +4,5 @@ void user_main();
 
 void magicExit();
 void MapTest();
+
+void FireStrike();

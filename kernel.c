@@ -27,7 +27,7 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    scheduleTask(scheduler, 0, 0, user_main);
+    scheduleTask(scheduler, 0, 0, FireStrike);
 
 
     while(1) {

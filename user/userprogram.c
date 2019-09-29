@@ -88,3 +88,19 @@ void MapTest(){
     printTree(m);
     insertMap(m, 15, NULL);
 }
+
+void shitTest(){
+    Destroy();
+}
+
+void FireStrike(){
+    int i=0;
+    int exp = 0;
+    for(i = 0; i<10000; i++){
+        int id = Create(2, shitTest);
+        if(id>0){
+            exp++;
+        }
+    }
+    bwprintf(COM2, "Created %d tasks\r\n", exp);
+}

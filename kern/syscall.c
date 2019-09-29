@@ -125,7 +125,8 @@ void sysExit(){
 }
 
 void sysDestroy(){
-    bwprintf(COM2, "not implemented\r\n");
+    scheduler->currentTask->status = EXITED;
+    freeTask(scheduler, scheduler->currentTask);
 }
 
 void sysSend(){
