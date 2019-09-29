@@ -28,12 +28,13 @@ void receiver() {
     char buf[100];
     Receive(&who, buf, 40);
     bwprintf(COM2, "receiver: someone sent me some crap\r\n");
+    Reply(who, "Who the fuck are ye?", 40);
 }
 
 void sender() {
     char buf[100];
     bwprintf(COM2, "[sender]\tSend()=%d\r\n", Send(2, "hello\r\n", 40, buf, 40));
-    bwprintf(COM2, "Sender waking up\r\n");
+    bwprintf(COM2, "%s\r\n", buf);
 }
 
 void user_main() {

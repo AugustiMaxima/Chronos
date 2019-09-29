@@ -164,24 +164,25 @@ void sysReceive(){
     int* args = sp[-1];
     char* msg = args[1];
     int msglen = args[2];
-
     int status = insertReceiver(com, scheduler->currentTask->tId, msg, msglen);
+    sp[3] = args[0];
 }
 
 void sysReply(){
     int* sp;
     enter_sys_mode();
 
-    asm("ADD SP, SP, #12");
+    asm("ADD SP, SP, #4");
     asm("MOV R0, SP");
 
     exit_sys_mode();
 
     asm("MOV %0, R0" : "=r"(sp));
 
-    int tid = sp[-3];
-    char* msg = sp[-2];
-    int msglen = sp[-1];
+    int* args = sp[-1];
+    int tid = args[0];
+    char* msg = args[1];
+    int msglen = args[2];
     int result = reply(com, msg, msglen, tid);
     sp[1] = result;
 }

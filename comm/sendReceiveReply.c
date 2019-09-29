@@ -43,7 +43,7 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
     Task* task = getTask(scheduler, receiver->tId);
 
     //stores in R1, R2, keeping R0 safe so we can just dereference it
-    task->stackEntry[3] = i;
+    task->stackEntry[1] = i;
     task->stackEntry[2] = sender->tId;
     if(task->status == BLOCKED){
 	    insertTaskToQueue(scheduler, task);

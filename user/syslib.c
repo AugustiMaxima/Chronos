@@ -79,7 +79,6 @@ int Send(int tid, const char *msg, int msglen, char *reply, int replylen) {
     Arguments argument;
     variadicStore(&argument, 5, tid, msg, msglen, reply, replylen);
     save_user_context();
-    bwprintf(COM2, "ArgsS: %x\r\n", argument.args);
     asm("SUB SP, SP, #4");
     asm("STR %0, [SP]"::"r"(argument.args));
     asm("SWI " TOSTRING(SEND_CODE));
@@ -89,24 +88,21 @@ int Receive(int *tid, char *msg, int msglen) {
     Arguments argument;
     variadicStore(&argument, 3, tid, msg, msglen);
     save_user_context();
-    bwprintf(COM2, "ArgsR: %x\r\n", argument.args);
 
     asm("SUB SP, SP, #4");
     asm("STR %0, [SP]"::"r"(argument.args));
     asm("SWI " TOSTRING(RECEIVE_CODE));
 
     //Pro gamer move:
-    //tId is unmolested by the syscall, R1 contains the sender Id, dereference tId and and store sender id there
-    //R2 contains the number of characters received, so this should be the return argument on R0
-    asm("STR R1, [R0]");
-    asm("MOV R0, R2");
+    //pushes the sender into tid, stored at R2
+    asm("STR R1, [R2]");
 }
 
-int Reply( int tid, void *reply, int replylen ) {
+int Reply( int tid, const char *reply, int replylen ) {
+    Arguments argument;
+    variadicStore(&argument, 3, tid, reply, replylen);
     save_user_context();
-    asm("SUB SP, SP, #12");
-    asm("STR R0, [SP]");
-    asm("STR R1, [SP, #4]");
-    asm("STR %0, [SP, #8]":"=r"(replylen));
+    asm("SUB SP, SP, #4");
+    asm("STR %0, [SP]"::"r"(argument.args));
     asm("SWI " TOSTRING(REPLY_CODE));
 }
