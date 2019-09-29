@@ -1,5 +1,6 @@
 #include <scheduler.h>
 #include <sendReceiveReply.h>
+#include <bwio.h>
 
 extern Scheduler* scheduler;
 
@@ -30,7 +31,7 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
         receiver->receiveBuffer[i] = sender->source[i];
     }
     receiver->receiveBuffer[i] = 0;
-    
+
     //Block for cleanup
     //Note on this operation: For this to be true, crucial that we have stable order
     removeMap(&(com->senderRequestTable), receiver->tId);
@@ -49,7 +50,7 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
     int mlen = min(length, sender->receiveLength - 1);
     int i;
     for(i=0;i<mlen && reply[i];i++){
-        sender->receiveBuffer[i] = reply[i]; 
+        sender->receiveBuffer[i] = reply[i];
     }
     sender->receiveBuffer[i] = 0;
 
@@ -66,9 +67,10 @@ int processSender(COMM* com, Sender* sender){
     Receiver* target = getMap(&(com->receiverTable), sender->requestTId);
     if(!target){
         Task* receiverTask = getTask(scheduler, sender->requestTId);
-        if(receiverTask->status != EXITED){
+        if(receiverTask && receiverTask->status != EXITED){
             insertMap(&(com->senderRequestTable), sender->requestTId, sender);
             scheduler->currentTask->status = BLOCKED;
+            return -42; // should be overriden later
         } else {
             return -1;
         }
