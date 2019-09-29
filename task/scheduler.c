@@ -75,6 +75,7 @@ void runTask(Scheduler* scheduler, Task* task){
 }
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
+    task->status = READY;
     return insert(&(scheduler->readyQueue), task);
 }
 
@@ -109,7 +110,6 @@ void handleSuspendedTasks(void* lr){
     //TODO: Figure out and design the blocked queue based on different conditions and status
     // Current iteration : Pretend every suspended task will be ready again right now
     if(scheduler->currentTask->status == RUNNING){
-        scheduler->currentTask->status == READY;
         int code = insertTaskToQueue(scheduler, scheduler->currentTask);
     }
     scheduler->currentTask = NULL;

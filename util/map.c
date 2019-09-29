@@ -3,6 +3,7 @@
 #include <map.h>
 #include <bwio.h>
 
+
 int max(int a, int b){
     return a>b? a: b;
 }
@@ -155,6 +156,7 @@ Node* successor(Map* map, Node* position){
             candidate->right = position->right;
         }
     }
+    map->retainer = position->value;
     freeNode(map, position);
     updateHeight(candidate);
     return candidate;
@@ -199,8 +201,10 @@ void* getMap(Map* map, int key){
     return search(map->root, key);
 }
 
-void removeMap(Map* map, int key){
+void* removeMap(Map* map, int key){
+    map->retainer = NULL;
     map->root = removeNode(map, map->root, key);
+    return map->retainer;
 }
 
 void debugTree(Node* node){

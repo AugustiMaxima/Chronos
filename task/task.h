@@ -4,7 +4,7 @@
 #define MAX_CHILDREN 8
 #define STACK_SIZE 65536
 
-typedef enum{
+typedef enum task_Status{
     RUNNING,
     READY,
     BLOCKED,

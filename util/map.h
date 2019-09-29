@@ -17,6 +17,7 @@ typedef struct genericMap{
     Node* root;
     Node nodes[MAP_SIZE];
     Queue freeQueue;
+    void* retainer;
 } Map;
 
 void initializeMap(Map* map);
@@ -26,7 +27,7 @@ int insertMap(Map* map, int key, void* value);
 
 void* getMap(Map* map, int key);
 
-void removeMap(Map* map, int key);
+void* removeMap(Map* map, int key);
 
 void printTree(Map* map);
 

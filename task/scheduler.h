@@ -31,7 +31,7 @@ void runTask(Scheduler* scheduler, Task* task);
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task);
 
-Task* getTask(int tId);
+Task* getTask(Scheduler* scheduler, int tId);
 
 void handleSuspendedTasks(void* lr);
 
