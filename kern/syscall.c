@@ -58,41 +58,35 @@ void __attribute__((naked)) sys_handler(){
     asm("MOV PC, LR");
 }
 
-void sysYield(){
-    //bwprintf(COM2, "%s", "Yielding!\r\n");
-}
-
-void sysGetTid(){
-    //bwprintf(COM2, "%s", "getTid!\r\n");
-    // bwprintf(COM2, "%s", "getting tid\r\n");
+static inline __attribute__((always_inline)) enter_sys_mode() {
     asm("MRS R0, CPSR");
-    //12 is the distance from svc to sys mode
     asm("ADD R0, R0, #12");
     asm("MSR CPSR, R0");
+}
 
-    asm("MOV R2, SP");
-
+static inline __attribute__((always_inline)) exit_sys_mode() {
     asm("MRS R0, CPSR");
     asm("SUB R0, R0, #12");
     asm("MSR CPSR, R0");
+}
+
+void sysYield(){
+}
+
+void sysGetTid(){
+    enter_sys_mode();
+    asm("MOV R2, SP");
+    exit_sys_mode();
+
     int* sp;
     asm("MOV %0, R2":"=r"(sp));
     sp[1] = scheduler->currentTask->tId;
 }
 
 void sysGetPid(){
-    //bwprintf(COM2, "%s", "GetPid!\r\n");
-    // bwprintf(COM2, "%s", "getting pid\r\n");
-    asm("MRS R0, CPSR");
-    //12 is the distance from svc to sys mode
-    asm("ADD R0, R0, #12");
-    asm("MSR CPSR, R0");
-
+    enter_sys_mode();
     asm("MOV R2, SP");
-
-    asm("MRS R0, CPSR");
-    asm("SUB R0, R0, #12");
-    asm("MSR CPSR, R0");
+    exit_sys_mode();
     int* sp;
     asm("MOV %0, R2":"=r"(sp));
     sp[1] = scheduler->currentTask->pId;
@@ -103,19 +97,12 @@ void sysCreateTask(){
     void* funcPtr;
     int priority;
     int* sp;
-    //goes into system mode, in order to unwind the stack and retrieve the additional arguments
-    asm("MRS R0, CPSR");
-    //12 is the distance from svc to sys mode
-    asm("ADD R0, R0, #12");
-    asm("MSR CPSR, R0");
 
+    enter_sys_mode();
     asm("ADD SP, SP, #8");
-
     asm("MOV R2, SP");
+    exit_sys_mode();
 
-    asm("MRS R0, CPSR");
-    asm("SUB R0, R0, #12");
-    asm("MSR CPSR, R0");
 
     asm("MOV %0, R2": "=r"(sp));
     priority = sp[-2];
@@ -128,26 +115,19 @@ void sysCreateTask(){
 }
 
 void sysExit(){
-    //bwprintf(COM2, "%s", "Exit!\r\n");
     scheduler->currentTask->status = EXITED;
 }
 
 void sysDestroy(){
-
+    bwprintf(COM2, "not implemented\r\n");
 }
 
 void sysSend(){
     int* sp;
-    asm("MRS R0, CPSR");
-    asm("ADD R0, R0, #12");
-    asm("MSR CPSR, R0");
-
+    enter_sys_mode();
     asm("ADD SP, SP, #20");
     asm("MOV R2, SP");
-
-    asm("MRS R0, CPSR");
-    asm("SUB R0, R0, #12");
-    asm("MSR CPSR, R0");
+    exit_sys_mode();
 
     asm("MOV %0, R2" : "=r"(sp));
 
