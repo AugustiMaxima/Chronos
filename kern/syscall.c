@@ -35,6 +35,9 @@ void jumpTable(int code){
         case SEND_CODE:
             sysSend();
             break;
+        case RECEIVE_CODE:
+            sysReceive();
+            break;
         default:
             bwprintf(COM2, "Unknown SWI code %d!\r\n", code);
             while(1){}
@@ -143,7 +146,6 @@ void sysSend(){
     } else {
         scheduler->currentTask->status = BLOCKED;
     }
-    bwprintf(COM2, "syssend: result=%d\r\n", result);
 }
 
 void sysReceive(){

@@ -24,8 +24,9 @@ void k1_main(){
 }
 
 void user_main() {
-    char reply[100];
-    Send(10, "hello\r\n", 40, reply, 40);
+    int who;
+    char buf[100];
+    Receive(&who, buf, 40);
     Yield();
 }
 
