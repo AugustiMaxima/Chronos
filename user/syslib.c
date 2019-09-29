@@ -82,7 +82,7 @@ int Receive(int *tid, char *msg, int msglen) {
     //Pro gamer move:
     //tId is unmolested by the syscall, R1 contains the sender Id, dereference tId and and store sender id there
     //R2 contains the number of characters received, so this should be the return argument on R0
-    asm("STR R1 [R0]");
+    asm("STR R1, [R0]");
     asm("MOV R0, R2");
 }
 
@@ -91,6 +91,6 @@ int Reply( int tid, void *reply, int replylen ) {
     asm("SUB SP, SP, #12");
     asm("STR R0, [SP]");
     asm("STR R1, [SP, #4]");
-    asm("STR %0, [SP, #8]":"=r"(msglen));
+    asm("STR %0, [SP, #8]":"=r"(replylen));
     asm("SWI " TOSTRING(REPLY_CODE));
 }

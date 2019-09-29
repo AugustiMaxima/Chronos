@@ -39,7 +39,7 @@ typedef struct SendReceiveReply{
 
 void initializeCOMM(COMM* com);
 
-int insertSender(COMM* com, int tId, int requestTId, char* source, int length, char* receive, int rlength);
+int insertSender(COMM* com, int tId, int requestTId, const char* source, int length, char* receive, int rlength);
 
 int insertReceiver(COMM* com, int tId, char* receive, int length);
 

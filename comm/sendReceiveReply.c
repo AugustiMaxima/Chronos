@@ -35,7 +35,7 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
     //Note on this operation: For this to be true, crucial that we have stable order
     removeMap(&(com->senderRequestTable), receiver->tId);
     insertMap(&(com->senderReplyTable), sender->tId, sender);
-    void* status = removeMap(&(com->receiverTable), receiver->tId);
+    removeMap(&(com->receiverTable), receiver->tId);
     Task* task = getTask(scheduler, receiver->tId);
 
     //stores in R1, R2, keeping R0 save so we can just dereference it
@@ -46,9 +46,9 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
 }
 
 int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
-    int length = min(length, sender->receiveLength - 1);
+    int mlen = min(length, sender->receiveLength - 1);
     int i;
-    for(i=0;i<length && reply[i];i++){
+    for(i=0;i<mlen && reply[i];i++){
         sender->receiveBuffer[i] = reply[i]; 
     }
     sender->receiveBuffer[i] = 0;

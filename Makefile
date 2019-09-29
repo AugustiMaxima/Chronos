@@ -15,7 +15,7 @@ LD = $(XBINDIR)/arm-elf-ld
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I util
+CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I util -I comm
 
 # -static: force static linking
 # -e: set entry point
@@ -23,7 +23,7 @@ CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 # -T: use linker script
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
-LIBS = -lbwio -ldump -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lgcc
+LIBS = -lbwio -ldump -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lgcc
 
 all: kernel.elf
 
@@ -33,7 +33,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a
+kernel.elf: kernel.o dump.a bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: dump.c
@@ -134,6 +134,15 @@ map.o: map.s
 
 map.a: map.o
 	$(AR) $(ARFLAGS) $@ map.o
+
+sendReceiveReply.s: comm/sendReceiveReply.c
+	$(CC) -S $(CFLAGS) comm/sendReceiveReply.c
+
+sendReceiveReply.o: sendReceiveReply.s
+	$(AS) $(ASFLAGS) -o sendReceiveReply.o sendReceiveReply.s
+
+sendReceiveReply.a: sendReceiveReply.o
+	$(AR) $(ARFLAGS) $@ sendReceiveReply.o
 
 .PHONY: install clean
 
