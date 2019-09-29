@@ -6,7 +6,7 @@
 
 extern Scheduler* scheduler;
 
-int taskID = 1;
+int taskID;
 
 void printRegisters(int* stack){
     bwprintf(COM2, "Stack pointer : %x\r\n", stack);
@@ -25,6 +25,7 @@ void printTask(Task* task){
 }
 
 void initializeScheduler(Scheduler* scheduler){
+    taskID = 1;
     intializePriorityQueue(&(scheduler->readyQueue));
     initializeQueue(&(scheduler->freeQueue));
     initializeMap(&(scheduler->taskTable));
