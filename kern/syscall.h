@@ -39,6 +39,14 @@ void sysCreateTask();
 
 void sysExit();
 
+void sysDestory();
+
+void sysSend();
+
+void sysReceive();
+
+void sysReply();
+
 void setUpSWIHandler(void* handle_swi);
 
 #endif

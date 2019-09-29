@@ -2,11 +2,13 @@
 #include <syscode.h>
 #include <kern.h>
 #include <scheduler.h>
+#include <sendReceiveReply.h>
 #include <syscall.h>
 #include <bwio.h>
 
 //We will need to use this scheduler for keeping track of current proc, as well as other important tasks
 extern Scheduler* scheduler;
+extern COMM* com;
 
 //handles the switch statements
 void jumpTable(int code){
@@ -27,6 +29,8 @@ void jumpTable(int code){
         case EXIT_CODE:
             sysExit();
             break;
+        case DESTROY_CODE:
+            sysDestroy();
         default:
             bwprintf(COM2, "%s", "Miss %d!\r\n", code);
     }
@@ -121,6 +125,82 @@ void sysCreateTask(){
 void sysExit(){
     //bwprintf(COM2, "%s", "Exit!\r\n");
     scheduler->currentTask->status = EXITED;
+}
+
+void sysDestroy(){
+
+}
+
+void sysSend(){
+    int* sp;
+    asm("MRS R0, CPSR");
+    asm("ADD R0, R0, #12");
+    asm("MSR CPSR, R0");
+
+    asm("ADD SP, SP, #20");
+    asm("MOV R2, SP");
+
+    asm("MRS R0, CPSR");
+    asm("SUB R0, R0, #12");
+    asm("MSR CPSR, R0");
+
+    asm("MOV %0, R2" : "=r"(sp));
+
+    scheduler->currentTask->stackEntry = sp;
+    int tid = sp[-5];
+    char* msg = sp[-4];
+    int msglen = sp[-3];
+    char* reply = sp[-2];
+    int replylen = sp[-1];
+    int result = insertSender(com, scheduler->currentTask->tId, tid, msg, msglen, reply, replylen);
+    if (result<0){
+        sp[1] = result;
+    } else {
+        scheduler->currentTask = BLOCKED;
+    }
+}
+
+void sysReceive(){
+    int* sp;
+    asm("MRS R0, CPSR");
+    asm("ADD R0, R0, #12");
+    asm("MSR CPSR, R0");
+
+    asm("ADD SP, SP, #12");
+    asm("MOV R2, SP");
+
+    asm("MRS R0, CPSR");
+    asm("SUB R0, R0, #12");
+    asm("MSR CPSR, R0");
+
+    asm("MOV %0, R2" : "=r"(sp));
+
+    char* msg = sp[-2];
+    int msglen = sp[-1];
+
+    int status = insertReceiver(com, scheduler->currentTask->tId, msg, msglen);
+}
+
+void sysReply(){
+        int* sp;
+    asm("MRS R0, CPSR");
+    asm("ADD R0, R0, #12");
+    asm("MSR CPSR, R0");
+
+    asm("ADD SP, SP, #12");
+    asm("MOV R2, SP");
+
+    asm("MRS R0, CPSR");
+    asm("SUB R0, R0, #12");
+    asm("MSR CPSR, R0");
+
+    asm("MOV %0, R2" : "=r"(sp));
+
+    int tid = sp[-3];
+    char* msg = sp[-2];
+    int msglen = sp[-1];
+    int result = reply(com, msg, msglen, tid);
+    sp[1] = result;
 }
 
 void setUpSWIHandler(void* handle_swi) {

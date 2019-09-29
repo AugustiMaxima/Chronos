@@ -56,17 +56,41 @@ void Exit(){
 }
 
 void Destroy() {
-    bwprintf(COM2, "not implemented\r\n");
+    save_user_context();
+    asm("SWI " TOSTRING(DESTROY_CODE));
 }
 
 int Send(int tid, const char *msg, int msglen, char *reply, int replylen) {
-    bwprintf(COM2, "not implemented\r\n");
+    save_user_context();
+    asm("SUB SP, SP, #20");
+    asm("STR R0, [SP]");
+    asm("STR R1, [SP, #4]");
+    asm("STR %0, [SP, #8]":"=r"(msglen));
+    asm("STR %0, [SP, #8]":"=r"(reply));
+    asm("STR %0, [SP, #8]":"=r"(replylen));
+    asm("SWI " TOSTRING(SEND_CODE));
 }
 
 int Receive(int *tid, char *msg, int msglen) {
-    bwprintf(COM2, "not implemented\r\n");
+    save_user_context();
+    asm("SUB SP, SP, #12");
+    asm("STR R0, [SP]");
+    asm("STR R1, [SP, #4]");
+    asm("STR %0, [SP, #8]":"=r"(msglen));
+    asm("SWI " TOSTRING(RECEIVE_CODE));
+
+    //Pro gamer move:
+    //tId is unmolested by the syscall, R1 contains the sender Id, dereference tId and and store sender id there
+    //R2 contains the number of characters received, so this should be the return argument on R0
+    asm("STR R1, [R0]");
+    asm("MOV R0, R2");
 }
 
 int Reply( int tid, void *reply, int replylen ) {
-    bwprintf(COM2, "not implemented\r\n");
+    save_user_context();
+    asm("SUB SP, SP, #12");
+    asm("STR R0, [SP]");
+    asm("STR R1, [SP, #4]");
+    asm("STR %0, [SP, #8]":"=r"(replylen));
+    asm("SWI " TOSTRING(REPLY_CODE));
 }
