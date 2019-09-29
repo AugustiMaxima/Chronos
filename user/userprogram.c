@@ -23,12 +23,23 @@ void k1_main(){
     bwprintf(COM2, "FirstUserTask: Exit\r\n");
 }
 
-void user_main() {
+void receiver() {
     int who;
     char buf[100];
     Receive(&who, buf, 40);
-    Yield();
+    bwprintf(COM2, "receiver: someone sent me some crap\r\n");
 }
+
+void sender() {
+    char buf[100];
+    bwprintf(COM2, "[sender]\tSend()=%d\r\n", Send(2, "hello\r\n", 40, buf, 40));
+}
+
+void user_main() {
+    bwprintf(COM2, "[user_main]\tCreate(-1, receiver)=%d\r\n", Create(-1, receiver));
+    bwprintf(COM2, "[user_main]\tCreate(-1, sender)=%d\r\n", Create(-1, sender));
+}
+
 
 void magicExit(){
     asm("MOV R1, LR");
