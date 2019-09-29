@@ -4,24 +4,28 @@
 #include <stdlib.h>
 #include <map.h>
 
-void testTask() {
+void k1_child() {
     bwprintf(COM2, "%d %d\r\n", MyTid(), MyParentTid());
     Yield();
     bwprintf(COM2, "%d %d\r\n", MyTid(), MyParentTid());
     Exit();
 }
 
-void userCall(){
-    int ret = Create(-1, testTask);
+void k1_main(){
+    int ret = Create(-1, k1_child);
     bwprintf(COM2, "Created: %d\r\n", ret);
-    ret = Create(-1, testTask);
+    ret = Create(-1, k1_child);
     bwprintf(COM2, "Created: %d\r\n", ret);
-    ret = Create(1, testTask);
+    ret = Create(1, k1_child);
     bwprintf(COM2, "Created: %d\r\n", ret);
-    ret = Create(1, testTask);
+    ret = Create(1, k1_child);
     bwprintf(COM2, "Created: %d\r\n", ret);
     bwprintf(COM2, "FirstUserTask: Exit\r\n");
+}
 
+void user_main() {
+    char reply[40];
+    Send(42, "hello\r\n", 40, reply, 40);
 }
 
 void magicExit(){
@@ -47,8 +51,8 @@ void MapTest(){
     printTree(m);
     insertMap(m, 5, NULL);
     printTree(m);
-    insertMap(m, 6, NULL);   
-    printTree(m); 
+    insertMap(m, 6, NULL);
+    printTree(m);
     insertMap(m, 7, NULL);
     printTree(m);
     insertMap(m, 8, NULL);
@@ -58,13 +62,13 @@ void MapTest(){
     removeMap(m, 23);
     printTree(m);
     removeMap(m, 25);
-    insertMap(m, 35, NULL);    
+    insertMap(m, 35, NULL);
     insertMap(m, 6, NULL);
     insertMap(m, 2, NULL);
-    insertMap(m, 5, NULL);    
+    insertMap(m, 5, NULL);
     insertMap(m, 43, NULL);
-    insertMap(m, 62, NULL);    
-    removeMap(m, 63);    
+    insertMap(m, 62, NULL);
+    removeMap(m, 63);
     removeMap(m, 35);
     printTree(m);
     insertMap(m, 15, NULL);

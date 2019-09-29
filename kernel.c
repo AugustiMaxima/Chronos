@@ -29,8 +29,8 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    // scheduleTask(scheduler, 0, 0, userCall);
-    
+    scheduleTask(scheduler, 0, 0, k1_main);
+
     // scheduleTask(scheduler, 0, 0, MapTest);
 
 
