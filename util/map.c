@@ -30,6 +30,8 @@ void initializeMap(Map* map){
 }
 
 void updateHeight(Node* node){
+    if(!node)
+        return;
     node->height = max(node->left? node->left->height : 0, node->right? node->right->height : 0) + 1;
     //bwprintf(COM2, "Height update:%x %d\r\n",node, node->height);
 }
