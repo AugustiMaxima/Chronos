@@ -33,7 +33,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.A bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a
+kernel.elf: kernel.o dump.a arm.a bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: misc/dump.c
@@ -51,7 +51,7 @@ arm.s: arch/ARM.c
 arm.o: arm.s
 	$(AS) $(ASFLAGS) -o arm.o arm.s
 
-arm.A: arm.o
+arm.a: arm.o
 	$(AR) $(ARFLAGS) $@ arm.o
 
 bwio.s: misc/bwio.c
