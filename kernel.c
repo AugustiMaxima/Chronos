@@ -29,8 +29,6 @@ int main( int argc, char* argv[] ) {
 
     scheduleTask(scheduler, 0, 0, user_main);
 
-    // scheduleTask(scheduler, 0, 0, MapTest);
-
 
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {

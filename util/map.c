@@ -38,6 +38,10 @@ void updateHeight(Node* node){
 
 Node* rotation(Node* position){
 
+    if(!position){
+        return position;
+    }
+
     int lh = position->left ? position->left->height : 0;
     int rh = position->right? position->right->height : 0;
 

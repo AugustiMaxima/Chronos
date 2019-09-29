@@ -3,6 +3,8 @@
 #include <bwio.h>
 #include <scheduler.h>
 
+#define MAX_ARGS 10
+
 static inline __attribute__((always_inline)) int save_user_context() {
     asm("SUB SP, SP, #64");
     asm("STR R0, [SP]");
@@ -60,23 +62,37 @@ void Destroy() {
     asm("SWI " TOSTRING(DESTROY_CODE));
 }
 
+typedef struct usrargs{
+    int args[MAX_ARGS];
+} Arguments;
+
+void variadicStore(Arguments* argv, int argc, ...){
+    va_list varags;
+    va_start(varags, argc);
+    int i;
+    for(i=0;i<argc;i++){
+        argv->args[i] = va_arg(varags, int);
+    }
+}
+
 int Send(int tid, const char *msg, int msglen, char *reply, int replylen) {
+    Arguments argument;
+    variadicStore(&argument, 5, tid, msg, msglen, reply, replylen);
     save_user_context();
-    asm("SUB SP, SP, #20");
-    asm("STR R0, [SP]");
-    asm("STR R1, [SP, #4]");
-    asm("STR %0, [SP, #8]":"=r"(msglen));
-    asm("STR %0, [SP, #8]":"=r"(reply));
-    asm("STR %0, [SP, #8]":"=r"(replylen));
+    bwprintf(COM2, "ArgsS: %x\r\n", argument.args);
+    asm("SUB SP, SP, #4");
+    asm("STR %0, [SP]"::"r"(argument.args));
     asm("SWI " TOSTRING(SEND_CODE));
 }
 
 int Receive(int *tid, char *msg, int msglen) {
+    Arguments argument;
+    variadicStore(&argument, 3, tid, msg, msglen);
     save_user_context();
-    asm("SUB SP, SP, #12");
-    asm("STR R0, [SP]");
-    asm("STR R1, [SP, #4]");
-    asm("STR %0, [SP, #8]":"=r"(msglen));
+    bwprintf(COM2, "ArgsR: %x\r\n", argument.args);
+
+    asm("SUB SP, SP, #4");
+    asm("STR %0, [SP]"::"r"(argument.args));
     asm("SWI " TOSTRING(RECEIVE_CODE));
 
     //Pro gamer move:

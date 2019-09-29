@@ -62,15 +62,15 @@ void __attribute__((naked)) sys_handler(){
 }
 
 static inline __attribute__((always_inline)) enter_sys_mode() {
-    asm("MRS R0, CPSR");
-    asm("ADD R0, R0, #12");
-    asm("MSR CPSR, R0");
+    asm("MRS R2, CPSR");
+    asm("ADD R2, R2, #12");
+    asm("MSR CPSR, R2");
 }
 
 static inline __attribute__((always_inline)) exit_sys_mode() {
-    asm("MRS R0, CPSR");
-    asm("SUB R0, R0, #12");
-    asm("MSR CPSR, R0");
+    asm("MRS R2, CPSR");
+    asm("SUB R2, R2, #12");
+    asm("MSR CPSR, R2");
 }
 
 void sysYield(){
@@ -78,20 +78,20 @@ void sysYield(){
 
 void sysGetTid(){
     enter_sys_mode();
-    asm("MOV R2, SP");
+    asm("MOV R0, SP");
     exit_sys_mode();
 
     int* sp;
-    asm("MOV %0, R2":"=r"(sp));
+    asm("MOV %0, R0":"=r"(sp));
     sp[1] = scheduler->currentTask->tId;
 }
 
 void sysGetPid(){
     enter_sys_mode();
-    asm("MOV R2, SP");
+    asm("MOV R0, SP");
     exit_sys_mode();
     int* sp;
-    asm("MOV %0, R2":"=r"(sp));
+    asm("MOV %0, R0":"=r"(sp));
     sp[1] = scheduler->currentTask->pId;
 }
 
@@ -103,11 +103,11 @@ void sysCreateTask(){
 
     enter_sys_mode();
     asm("ADD SP, SP, #8");
-    asm("MOV R2, SP");
+    asm("MOV R0, SP");
     exit_sys_mode();
 
 
-    asm("MOV %0, R2": "=r"(sp));
+    asm("MOV %0, R0": "=r"(sp));
     priority = sp[-2];
     funcPtr = sp[-1];
 
@@ -128,19 +128,22 @@ void sysDestroy(){
 void sysSend(){
     int* sp;
     enter_sys_mode();
-    asm("ADD SP, SP, #20");
-    asm("MOV R2, SP");
+    asm("ADD SP, SP, #4");
+    asm("MOV R0, SP");
     exit_sys_mode();
 
-    asm("MOV %0, R2" : "=r"(sp));
-
+    asm("MOV %0, R0" : "=r"(sp));
     scheduler->currentTask->stackEntry = sp;
-    int tid = sp[-5];
-    char* msg = sp[-4];
-    int msglen = sp[-3];
-    char* reply = sp[-2];
-    int replylen = sp[-1];
-    int result = insertSender(com, scheduler->currentTask->tId, tid, msg, msglen, reply, replylen);
+
+    int* args = sp[-1];
+
+    int tid = args[0];
+    char* msg = args[1];
+    int msglen = args[2];
+    char* rep = args[3];
+    int replylen = args[4];
+
+    int result = insertSender(com, scheduler->currentTask->tId, tid, msg, msglen, rep, replylen);
     if (result<0){
         sp[1] = result;
     } else {
@@ -150,39 +153,31 @@ void sysSend(){
 
 void sysReceive(){
     int* sp;
-    asm("MRS R0, CPSR");
-    asm("ADD R0, R0, #12");
-    asm("MSR CPSR, R0");
 
-    asm("ADD SP, SP, #12");
-    asm("MOV R2, SP");
+    enter_sys_mode();
+    asm("ADD SP, SP, #4");
+    asm("MOV R0, SP");
+    exit_sys_mode();
 
-    asm("MRS R0, CPSR");
-    asm("SUB R0, R0, #12");
-    asm("MSR CPSR, R0");
-
-    asm("MOV %0, R2" : "=r"(sp));
-
-    char* msg = sp[-2];
-    int msglen = sp[-1];
+    asm("MOV %0, R0" : "=r"(sp));
+    scheduler->currentTask->stackEntry = sp;
+    int* args = sp[-1];
+    char* msg = args[1];
+    int msglen = args[2];
 
     int status = insertReceiver(com, scheduler->currentTask->tId, msg, msglen);
 }
 
 void sysReply(){
-        int* sp;
-    asm("MRS R0, CPSR");
-    asm("ADD R0, R0, #12");
-    asm("MSR CPSR, R0");
+    int* sp;
+    enter_sys_mode();
 
     asm("ADD SP, SP, #12");
-    asm("MOV R2, SP");
+    asm("MOV R0, SP");
 
-    asm("MRS R0, CPSR");
-    asm("SUB R0, R0, #12");
-    asm("MSR CPSR, R0");
+    exit_sys_mode();
 
-    asm("MOV %0, R2" : "=r"(sp));
+    asm("MOV %0, R0" : "=r"(sp));
 
     int tid = sp[-3];
     char* msg = sp[-2];

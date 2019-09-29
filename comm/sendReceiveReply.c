@@ -31,18 +31,23 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
         receiver->receiveBuffer[i] = sender->source[i];
     }
     receiver->receiveBuffer[i] = 0;
-
     //Block for cleanup
     //Note on this operation: For this to be true, crucial that we have stable order
-    removeMap(&(com->senderRequestTable), receiver->tId);
+    removeMap(&(com->senderRequestTable), receiver->tId);    
     insertMap(&(com->senderReplyTable), sender->tId, sender);
     removeMap(&(com->receiverTable), receiver->tId);
+    push(&(com->receiveQueue), receiver);
+
+    printTree(&(scheduler->taskTable));
+
     Task* task = getTask(scheduler, receiver->tId);
 
-    //stores in R1, R2, keeping R0 save so we can just dereference it
+    //stores in R1, R2, keeping R0 safe so we can just dereference it
     task->stackEntry[3] = i;
     task->stackEntry[2] = sender->tId;
-    insertTaskToQueue(scheduler, task);
+    if(task->status == BLOCKED){
+	    insertTaskToQueue(scheduler, task);
+    }
     return i;
 }
 
@@ -56,22 +61,25 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
 
     //Clean up
     removeMap(&(com->senderReplyTable), sender->tId);
+    push(&(com->sendQueue), sender);
     Task* task = getTask(scheduler, sender->tId);
-    task->stackEntry[i] = 1;
+    task->stackEntry[1] = i;
     insertTaskToQueue(scheduler, task);
 
     return i;
 }
 
 int processSender(COMM* com, Sender* sender){
+    bwprintf(COM2, "Sender processing for %d, requesting %d\r\n", sender->tId, sender->requestTId);
     Receiver* target = getMap(&(com->receiverTable), sender->requestTId);
+
     if(!target){
         Task* receiverTask = getTask(scheduler, sender->requestTId);
         if(receiverTask && receiverTask->status != EXITED){
             insertMap(&(com->senderRequestTable), sender->requestTId, sender);
-            scheduler->currentTask->status = BLOCKED;
-            return -42; // should be overriden later
+            return 0;
         } else {
+            push(&(com->sendQueue), sender);
             return -1;
         }
     } else {
@@ -81,6 +89,7 @@ int processSender(COMM* com, Sender* sender){
 }
 
 int processReceiver(COMM* com, Receiver* receiver){
+    bwprintf(COM2, "Receiver processing for %d\r\n", receiver->tId);
     Sender* sender = getMap(&(com->senderRequestTable), receiver->tId);
     if(sender){
         return SendMsg(com, sender, receiver);

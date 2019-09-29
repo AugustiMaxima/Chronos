@@ -33,6 +33,7 @@ void receiver() {
 void sender() {
     char buf[100];
     bwprintf(COM2, "[sender]\tSend()=%d\r\n", Send(2, "hello\r\n", 40, buf, 40));
+    bwprintf(COM2, "Sender waking up\r\n");
 }
 
 void user_main() {
