@@ -5,3 +5,5 @@ void user_main();
 void MapTest();
 
 void FireStrike();
+
+void rpsServer();

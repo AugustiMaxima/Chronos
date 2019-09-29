@@ -46,7 +46,7 @@ dump.a: dump.o
 	$(AR) $(ARFLAGS) $@ dump.o
 
 arm.s: arch/ARM.c
-	$(CC) -S $(CFLAGS) arch/ARM.c
+	$(CC) -S $(CFLAGS) arch/ARM.c -o arm.s
 
 arm.o: arm.s
 	$(AS) $(ASFLAGS) -o arm.o arm.s

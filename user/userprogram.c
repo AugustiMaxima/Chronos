@@ -94,3 +94,15 @@ void FireStrike(){
     }
     bwprintf(COM2, "Created %d tasks\r\n", exp);
 }
+
+char* signup_msg = "signup";
+char* firstchoice_msg = "first";
+
+void rpsServer() {
+    // Queue<int>
+    Queue requests;
+    char buf[100];
+
+    initializeQueue(&requests);
+    push(&requests, 1);
+}

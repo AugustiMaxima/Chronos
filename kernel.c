@@ -27,7 +27,7 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    scheduleTask(scheduler, 0, 0, FireStrike);
+    scheduleTask(scheduler, 0, 0, rpsServer);
 
 
     while(1) {
