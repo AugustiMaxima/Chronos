@@ -95,26 +95,78 @@ void FireStrike(){
     bwprintf(COM2, "Created %d tasks\r\n", exp);
 }
 
-char* signup_msg = "signup";
-char* firstchoice_msg = "first";
+// https://stackoverflow.com/questions/34873209/implementation-of-strcmp
+int strcmp(char* s1, char* s2) {
+    while(*s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return *(const unsigned char*)s1 - *(const unsigned char*)s2;
+}
+
+// gcc is generating memcpys
+// https://code.woboq.org/gcc/libgcc/memcpy.c.html
+void * memcpy (void *dest, const void *src, size_t len) {
+  char *d = dest;
+  const char *s = src;
+  while (len--)
+    *d++ = *s++;
+  return dest;
+}
+
+// https://code.woboq.org/userspace/glibc/string/test-strlen.c.htmlsize_t
+strlen (const char *s) {
+  const char *p;
+  for (p = s; *p; ++p);
+  return p - s;
+}
+
+char* SIGNUP_MSG = "signup";
+char* FIRSTCHOICE_MSG = "first";
+
+void trace_Send(const char* taskName, int tid, const char* msg, char* reply) {
+    int ret = Send(tid, msg, strlen(msg), reply, 100);
+    bwprintf(COM2, "[%s %d]\t%d = Send(%d, %s, =%s)\r\n", taskName, MyTid(), ret, tid, msg, reply);
+}
+
+void trace_Receive(const char* taskName, int* tid, char* msg) {
+    int ret = Receive(tid, msg, 100);
+    bwprintf(COM2, "[%s %d]\t%d = Receive(=%d, =%s)\r\n", taskName, MyTid(), ret, *tid, msg);
+
+}
 
 void rpsServer() {
     // Queue<int>
-    Queue requests;
+    Queue signups;
     char buf[100];
     int who;
+    int p1 = -1;
+    int p2 = -1;
 
-    initializeQueue(&requests);
+    initializeQueue(&signups);
 
     while (1) {
-        Receive(&who, buf, 100);
-        bwprintf(COM2, "[rpsServer]\tReceive(=%d, =%s, 40)\r\n", who, buf);
+        trace_Receive("rpsServer", &who, buf);
+
+        // handle receive
+        if (0 == strcmp(buf, SIGNUP_MSG)) {
+            push(&signups, who);
+        } else {
+            bwprintf(COM2, "[rpsServer]\tUnknown message\r\n");
+        }
+
+        if (p1 == -1 && 2 == ringFill(&signups)) {
+            p1 = pop(&signups);
+            p2 = pop(&signups);
+            Reply(p1, FIRSTCHOICE_MSG, strlen(FIRSTCHOICE_MSG));
+            Reply(p2, FIRSTCHOICE_MSG, strlen(FIRSTCHOICE_MSG));
+        }
     }
 }
 
 void rpsClient() {
     char buf[100];
-    int ret = Send(2, "hello", 40, buf, 40);
+    trace_Send("rpsClient", 2, SIGNUP_MSG, buf);
 }
 
 void k2_main() {
