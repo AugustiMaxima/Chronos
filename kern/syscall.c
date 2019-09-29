@@ -38,6 +38,9 @@ void jumpTable(int code){
         case RECEIVE_CODE:
             sysReceive();
             break;
+        case REPLY_CODE:
+            sysReply();
+            break;
         default:
             bwprintf(COM2, "Unknown SWI code %d!\r\n", code);
             while(1){}

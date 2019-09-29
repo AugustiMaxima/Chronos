@@ -38,8 +38,6 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
     removeMap(&(com->receiverTable), receiver->tId);
     push(&(com->receiveQueue), receiver);
 
-    printTree(&(scheduler->taskTable));
-
     Task* task = getTask(scheduler, receiver->tId);
 
     //stores in R1, R2, keeping R0 safe so we can just dereference it
