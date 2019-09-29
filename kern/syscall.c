@@ -141,8 +141,9 @@ void sysSend(){
     if (result<0){
         sp[1] = result;
     } else {
-        scheduler->currentTask = BLOCKED;
+        scheduler->currentTask->status = BLOCKED;
     }
+    bwprintf(COM2, "syssend: result=%d\r\n", result);
 }
 
 void sysReceive(){
