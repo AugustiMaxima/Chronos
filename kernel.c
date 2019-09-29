@@ -1,7 +1,5 @@
  /*
  * kernel.c
- *
- * Minimal code for developing context switch
  */
 
 #include <ts7200.h>
