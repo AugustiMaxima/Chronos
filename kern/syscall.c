@@ -32,6 +32,9 @@ void jumpTable(int code){
         case DESTROY_CODE:
             sysDestroy();
             break;
+        case SEND_CODE:
+            sysSend();
+            break;
         default:
             bwprintf(COM2, "Unknown SWI code %d!\r\n", code);
             while(1){}
