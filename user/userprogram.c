@@ -26,15 +26,15 @@ void k1_main(){
 void receiver() {
     int who;
     char buf[100];
-    Receive(&who, buf, 40);
-    bwprintf(COM2, "receiver: someone sent me some crap\r\n");
+    int ret = Receive(&who, buf, 40);
+    bwprintf(COM2, "[receiver]\tReceive(=%d, =%s, 40)=%d\r\n", who, buf, ret);
     Reply(who, "Who the fuck are ye?", 40);
 }
 
 void sender() {
     char buf[100];
-    bwprintf(COM2, "[sender]\tSend()=%d\r\n", Send(2, "hello\r\n", 40, buf, 40));
-    bwprintf(COM2, "%s\r\n", buf);
+    int ret = Send(2, "hello", 40, buf, 40);
+    bwprintf(COM2, "[sender]\tSend(2, hello, 40, =%s, 40)=%d\r\n", buf, ret);
 }
 
 void user_main() {
