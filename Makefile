@@ -36,8 +36,8 @@ kernel.o: kernel.s
 kernel.elf: kernel.o dump.a arm.A bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
-dump.s: dump.c
-	$(CC) -S $(CFLAGS) dump.c
+dump.s: misc/dump.c
+	$(CC) -S $(CFLAGS) misc/dump.c
 
 dump.o: dump.s
 	$(AS) $(ASFLAGS) -o dump.o dump.s
@@ -54,8 +54,8 @@ arm.o: arm.s
 arm.A: arm.o
 	$(AR) $(ARFLAGS) $@ arm.o
 
-bwio.s: bwio.c
-	$(CC) -S $(CFLAGS) bwio.c
+bwio.s: misc/bwio.c
+	$(CC) -S $(CFLAGS) misc/bwio.c
 
 bwio.o: bwio.s
 	$(AS) $(ASFLAGS) -o bwio.o bwio.s
