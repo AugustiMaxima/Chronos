@@ -32,3 +32,13 @@
 #define CPSR_M_FLAG 0x0000001f
 
 #define SWI_OPCODE_FLAG 0x00ffffff
+
+#define DCACHE_BIT 0x00000004
+#define ICACHE_BIT 0x00001000
+
+void disableDCache();
+void enableDCache();
+void disableICache();
+void enableICache();
+void hypeTrain();
+void derail();

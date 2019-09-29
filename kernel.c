@@ -14,7 +14,7 @@ Scheduler* scheduler;
 COMM* com;
 
 int main( int argc, char* argv[] ) {
-
+    hypeTrain();
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
 
