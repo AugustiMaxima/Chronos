@@ -27,13 +27,21 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    scheduleTask(scheduler, 0, 0, rpsServer);
+    scheduleTask(scheduler, 0, 0, k2_main);
 
 
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {
-            return;
+            break;
         }
+    }
+
+    if (
+        (0 != com->senderRequestTable.root) ||
+        (0 != com->receiverTable.root) ||
+        (0 != com->senderReplyTable.root)
+    ) {
+        bwprintf(COM2, "\r\nwarning: kernel exiting with blocked tasks\r\n");
     }
 
     return 0;

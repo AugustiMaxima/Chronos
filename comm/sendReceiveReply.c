@@ -33,7 +33,7 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
     receiver->receiveBuffer[i] = 0;
     //Block for cleanup
     //Note on this operation: For this to be true, crucial that we have stable order
-    removeMap(&(com->senderRequestTable), receiver->tId);    
+    removeMap(&(com->senderRequestTable), receiver->tId);
     insertMap(&(com->senderReplyTable), sender->tId, sender);
     removeMap(&(com->receiverTable), receiver->tId);
     push(&(com->receiveQueue), receiver);
@@ -68,7 +68,6 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
 }
 
 int processSender(COMM* com, Sender* sender){
-    bwprintf(COM2, "Sender processing for %d, requesting %d\r\n", sender->tId, sender->requestTId);
     Receiver* target = getMap(&(com->receiverTable), sender->requestTId);
 
     if(!target){
@@ -87,7 +86,6 @@ int processSender(COMM* com, Sender* sender){
 }
 
 int processReceiver(COMM* com, Receiver* receiver){
-    bwprintf(COM2, "Receiver processing for %d\r\n", receiver->tId);
     Sender* sender = getMap(&(com->senderRequestTable), receiver->tId);
     if(sender){
         return SendMsg(com, sender, receiver);

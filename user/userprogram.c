@@ -102,7 +102,24 @@ void rpsServer() {
     // Queue<int>
     Queue requests;
     char buf[100];
+    int who;
 
     initializeQueue(&requests);
-    push(&requests, 1);
+
+    while (1) {
+        Receive(&who, buf, 100);
+        bwprintf(COM2, "[rpsServer]\tReceive(=%d, =%s, 40)\r\n", who, buf);
+    }
 }
+
+void rpsClient() {
+    char buf[100];
+    int ret = Send(2, "hello", 40, buf, 40);
+}
+
+void k2_main() {
+    Create(-1, rpsServer);
+    Create(5, rpsClient);
+    Create(5, rpsClient);
+}
+

@@ -6,4 +6,4 @@ void MapTest();
 
 void FireStrike();
 
-void rpsServer();
+void k2_main();
