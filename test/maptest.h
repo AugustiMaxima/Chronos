@@ -1,1 +1,2 @@
 void MapTest();
+void MapTestPut();

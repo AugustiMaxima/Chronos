@@ -50,9 +50,8 @@ void nameServer(){
     while(Receive(&caller, requestBuf, MAX_REQUEST)){
         command = requestBuf[0];
         symbol = requestBuf;
-        symbol++;
-        symbol++;
-        bwprintf(COM2, "symbol=%s\r\n", symbol);
+        symbol += 2;
+        bwprintf(COM2, "%s\r\n", symbol);
         if(command == 'R'){
             RegistrationPreamble(&NameTable, symbol, caller);
         } else if(command == 'W'){
