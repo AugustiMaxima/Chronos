@@ -94,3 +94,10 @@ void FireStrike(){
     }
     bwprintf(COM2, "Created %d tasks\r\n", exp);
 }
+
+void FormatterTest(){
+    char* buffer[100];
+    formatStrn(buffer, 100, "ABC: %d %x\r\n", 12, 123);
+    bwprintf(COM2, buffer);
+    bwprintf(COM2, "What is happening?!\r\n");
+}

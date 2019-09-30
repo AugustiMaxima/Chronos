@@ -112,6 +112,28 @@ Node* insertNode(Node* position, Node* node){
     return rotation(position);
 }
 
+Node* putNode(Map* map, Node* position, int key, void* value){
+    if(!position){
+        Node* node = pop(&(map->freeQueue));
+        if(!node){
+            map->retainer = NULL;
+        } else {
+            map->retainer = value;
+        }
+        initializeNode(node, key, value);
+        return node;
+    }
+    if(position->key > key){
+        position->left = putNode(map, position->left, key, value);
+    } else if(position->key < key){
+        position->right = putNode(map, position->right, key, value);
+    } else {
+        map->retainer = position->value;
+        position->value = value;
+    }
+    return rotation(position);
+}
+
 Node* promote(Node* position, bool left){
     if(!position)
         return NULL;
@@ -202,6 +224,23 @@ int insertMap(Map* map, int key, void* value){
     initializeNode(node, key, value);
     map->root = insertNode(map->root, node);
 }
+
+//Dynamo Style put operation
+int putMap(Map* map, int key, void* value){
+    map->retainer = NULL;
+    map->root = putNode(map, map->root, key, value);
+    if(map->retainer == value){
+        //newly created, usually
+        return 1;
+    } else if (map->retainer){
+        //updated, the most common case
+        return 0;
+    } else {
+        //ran out of resources for insertion
+        return -1;
+    }
+}
+
 
 void* getMap(Map* map, int key){
     return search(map->root, key);

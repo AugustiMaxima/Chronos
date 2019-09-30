@@ -15,7 +15,7 @@ LD = $(XBINDIR)/arm-elf-ld
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm
+CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I misc -I util -I comm
 
 # -static: force static linking
 # -e: set entry point
@@ -23,7 +23,7 @@ CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 # -T: use linker script
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lcharay -lgcc
 
 all: kernel.elf
 
@@ -33,7 +33,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.A bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a
+kernel.elf: kernel.o dump.a arm.a bwio.a charay.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: misc/dump.c
@@ -45,13 +45,13 @@ dump.o: dump.s
 dump.a: dump.o
 	$(AR) $(ARFLAGS) $@ dump.o
 
-arm.s: arch/ARM.c
+ARM.s: arch/ARM.c
 	$(CC) -S $(CFLAGS) arch/ARM.c
 
-arm.o: arm.s
-	$(AS) $(ASFLAGS) -o arm.o arm.s
+arm.o: ARM.s
+	$(AS) $(ASFLAGS) -o arm.o ARM.s
 
-arm.A: arm.o
+arm.a: arm.o
 	$(AR) $(ARFLAGS) $@ arm.o
 
 bwio.s: misc/bwio.c
@@ -62,6 +62,15 @@ bwio.o: bwio.s
 
 bwio.a: bwio.o
 	$(AR) $(ARFLAGS) $@ bwio.o
+
+charay.s: util/charay.c
+	$(CC) -S $(CFLAGS) util/charay.c
+
+charay.o: charay.s
+	$(AS) $(ASFLAGS) -o charay.o charay.s
+
+charay.a: charay.o
+	$(AR) $(ARFLAGS) $@ charay.o
 
 task.s: task/task.c
 	$(CC) -S $(CFLAGS) task/task.c

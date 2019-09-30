@@ -73,6 +73,7 @@ void variadicStore(Arguments* argv, int argc, ...){
     for(i=0;i<argc;i++){
         argv->args[i] = va_arg(varags, int);
     }
+    va_end(varags);
 }
 
 int Send(int tid, const char *msg, int msglen, char *reply, int replylen) {
