@@ -19,7 +19,7 @@ int Retrieve(Map* NameTable, char* symbol){
 }
 
 void RegistrationPreamble(Map* NameTable, char* symbol, int caller){
-    int returnCode = Registration(&NameTable, symbol, caller);
+    int returnCode = Registration(NameTable, symbol, caller);
     if(returnCode == 1)
         Reply(caller, "Registration successful.", MAX_RESULT);
     else if(returnCode == 0)
