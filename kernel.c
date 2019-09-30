@@ -16,7 +16,8 @@
 
 Scheduler* scheduler;
 COMM* com;
-const int seedSeed = 5;
+// each task-local seed is derived as seed = seedSeed + MyTid()
+const unsigned seedSeed = 0xdeadbeef;
 
 int main( int argc, char* argv[] ) {
     hypeTrain();
