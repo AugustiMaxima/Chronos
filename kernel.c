@@ -10,8 +10,12 @@
 #include <userprogram.h>
 #include <bwio.h>
 
+#include <maptest.h>
+#include <k1.h>
+
 Scheduler* scheduler;
 COMM* com;
+const int seedSeed = 5;
 
 int main( int argc, char* argv[] ) {
     hypeTrain();
@@ -27,7 +31,7 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    scheduleTask(scheduler, 0, 0, k2_main);
+    scheduleTask(scheduler, 0, 0, k1_main);
 
 
     while(1) {
