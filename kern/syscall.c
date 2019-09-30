@@ -110,12 +110,11 @@ void sysCreateTask(){
     asm("MOV R0, SP");
     exit_sys_mode();
 
-
     asm("MOV %0, R0": "=r"(sp));
-//    bwprintf(COM2, "%x\r\n", sp);
+    bwprintf(COM2, "%x\r\n", sp);
     priority = sp[-2];
     funcPtr = sp[-1];
-
+    printRegisters(sp);
 
     int pId = scheduler->currentTask->tId;
     int result = scheduleTask(scheduler, priority, pId, funcPtr);

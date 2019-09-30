@@ -20,8 +20,8 @@ void printRegisters(int* stack){
 }
 
 void printTask(Task* task){
-    // bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
-    // printRegisters(task->stackEntry);
+    bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
+    printRegisters(task->stackEntry);
 }
 
 void initializeScheduler(Scheduler* scheduler){
@@ -69,13 +69,12 @@ void runTask(Scheduler* scheduler, Task* task){
     task->status = RUNNING;
     printTask(task);
     exitKernel(task->stackEntry);
-    // asm("MOV R0, #1");
-    // asm("MOV R1, SP");
-    // asm("BL bwputr(PLT)");
-    // bwprintf(COM2, "end of runTask\r\n");
 }
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
+    bwprintf(COM2, "Why do you hate yourself\r\n");
+    printRegisters(task->stackEntry);
+    bwprintf(COM2, "This should have been the original task");
     task->status = READY;
     return insert(&(scheduler->readyQueue), task);
 }
@@ -102,10 +101,6 @@ void handleSuspendedTasks(void* lr){
     asm("MSR CPSR, R3");
     asm volatile("MOV %0, R1":"=r"(stackPtr));
 
-    // bwprintf(COM2, "\r\n");
-    // bwprintf(COM2, "Scheduler Ptr: %x\r\n", scheduler);
-    // bwprintf(COM2, "acquired stackPtr: %x\r\n", stackPtr);
-
     stackPtr[16] = lr;    
     scheduler->currentTask->stackEntry = stackPtr;
     //TODO: Figure out and design the blocked queue based on different conditions and status
@@ -115,6 +110,6 @@ void handleSuspendedTasks(void* lr){
     }
     scheduler->currentTask = NULL;
 
-    // bwprintf(COM2,"User program halt, trapframe printing!\r\n");
-    // printRegisters(stackPtr);
+    bwprintf(COM2,"User program halt, trapframe printing!\r\n");
+    printRegisters(stackPtr);
 }

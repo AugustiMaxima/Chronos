@@ -41,8 +41,8 @@ int main( int argc, char* argv[] ) {
 
     // scheduleTask(scheduler, 10, 0, nameServer);
     // scheduleTask(scheduler, 0, 0, NameServerTest);
-    scheduleTask(scheduler, 0, 0, k1_main);
-    // scheduleTask(scheduler, 0, 0, k2_rps_main);
+    // scheduleTask(scheduler, 0, 0, k1_main);
+    scheduleTask(scheduler, 0, 0, k2_rps_main);
 
     runFirstAvailableTask(scheduler);
     while(1) {
