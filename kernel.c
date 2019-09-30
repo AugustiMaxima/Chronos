@@ -19,6 +19,8 @@ COMM* com;
 // each task-local seed is derived as seed = seedSeed + MyTid()
 const unsigned seedSeed = 0xdeadbeef;
 
+int nsTid = -1;
+
 int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
@@ -33,9 +35,9 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    scheduleTask(scheduler, 10, 0, nameServer);
-    scheduleTask(scheduler, 0, 0, NameServerTest);
-    // scheduleTask(scheduler, 0, 0, k2_main);
+    // scheduleTask(scheduler, 10, 0, nameServer);
+    // scheduleTask(scheduler, 0, 0, NameServerTest);
+    scheduleTask(scheduler, 0, 0, k2_rps_main);
     // scheduleTask(scheduler, 0, 0, MapTestPut);
 
     while(1) {

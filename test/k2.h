@@ -1,1 +1,1 @@
-void k2_main();
+void k2_rps_main();

@@ -38,6 +38,8 @@ void RetrievalPreamble(Map* NameTable, char* symbol, int caller){
     }
 }
 
+extern int nsTid;
+
 void nameServer(){
     Map NameTable;
     initializeMap(&NameTable);
@@ -45,7 +47,13 @@ void nameServer(){
     char* requestBuf[MAX_REQUEST];
     char command;
     char* symbol;
+
+    nsTid = MyTid();
     while(Receive(&caller, requestBuf, MAX_REQUEST)){
+        if (0 == strcmp(requestBuf, "kys")) {
+            Reply(caller, "ok", strlen("ok"));
+            Exit();
+        }
         command = requestBuf[0];
         symbol = requestBuf;
         symbol += 2;
@@ -60,12 +68,20 @@ void nameServer(){
     }
 }
 
+int getNsTid() {
+    if (nsTid == -1) {
+        bwprintf(COM2, "nameserver not up yet\r\n");
+        for (;;) {}
+    }
+    return nsTid;
+}
+
 int RegisterAs(const char *name){
     char* buffer[100];
     char* receiveBuffer[100];
     formatStrn(buffer, 100, "R %s", name);
     bwprintf(COM2, "%s\r\n", buffer);
-    int result = Send(1, buffer, 100, receiveBuffer, 100);
+    int result = Send(getNsTid(), buffer, 100, receiveBuffer, 100);
     if(result>0){
         return 0;
     } else {
@@ -77,7 +93,7 @@ int WhoIs(const char *name){
     char* buffer[100];
     char* receiveBuffer[100];
     formatStrn(buffer, 100, "W %s", name);
-    int result = Send(1, buffer, 100, receiveBuffer, 100);
+    int result = Send(getNsTid(), buffer, 100, receiveBuffer, 100);
     if(result>0){
         if(strlcmp("Registration not found", receiveBuffer))
             return stringToNum(receiveBuffer, 10);

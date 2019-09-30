@@ -3,6 +3,7 @@
 #include <bwio.h>
 #include <stdlib.h>
 #include <map.h>
+#include <nameServer.h>
 
 extern int seedSeed;
 
@@ -116,6 +117,8 @@ void rpsServer() {
 
     initializeQueue(&signups);
 
+    RegisterAs("server");
+
     while (1) {
         trace_Receive("rpsServer", &who, buf);
 
@@ -185,7 +188,7 @@ void rpsServer() {
 void runRps(unsigned rounds) {
     char buf[100];
     int seed = seedSeed + MyTid();
-    trace_Send("rpsClient", 2, SIGNUP_MSG, buf);
+    trace_Send("rpsClient", WhoIs("server"), SIGNUP_MSG, buf);
     if (0 == strcmp(buf, THEY_QUIT_MSG)) {
         Exit();
     } else if (0 != strcmp(buf, FIRSTCHOICE_MSG)) { /* this should never happen and has never happened in testing */
@@ -194,12 +197,12 @@ void runRps(unsigned rounds) {
     }
     int i;
     for (i=0; i<rounds; i++) {
-        trace_Send("rpsClient", 2, randomMove(&seed), buf);
+        trace_Send("rpsClient", WhoIs("server"), randomMove(&seed), buf);
         if (0 == strcmp(buf, THEY_QUIT_MSG)) {
             Exit();
         }
     }
-    trace_Send("rpsClient", 2, I_QUIT_MSG, buf);
+    trace_Send("rpsClient", WhoIs("server"), I_QUIT_MSG, buf);
     Exit();
 }
 
@@ -210,14 +213,16 @@ void rpsClient() {
 
 void killServer() {
     char buf[100];
-    trace_Send("killer", 2, KYS_MSG, buf);
+    trace_Send("killer", WhoIs("server"), KYS_MSG, buf);
+    trace_Send("killer", getNsTid(), KYS_MSG, buf);
 }
 
-void k2_main() {
+void k2_rps_main() {
+    Create(1000, nameServer);
     Create(100, rpsServer);
-    int k;
-    for (k=0; k<20; k++) {
-        Create(5, rpsClient);
-    }
+    // int k;
+    // for (k=0; k<20; k++) {
+    //     Create(5, rpsClient);
+    // }
     Create(-1, killServer);
 }
