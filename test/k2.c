@@ -32,6 +32,14 @@ void * memcpy (void *dest, const void *src, size_t len) {
   return dest;
 }
 
+void * memset ( void * ptr, int value, size_t num ){
+    int i;
+    char* block = ptr;
+    for(i=0;i<num;i++){
+        block[i] = value;
+    }
+}
+
 // https://code.woboq.org/userspace/glibc/string/test-strlen.c.htmlsize_t
 int strlen (const char *s) {
   const char *p;
