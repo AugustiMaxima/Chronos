@@ -47,10 +47,10 @@ void setFrequency(int timer, int frequency) {
     int* CRTL = getTimerBase(timer) + CRTL_OFFSET;
     switch (frequency){
     case 508000:
-	*CRTL |= CLKSEL_MASK;
-	break;
+	    *CRTL |= CLKSEL_MASK;
+	    break;
     default:
-	*CRTL &= ~CLKSEL_MASK;
+	    *CRTL &= ~CLKSEL_MASK;
     }
 }
 
@@ -58,10 +58,10 @@ void setMode(int timer, int mode) {
     int* CRTL = getTimerBase(timer) + CRTL_OFFSET;
     switch (mode){
     case 1: 
-	*CRTL |= MODE_MASK;
+	    *CRTL |= MODE_MASK;
 	break;
     default:
-	*CRTL &= ~MODE_MASK;
+	    *CRTL &= ~MODE_MASK;
     }
 }
 
@@ -87,14 +87,14 @@ unsigned int getValue(int timer) {
 unsigned int getWrap(int timer) {
     switch (timer){
     case 3:
-	return WRAP_32;
+	    return WRAP_32;
     default:
-	return WRAP_16;
+	    return WRAP_16;
     }
 }
-
 //
 
+//
 
 Scheduler* scheduler;
 COMM* com;
@@ -107,7 +107,7 @@ int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
 
-    hypeTrain();
+    //hypeTrain();
     Scheduler base_scheduler;
     scheduler = &base_scheduler;
 
@@ -120,30 +120,81 @@ int main( int argc, char* argv[] ) {
     Clock clock;
     initializeClock(&clock, 3, 508000, 0,0,0,0);
 
-    //scheduleTask(scheduler, 10, 0, nameServer);
+    // scheduleTask(scheduler, 10, 0, nameServer);
     // scheduleTask(scheduler, 0, 0, NameServerTest);
     scheduleTask(scheduler, 0, 0, k2_rps_main);
 
     runFirstAvailableTask(scheduler);
-
-    //scheduleTask(scheduler, 1, 0, SendReceive4);
-
-    TimeStamp begin;
-    TimeStamp finish;
-
-    getCurrentTime(&clock, &begin);
-
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {
             break;
         }
     }
+    // scheduleTask(scheduler, 1, 0, SendReceive4);
 
-    getCurrentTime(&clock, &finish);
+    // TimeStamp begin;
+    // TimeStamp finish;
 
-    bwprintf(COM2, "SendReceive4: %dms\r\n", compareTime(&finish, &clock));
+    // getCurrentTime(&clock, &begin);
 
+    // while(1) {
+    //     if (-1 == runFirstAvailableTask(scheduler)) {
+    //         break;
+    //     }
+    // }
 
+    // getCurrentTime(&clock, &finish);
+    // bwprintf(COM2, "SendReceive4: %dms\r\n", compareTime(&finish, &begin));
+
+    // scheduleTask(scheduler, 1, 0, ReceiveSend4);
+    // getCurrentTime(&clock, &begin);
+    // while(1) {
+    //     if (-1 == runFirstAvailableTask(scheduler)) {
+    //         break;
+    //     }
+    // }
+    // getCurrentTime(&clock, &finish);
+    // bwprintf(COM2, "ReceiveSend4: %dms\r\n", compareTime(&finish, &begin));
+
+    // scheduleTask(scheduler, 1, 0, SendReceive64);
+    // getCurrentTime(&clock, &begin);
+    // while(1) {
+    //     if (-1 == runFirstAvailableTask(scheduler)) {
+    //         break;
+    //     }
+    // }
+    // getCurrentTime(&clock, &finish);
+    // bwprintf(COM2, "SendReceive64: %dms\r\n", compareTime(&finish, &begin));
+
+    // scheduleTask(scheduler, 1, 0, ReceiveSend64);
+    // getCurrentTime(&clock, &begin);
+    // while(1) {
+    //     if (-1 == runFirstAvailableTask(scheduler)) {
+    //         break;
+    //     }
+    // }
+    // getCurrentTime(&clock, &finish);
+    // bwprintf(COM2, "ReceiveSend64: %dms\r\n", compareTime(&finish, &begin));
+
+    // scheduleTask(scheduler, 1, 0, SendReceive256);
+    // getCurrentTime(&clock, &begin);
+    // while(1) {
+    //     if (-1 == runFirstAvailableTask(scheduler)) {
+    //         break;
+    //     }
+    // }
+    // getCurrentTime(&clock, &finish);
+    // bwprintf(COM2, "SendReceive256: %dms\r\n", compareTime(&finish, &begin));
+
+    // scheduleTask(scheduler, 1, 0, ReceiveSend256);
+    // getCurrentTime(&clock, &begin);
+    // while(1) {
+    //     if (-1 == runFirstAvailableTask(scheduler)) {
+    //         break;
+    //     }
+    // }
+    // getCurrentTime(&clock, &finish);
+    // bwprintf(COM2, "ReceiveSend256: %dms\r\n", compareTime(&finish, &begin));
 
     if (
         (0 != com->senderRequestTable.root) ||

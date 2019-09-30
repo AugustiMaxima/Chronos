@@ -50,7 +50,7 @@ void nameServer(){
 
     nsTid = MyTid();
     while(Receive(&caller, requestBuf, MAX_REQUEST)){
-        if (0 == strcmp(requestBuf, "kys")) {
+        if (0 == strlcmp(requestBuf, "kys")) {
             Reply(caller, "ok", strlen("ok"));
             Exit();
         }
