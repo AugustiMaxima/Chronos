@@ -60,14 +60,14 @@ void Registar3(){
 }
 
 void NameServerTest(){
-    Create(5, Registar1);
+    // Create(5, Registar1);
     Create(5, Registar2);
-    Create(5, Registar3);
+    // Create(5, Registar3);
 
-    int status = WhoIs("Register1");
-    bwprintf(COM2, "Register1 is %d\r\n", status);
-    status = WhoIs("Register2");
-    bwprintf(COM2, "Register2 is %d\r\n", status);
-    status = WhoIs("Register3");
-    bwprintf(COM2, "Register3 is %d\r\n", status);
+    // int status = WhoIs("Register1");
+    // bwprintf(COM2, "Register1 is %d\r\n", status);
+    // status = WhoIs("Register2");
+    // bwprintf(COM2, "Register2 is %d\r\n", status);
+    // status = WhoIs("Register3");
+    // bwprintf(COM2, "Register3 is %d\r\n", status);
 }

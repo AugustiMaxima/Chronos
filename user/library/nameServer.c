@@ -49,8 +49,10 @@ void nameServer(){
     char* symbol;
     while(Receive(&caller, requestBuf, MAX_REQUEST)){
         command = requestBuf[0];
-        symbol = requestBuf + 2;
-        bwprintf(COM2, "%s\r\n", symbol);
+        symbol = requestBuf;
+        symbol++;
+        symbol++;
+        bwprintf(COM2, "symbol=%s\r\n", symbol);
         if(command == 'R'){
             RegistrationPreamble(&NameTable, symbol, caller);
         } else if(command == 'W'){
@@ -82,7 +84,7 @@ int WhoIs(const char *name){
     if(result>0){
         if(strlcmp("Registration not found", receiveBuffer))
             return stringToNum(receiveBuffer, 10);
-        else 
+        else
             return 0;
     } else {
         return -1;
