@@ -8,6 +8,7 @@
 #include <scheduler.h>
 #include <sendReceiveReply.h>
 #include <userprogram.h>
+#include <nameServer.h>
 #include <bwio.h>
 
 #include <maptest.h>
@@ -20,10 +21,10 @@ COMM* com;
 const unsigned seedSeed = 0xdeadbeef;
 
 int main( int argc, char* argv[] ) {
-    hypeTrain();
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
 
+    hypeTrain();
     Scheduler base_scheduler;
     scheduler = &base_scheduler;
 
@@ -33,6 +34,8 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
+    // scheduleTask(scheduler, 10, 0, nameServer);
+    // scheduleTask(scheduler, 0, 0, NameServerTest);
     scheduleTask(scheduler, 0, 0, k2_main);
 
 

@@ -32,7 +32,7 @@ void * memcpy (void *dest, const void *src, size_t len) {
 }
 
 // https://code.woboq.org/userspace/glibc/string/test-strlen.c.htmlsize_t
-strlen (const char *s) {
+int strlen (const char *s) {
   const char *p;
   for (p = s; *p; ++p);
   return p - s;

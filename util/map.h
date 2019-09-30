@@ -26,6 +26,8 @@ void initializeMap(Map* map);
 // no one reads the return value
 int insertMap(Map* map, int key, void* value);
 
+int putMap(Map* map, int key, void* value);
+
 void* getMap(Map* map, int key);
 
 void* removeMap(Map* map, int key);

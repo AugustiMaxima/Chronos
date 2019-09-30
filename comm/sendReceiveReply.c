@@ -69,7 +69,6 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
 
 int processSender(COMM* com, Sender* sender){
     Receiver* target = getMap(&(com->receiverTable), sender->requestTId);
-
     if(!target){
         Task* receiverTask = getTask(scheduler, sender->requestTId);
         if(receiverTask && receiverTask->status != EXITED){

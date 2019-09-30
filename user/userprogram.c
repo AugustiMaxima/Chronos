@@ -2,6 +2,7 @@
 #include <userprogram.h>
 #include <bwio.h>
 #include <stdlib.h>
+#include <nameServer.h>
 #include <map.h>
 
 void receiver() {
@@ -39,3 +40,34 @@ void FireStrike(){
     bwprintf(COM2, "Created %d tasks\r\n", exp);
 }
 
+void Registar1(){
+    RegisterAs("Register1");
+    int status = WhoIs("Register1");
+    bwprintf(COM2, "Register1 is %d\r\n", status);
+
+    status = WhoIs("Register2");
+    bwprintf(COM2, "Register2 is %d\r\n", status);
+}
+
+void Registar2(){
+    RegisterAs("Register2");
+
+}
+
+void Registar3(){
+    RegisterAs("Register3");
+
+}
+
+void NameServerTest(){
+    Create(5, Registar1);
+    Create(5, Registar2);
+    Create(5, Registar3);
+
+    int status = WhoIs("Register1");
+    bwprintf(COM2, "Register1 is %d\r\n", status);
+    status = WhoIs("Register2");
+    bwprintf(COM2, "Register2 is %d\r\n", status);
+    status = WhoIs("Register3");
+    bwprintf(COM2, "Register3 is %d\r\n", status);
+}
