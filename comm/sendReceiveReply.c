@@ -59,6 +59,7 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
 
     //Clean up
     removeMap(&(com->senderReplyTable), sender->tId);
+    // free the object
     push(&(com->sendQueue), sender);
     Task* task = getTask(scheduler, sender->tId);
     task->stackEntry[1] = i;

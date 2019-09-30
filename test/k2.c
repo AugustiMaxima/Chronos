@@ -155,11 +155,11 @@ void rpsServer() {
                 Reply(p1, DRAW_MSG, strlen(DRAW_MSG));
                 Reply(p2, DRAW_MSG, strlen(DRAW_MSG));
             } else if (winner == 1) {
-                Reply(p1, DRAW_MSG, strlen(WON_MSG));
-                Reply(p2, DRAW_MSG, strlen(LOST_MSG));
+                Reply(p1, WON_MSG, strlen(WON_MSG));
+                Reply(p2, LOST_MSG, strlen(LOST_MSG));
             } else if (winner == 2) {
-                Reply(p1, DRAW_MSG, strlen(LOST_MSG));
-                Reply(p2, DRAW_MSG, strlen(WON_MSG));
+                Reply(p1, LOST_MSG, strlen(LOST_MSG));
+                Reply(p2, WON_MSG, strlen(WON_MSG));
             } else {
                 bwprintf(COM2, "unknown \r\n");
                 for (;;) {}
