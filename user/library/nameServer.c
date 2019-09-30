@@ -80,7 +80,7 @@ int WhoIs(const char *name){
     formatStrn(buffer, 100, "W %s", name);
     int result = Send(1, buffer, 100, receiveBuffer, 100);
     if(result>0){
-        if(strcmp("Registration not found", receiveBuffer))
+        if(strlcmp("Registration not found", receiveBuffer))
             return stringToNum(receiveBuffer, 10);
         else 
             return 0;

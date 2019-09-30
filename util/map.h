@@ -22,7 +22,8 @@ typedef struct genericMap{
 
 void initializeMap(Map* map);
 
-//returns -1 if not enough space
+// returns -1 if not enough space
+// no one reads the return value
 int insertMap(Map* map, int key, void* value);
 
 int putMap(Map* map, int key, void* value);

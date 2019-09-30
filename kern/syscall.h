@@ -8,7 +8,7 @@
     User stack state goes like this:
 
     Arg 0           <- SP currently points here
-    ...             
+    ...
     Arg N
     CPSR            <- !!!! This where the stackEntry in the task descriptor should point to
     R0-15           <- Stored SP state points here when restored

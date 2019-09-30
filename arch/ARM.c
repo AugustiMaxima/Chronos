@@ -49,6 +49,7 @@ void hypeTrain(){
     asm("MOV R0, %0"::"r"(mode));
     asm("MCR p15, 0, R0, c1, c0, 0");
 }
+
 void derail(){
     asm("MCR p15, 0, R0, c7, c10, 4");
     int mode;
