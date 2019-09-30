@@ -23,7 +23,7 @@ CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 # -T: use linker script
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lnameServer -lgcc  
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lnameServer -lcharay -lgcc  
 
 all: kernel.elf
 
@@ -33,7 +33,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a nameServer.a maptest.a k1.a k2.a
+kernel.elf: kernel.o dump.a arm.a bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: misc/dump.c
@@ -170,6 +170,15 @@ map.o: map.s
 
 map.a: map.o
 	$(AR) $(ARFLAGS) $@ map.o
+
+charay.s: util/charay.c
+	$(CC) -S $(CFLAGS) util/charay.c
+
+charay.o: charay.s
+	$(AS) $(ASFLAGS) -o charay.o charay.s
+
+charay.a: charay.o
+	$(AR) $(ARFLAGS) $@ charay.o
 
 sendReceiveReply.s: comm/sendReceiveReply.c
 	$(CC) -S $(CFLAGS) comm/sendReceiveReply.c

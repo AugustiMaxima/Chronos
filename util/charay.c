@@ -1,6 +1,6 @@
 
 #include <charay.h>
-
+#include <bwio.h>
 
 int noneZeroIntString(char* writeBuffer, int buflen, int num, int base){
     int remainder = num;
