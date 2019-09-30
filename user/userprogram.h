@@ -5,3 +5,5 @@ void FireStrike();
 void FormatterTest();
 
 void NameServerTest();
+
+void BaseTest();

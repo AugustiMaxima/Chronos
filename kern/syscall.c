@@ -65,15 +65,15 @@ void __attribute__((naked)) sys_handler(){
 }
 
 static inline __attribute__((always_inline)) enter_sys_mode() {
-    asm("MRS R2, CPSR");
-    asm("ADD R2, R2, #12");
-    asm("MSR CPSR, R2");
+    asm("MRS R1, CPSR");
+    asm("ADD R1, R1, #12");
+    asm("MSR CPSR, R1");
 }
 
 static inline __attribute__((always_inline)) exit_sys_mode() {
-    asm("MRS R2, CPSR");
-    asm("SUB R2, R2, #12");
-    asm("MSR CPSR, R2");
+    asm("MRS R1, CPSR");
+    asm("SUB R1, R1, #12");
+    asm("MSR CPSR, R1");
 }
 
 void sysYield(){
@@ -100,6 +100,7 @@ void sysGetPid(){
 
 
 void sysCreateTask(){
+    bwprintf(COM2, "CreateTask\r\n");
     void* funcPtr;
     int priority;
     int* sp;
@@ -111,8 +112,10 @@ void sysCreateTask(){
 
 
     asm("MOV %0, R0": "=r"(sp));
+//    bwprintf(COM2, "%x\r\n", sp);
     priority = sp[-2];
     funcPtr = sp[-1];
+
 
     int pId = scheduler->currentTask->tId;
     int result = scheduleTask(scheduler, priority, pId, funcPtr);

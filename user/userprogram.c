@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <nameServer.h>
 #include <map.h>
+#include <scheduler.h>
 
 void receiver() {
     int who;
@@ -70,4 +71,12 @@ void NameServerTest(){
     bwprintf(COM2, "Register2 is %d\r\n", status);
     status = WhoIs("Register3");
     bwprintf(COM2, "Register3 is %d\r\n", status);
+}
+
+void BaseTest(){
+    bwprintf(COM2, "I'm here!\r\n");
+    Yield();    
+    bwprintf(COM2, "I'm back!\r\n");
+    Yield();    
+    bwprintf(COM2, "There and back again!\r\n");
 }

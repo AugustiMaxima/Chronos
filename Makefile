@@ -2,21 +2,21 @@
 # Makefile for busy-wait IO library
 #
 
-XDIR=/u/cs452/public/gnuarm-4.0.2
-XBINDIR=$(XDIR)/bin
-XLIBDIR1=$(XDIR)/arm-elf/lib
-XLIBDIR2=$(XDIR)/lib/gcc/arm-elf/4.0.2
-CC = $(XBINDIR)/arm-elf-gcc
-AS = $(XBINDIR)/arm-elf-as
-LD = $(XBINDIR)/arm-elf-ld
+# XDIR=/u/cs452/public/gnuarm-4.0.2
+# XBINDIR=$(XDIR)/bin
+# XLIBDIR1=$(XDIR)/arm-elf/lib
+# XLIBDIR2=$(XDIR)/lib/gcc/arm-elf/4.0.2
+# CC = $(XBINDIR)/arm-elf-gcc
+# AS = $(XBINDIR)/arm-elf-as
+# LD = $(XBINDIR)/arm-elf-ld
 
-# XDIR =/u/cs452/public/xdev/
-# XBINDIR=$(XDIR)bin
-# XLIBDIR1=$(XDIR)arm-none-eabi/lib
-# XLIBDIR2=$(XDIR)lib/gcc/arm-none-eabi/9.2.0
-# CC = $(XBINDIR)/arm-none-eabi-gcc
-# AS = $(XBINDIR)/arm-none-eabi-as
-# LD = $(XBINDIR)/arm-none-eabi-ld
+XDIR =/u/cs452/public/xdev/
+XBINDIR=$(XDIR)bin
+XLIBDIR1=$(XDIR)arm-none-eabi/lib
+XLIBDIR2=$(XDIR)lib/gcc/arm-none-eabi/9.2.0
+CC = $(XBINDIR)/arm-none-eabi-gcc
+AS = $(XBINDIR)/arm-none-eabi-as
+LD = $(XBINDIR)/arm-none-eabi-ld
 
 
 # -g: include debug information for gdb
