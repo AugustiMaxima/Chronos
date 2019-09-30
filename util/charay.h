@@ -6,13 +6,13 @@ Some basic char array manipulation tools because I am tired and sick of writing 
 
 //Writes a string representation of numbers with the configured base, supports hex
 //buffer length must be power+1 or greater or you will get memory corruption
-void noneZeroIntString(char* writeBuffer, int num, int base);
+int noneZeroIntString(char* writeBuffer, int buflen, int num, int base);
 
 int stringToNum(char* string, int base);
 
 int strcmp(char* str1, char* str2);
 
-int stringHash(char* name);
+int alphaNumericHash(char* name);
 
 void split(char** tokens, int length, char* base, char divider);
 

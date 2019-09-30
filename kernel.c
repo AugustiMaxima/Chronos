@@ -8,6 +8,7 @@
 #include <scheduler.h>
 #include <sendReceiveReply.h>
 #include <userprogram.h>
+#include <nameServer.h>
 #include <bwio.h>
 
 Scheduler* scheduler;
@@ -27,7 +28,8 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    scheduleTask(scheduler, 0, 0, FormatterTest);
+    scheduleTask(scheduler, 10, 0, nameServer);
+    scheduleTask(scheduler, 0, 0, NameServerTest);
 
 
     while(1) {

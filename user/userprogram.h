@@ -7,3 +7,5 @@ void MapTest();
 void FireStrike();
 
 void FormatterTest();
+
+void NameServerTest();

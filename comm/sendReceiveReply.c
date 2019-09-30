@@ -68,7 +68,7 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
 }
 
 int processSender(COMM* com, Sender* sender){
-    bwprintf(COM2, "Sender processing for %d, requesting %d\r\n", sender->tId, sender->requestTId);
+    //bwprintf(COM2, "Sender processing for %d, requesting %d\r\n", sender->tId, sender->requestTId);
     Receiver* target = getMap(&(com->receiverTable), sender->requestTId);
 
     if(!target){
@@ -87,7 +87,7 @@ int processSender(COMM* com, Sender* sender){
 }
 
 int processReceiver(COMM* com, Receiver* receiver){
-    bwprintf(COM2, "Receiver processing for %d\r\n", receiver->tId);
+    //bwprintf(COM2, "Receiver processing for %d\r\n", receiver->tId);
     Sender* sender = getMap(&(com->senderRequestTable), receiver->tId);
     if(sender){
         return SendMsg(com, sender, receiver);

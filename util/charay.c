@@ -2,25 +2,26 @@
 #include <charay.h>
 #include <bwio.h>
 
-void noneZeroIntString(char* writeBuffer, int num, int base){
-
+int noneZeroIntString(char* writeBuffer, int buflen, int num, int base){
     int remainder = num;
     int divider = 1;
     int cursor = 0;
     int length = 1;
+    buflen--;
     while(remainder /= base) {
 	    divider *= base;
 	    length++;
     }
     remainder = num;
     int digit;
-    while(length--){
+    while(length-- && buflen--){
         digit = remainder/divider;
 	    remainder %= divider;
         divider /= base;
 	    writeBuffer[cursor++] = digit + (digit < 10? '0':('a' - 10));
     }
     writeBuffer[cursor] = 0;
+    return cursor;
 }
 
 int stringToNum(char* strint, int base){
@@ -131,7 +132,7 @@ void split(char** tokens, int length, char* base, char divider){
 
 int strncpy(char* source, char* dest, int length){
     int i;
-    for(i=0;i<length-1 && source[i]; i++){
+    for(i=0;i<length && source[i]; i++){
         dest[i] = source[i];
     }
     dest[i] = 0;
@@ -144,7 +145,6 @@ void formatStrn(char* result, int length, char* format, ...){
     int mode = 0;
     va_list varag;
     va_start(varag, format);
-    char* buffer;
     /**
      * Minidocumentation:
      * 0: Literal mode: Takes char from formatter
@@ -155,7 +155,7 @@ void formatStrn(char* result, int length, char* format, ...){
     **/
     for(fi=0; format[fi]&& i<length - 1;){
         char operand = format[fi++];
-        if(operand=='%'){
+        if(operand=='%' && mode==0){
             mode = 4;
         } else {
             int op = 0;
@@ -165,17 +165,13 @@ void formatStrn(char* result, int length, char* format, ...){
                     result[i++] = operand;
                 } else if (operand == 'd') {
                     op = va_arg(varag, int);
-                    bwprintf(COM2, "%d\r\n", op);
-                    noneZeroIntString(buffer, op, 10);
-                    i += strncpy(buffer, result + i, length - i);
+                    i += noneZeroIntString(result + i, length - i, op, 10);
                 } else if (operand == 'x') {
                     op = va_arg(varag, int);
-                    bwprintf(COM2, "%d\r\n", op);
-                    noneZeroIntString(buffer, op, 16);
-                    i += strncpy(buffer, result + i, length - i);
+                    i += noneZeroIntString(result + i, length - i, op, 16);
                 } else if (operand == 's') {
                     ops = va_arg(varag, char*);
-                    i += strncpy(buffer, result + i, length - i);
+                    i += strncpy(ops, result + i, length - i);
                 }
                 result[i] = ' ';
                 mode = 0;

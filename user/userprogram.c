@@ -2,6 +2,7 @@
 #include <userprogram.h>
 #include <bwio.h>
 #include <stdlib.h>
+#include <nameServer.h>
 #include <map.h>
 
 void k1_child() {
@@ -100,4 +101,36 @@ void FormatterTest(){
     formatStrn(buffer, 100, "ABC: %d %x\r\n", 12, 123);
     bwprintf(COM2, buffer);
     bwprintf(COM2, "What is happening?!\r\n");
+}
+
+void Registar1(){
+    RegisterAs("Register1");
+    int status = WhoIs("Register1");
+    bwprintf(COM2, "Register1 is %d\r\n", status);
+
+    status = WhoIs("Register2");
+    bwprintf(COM2, "Register2 is %d\r\n", status);
+}
+
+void Registar2(){
+    RegisterAs("Register2");
+
+}
+
+void Registar3(){
+    RegisterAs("Register3");
+
+}
+
+void NameServerTest(){
+    Create(5, Registar1);
+    Create(5, Registar2);
+    Create(5, Registar3);
+
+    int status = WhoIs("Register1");
+    bwprintf(COM2, "Register1 is %d\r\n", status);
+    status = WhoIs("Register2");
+    bwprintf(COM2, "Register2 is %d\r\n", status);
+    status = WhoIs("Register3");
+    bwprintf(COM2, "Register3 is %d\r\n", status);
 }

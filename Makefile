@@ -23,7 +23,7 @@ CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 # -T: use linker script
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lcharay -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lcharay -lnameServer -lgcc
 
 all: kernel.elf
 
@@ -33,7 +33,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a charay.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a
+kernel.elf: kernel.o dump.a arm.a bwio.a charay.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a nameServer.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: misc/dump.c
@@ -161,6 +161,15 @@ sendReceiveReply.o: sendReceiveReply.s
 
 sendReceiveReply.a: sendReceiveReply.o
 	$(AR) $(ARFLAGS) $@ sendReceiveReply.o
+
+nameServer.s: user/library/nameServer.c
+	$(CC) -S $(CFLAGS) user/library/nameServer.c
+
+nameServer.o: nameServer.s
+	$(AS) $(ASFLAGS) -o nameServer.o nameServer.s
+
+nameServer.a: nameServer.o
+	$(AR) $(ARFLAGS) $@ nameServer.o
 
 .PHONY: install clean
 
