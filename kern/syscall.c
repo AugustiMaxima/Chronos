@@ -100,7 +100,6 @@ void sysGetPid(){
 
 
 void sysCreateTask(){
-    bwprintf(COM2, "CreateTask\r\n");
     void* funcPtr;
     int priority;
     int* sp;
@@ -114,8 +113,9 @@ void sysCreateTask(){
     bwprintf(COM2, "%x\r\n", sp);
     priority = sp[-2];
     funcPtr = sp[-1];
-    printRegisters(sp);
+    // printRegisters(sp);
 
+    bwprintf(COM2, "CreateTask priority:%d fptr:%x\r\n",priority,funcPtr);
     int pId = scheduler->currentTask->tId;
     int result = scheduleTask(scheduler, priority, pId, funcPtr);
     //stores the result in the user stack
