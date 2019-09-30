@@ -12,6 +12,7 @@
 
 #include <maptest.h>
 #include <k1.h>
+#include <k2.h>
 
 Scheduler* scheduler;
 COMM* com;
@@ -31,7 +32,7 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    scheduleTask(scheduler, 0, 0, k1_main);
+    scheduleTask(scheduler, 0, 0, k2_main);
 
 
     while(1) {
