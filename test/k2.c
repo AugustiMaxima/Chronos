@@ -220,9 +220,9 @@ void killServer() {
 void k2_rps_main() {
     Create(1000, nameServer);
     Create(100, rpsServer);
-    // int k;
-    // for (k=0; k<20; k++) {
-    //     Create(5, rpsClient);
-    // }
+    int k;
+    for (k=0; k<20; k++) {
+        Create(5, rpsClient);
+    }
     Create(-1, killServer);
 }

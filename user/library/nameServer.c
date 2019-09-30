@@ -57,7 +57,6 @@ void nameServer(){
         command = requestBuf[0];
         symbol = requestBuf;
         symbol += 2;
-        bwprintf(COM2, "%s\r\n", symbol);
         if(command == 'R'){
             RegistrationPreamble(&NameTable, symbol, caller);
         } else if(command == 'W'){
@@ -80,7 +79,6 @@ int RegisterAs(const char *name){
     char* buffer[100];
     char* receiveBuffer[100];
     formatStrn(buffer, 100, "R %s", name);
-    bwprintf(COM2, "%s\r\n", buffer);
     int result = Send(getNsTid(), buffer, 100, receiveBuffer, 100);
     if(result>0){
         return 0;
