@@ -32,7 +32,7 @@ void getCurrentTime(Clock* clock, TimeStamp* time);
 
 void initializeTimeStamp(TimeStamp* time, int hours, int minutes, int seconds, int miliseconds);
 
-void applyDetalTime(TimeStamp* time, int ms);
+void applyDeltaTime(TimeStamp* time, int ms);
 
 int compareTime(TimeStamp* a, TimeStamp* b);
 

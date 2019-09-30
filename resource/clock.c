@@ -57,7 +57,7 @@ void initializeTimeStamp(TimeStamp* time, int hours, int minutes, int seconds, i
     time->miliseconds = miliseconds;
 }
 
-void applyDetalTime(TimeStamp* time, int ms){
+void applyDeltaTime(TimeStamp* time, int ms){
     time->miliseconds += ms;
     if(time->miliseconds >= 1000) {
         time->seconds += time->miliseconds/1000;

@@ -15,6 +15,7 @@
 #include <k2.h>
 #include <clock.h>
 
+
 Scheduler* scheduler;
 COMM* com;
 // each task-local seed is derived as seed = seedSeed + MyTid()
