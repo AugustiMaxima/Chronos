@@ -33,7 +33,6 @@ void updateHeight(Node* node){
     if(!node)
         return;
     node->height = max(node->left? node->left->height : 0, node->right? node->right->height : 0) + 1;
-    //bwprintf(COM2, "Height update:%x %d\r\n",node, node->height);
 }
 
 Node* rotation(Node* position){
@@ -114,19 +113,15 @@ Node* insertNode(Node* position, Node* node){
 
 Node* putNode(Map* map, Node* position, int key, void* value){
     if(!position){ 
-        bwprintf(COM2, "Invalid position\r\n");
         Node* node = pop(&(map->freeQueue));    
-        bwprintf(COM2, "Queue freed\r\n");
         if(!node){
             map->retainer = NULL;
             return node;
         }
         map->retainer = value;
         initializeNode(node, key, value);
-        bwprintf(COM2, "Node ready\r\n");
         return node;
     }
-    bwprintf(COM2, "Put node on valid position %x\r\n", position);
     if(position->key > key){
         position->left = putNode(map, position->left, key, value);
     } else if(position->key < key){
@@ -232,10 +227,8 @@ int insertMap(Map* map, int key, void* value){
 
 //Dynamo Style put operation
 int putMap(Map* map, int key, void* value){
-    bwprintf(COM2, "Node begin put\r\n");
     map->retainer = NULL;
     map->root = putNode(map, map->root, key, value);
-    bwprintf(COM2, "Node done put\r\n");
     if(map->retainer == value){
         //newly created, usually
         return 1;

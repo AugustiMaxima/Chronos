@@ -8,13 +8,11 @@
 #define MAX_RESULT 100
 
 int Registration(Map* NameTable, char* symbol, int tId){
-    bwprintf(COM2, "Registering %d with %s\r\n", tId, symbol);
     return putMap(NameTable, alphaNumericHash(symbol), tId);
 }
 
 int Retrieve(Map* NameTable, char* symbol){
     int stuff = getMap(NameTable, alphaNumericHash(symbol));
-    bwprintf(COM2, "Getting %s, we think it's %d\r\n", symbol, stuff);
     return stuff;
 }
 
