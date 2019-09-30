@@ -33,10 +33,10 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    // scheduleTask(scheduler, 10, 0, nameServer);
-    // scheduleTask(scheduler, 0, 0, NameServerTest);
+    scheduleTask(scheduler, 10, 0, nameServer);
+    scheduleTask(scheduler, 0, 0, NameServerTest);
     // scheduleTask(scheduler, 0, 0, k2_main);
-    scheduleTask(scheduler, 0, 0, MapTestPut);
+    // scheduleTask(scheduler, 0, 0, MapTestPut);
 
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {
