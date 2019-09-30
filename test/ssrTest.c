@@ -1,5 +1,6 @@
 #include <syslib.h>
 #include <nameServer.h>
+#include <ssrTest.h>
 
 void Sender4(){
     char* sendMsg = "SOS";
@@ -8,7 +9,8 @@ void Sender4(){
     int tId = 0;
     while(!tId)
         tId = WhoIs("Receiver");
-    for(int i=0;i<1000;i++){
+    int i;
+    for(i=0;i<1000;i++){
         Send(tId, sendMsg, 4, receiveBuffer, 4);
     }
 
@@ -19,7 +21,9 @@ void Receiver4(){
     char buffer[4];
     int tId;
     RegisterAs("Receiver");
-    for(int i=0;i<1000;i++){
+
+    int i;
+    for(i=0;i<1000;i++){
         Receive(&tId, buffer, 4);
         Reply(tId, buffer, 4);
     }
@@ -33,7 +37,8 @@ void Sender64(){
     int tId = 0;
     while(!tId)
         tId = WhoIs("Receiver");
-    for(int i=0;i<1000;i++){
+    int i;
+    for(i=0;i<1000;i++){
         Send(tId, sendMsg, 64, receiveBuffer, 64);
     }
 }
@@ -42,7 +47,8 @@ void Receiver64(){
     char buffer[64];
     int tId;
     RegisterAs("Receiver");
-    for(int i=0;i<1000;i++){
+    int i;
+    for(i=0;i<1000;i++){
         Receive(&tId, buffer, 64);
         Reply(tId, buffer, 64);
     }
@@ -56,7 +62,8 @@ void Sender256(){
     int tId = 0;
     while(!tId)
         tId = WhoIs("Receiver");
-    for(int i=0;i<1000;i++){
+    int i;
+    for(i=0;i<1000;i++){
         Send(tId, sendMsg, 256, receiveBuffer, 256);
     }
 }
@@ -65,7 +72,8 @@ void Receiver256(){
     char buffer[256];
     int tId;
     RegisterAs("Receiver");
-    for(int i=0;i<1000;i++){
+    int i;
+    for(i=0;i<1000;i++){
         Receive(&tId, buffer, 256);
         Reply(tId, buffer, 256);
     }

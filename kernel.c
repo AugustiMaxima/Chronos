@@ -10,9 +10,10 @@
 #include <userprogram.h>
 #include <nameServer.h>
 #include <bwio.h>
-#include <maptest.h>
+#include <ssrTest.h>
 #include <k1.h>
 #include <k2.h>
+#include <clock.h>
 
 Scheduler* scheduler;
 COMM* com;
@@ -35,16 +36,33 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    // scheduleTask(scheduler, 10, 0, nameServer);
+    Clock clock;
+    initializeClock(&clock, 3, 508000, 0,0,0,0);
+
+    scheduleTask(scheduler, 10, 0, nameServer);
     // scheduleTask(scheduler, 0, 0, NameServerTest);
-    scheduleTask(scheduler, 0, 0, k2_rps_main);
-    // scheduleTask(scheduler, 0, 0, MapTestPut);
+    // scheduleTask(scheduler, 0, 0, k2_rps_main);
+
+    runFirstAvailableTask(scheduler);
+
+    scheduleTask(scheduler, 1, 0, SendReceive4);
+
+    TimeStamp begin;
+    TimeStamp finish;
+
+    getCurrentTime(&clock, &begin);
 
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {
             break;
         }
     }
+
+    getCurrentTime(&clock, &finish);
+
+    bwprintf(COM2, "SendReceive4: %dms\r\n", compareTime(&finish, &clock));
+
+
 
     if (
         (0 != com->senderRequestTable.root) ||

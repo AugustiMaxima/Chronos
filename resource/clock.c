@@ -1,7 +1,6 @@
 #include <clock.h>
-#define MAX4294967295
 
-void initializeclock(Clock* clock, int timer, int precision, int hours, int minutes, int seconds, int miliseconds){
+void initializeClock(Clock* clock, int timer, int precision, int hours, int minutes, int seconds, int miliseconds){
     clock->timer = timer;
     clock->precision = precision;
     initializeTimer(timer, precision, getWrap(timer), 0);
@@ -46,6 +45,11 @@ void getTimeString(char* buffer, TimeStamp* time){
     buffer[10] = 0;
 }
 
+void getCurrentTime(Clock* clock, TimeStamp* time){
+    timeElapsed(clock);
+    initializeTimeStamp(time, clock->time.hours, clock->time.minutes, clock->time.seconds, clock->time.miliseconds);
+}
+
 void initializeTimeStamp(TimeStamp* time, int hours, int minutes, int seconds, int miliseconds){
     time->hours = hours;
     time->minutes = minutes;
@@ -70,14 +74,13 @@ void applyDetalTime(TimeStamp* time, int ms){
 }
 
 int compareTime(TimeStamp* a, TimeStamp* b){
-    if(a->hours == b->hours){
-        if(a->minutes == b->minutes){
-            if(a->seconds == b->seconds){
-                return a->miliseconds - b->miliseconds;
-            }
-            return a->seconds - b->seconds;
-        }
-        return a->minutes - b->minutes;
-    }
-    return a->hours - b->hours;
+    int delta = 0;
+    delta += a->hours - b->hours;
+    delta *= 60;
+    delta += a->minutes - b->minutes;
+    delta *= 60;
+    delta += a->seconds - b->seconds;
+    delta *= 1000;
+    delta += a->miliseconds - b->miliseconds;
+    return delta;
 }

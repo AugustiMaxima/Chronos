@@ -15,7 +15,7 @@ LD = $(XBINDIR)/arm-elf-ld
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test
+CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource
 
 # -static: force static linking
 # -e: set entry point
@@ -23,7 +23,7 @@ CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 # -T: use linker script
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lnameServer -lcharay -lgcc  
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lnameServer -lcharay -ltimer -lclock -lssrTest -lgcc
 
 all: kernel.elf
 
@@ -33,7 +33,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a scheduler.a syscall.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a
+kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: misc/dump.c
@@ -197,6 +197,33 @@ nameServer.o: nameServer.s
 
 nameServer.a: nameServer.o
 	$(AR) $(ARFLAGS) $@ nameServer.o
+
+timer.s: devices/timer.c
+	$(CC) -S $(CFLAGS) devices/timer.c
+
+timer.o: timer.s
+	$(AS) $(ASFLAGS) -o timer.o timer.s
+
+timer.a: timer.o
+	$(AR) $(ARFLAGS) $@ timer.o
+
+clock.s: resource/clock.c
+	$(CC) -S $(CFLAGS) resource/clock.c
+
+clock.o: clock.s
+	$(AS) $(ASFLAGS) -o clock.o clock.s
+
+clock.a: clock.o
+	$(AR) $(ARFLAGS) $@ clock.o
+
+ssrTest.s: test/ssrTest.c
+	$(CC) -S $(CFLAGS) test/ssrTest.c
+
+ssrTest.o: ssrTest.s
+	$(AS) $(ASFLAGS) -o ssrTest.o ssrTest.s
+
+ssrTest.a: ssrTest.o
+	$(AR) $(ARFLAGS) $@ ssrTest.o
 
 .PHONY: install clean
 

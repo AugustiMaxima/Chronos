@@ -3,7 +3,7 @@
 
 #include <queue.h>
 
-#define MAP_SIZE 100
+#define MAP_SIZE 128
 
 typedef struct genericNode{
     int key;
