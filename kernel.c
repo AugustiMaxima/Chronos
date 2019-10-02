@@ -24,13 +24,13 @@
 #define WRAP_32 0xffffffff;
 #define LOWER_MASK 0x0000ffff;
 
-int getTimerBase(int timer){
+void* getTimerBase(int timer){
     switch (timer){
-        case 1: return TIMER1_BASE;
-        case 2: return TIMER2_BASE;
-        case 3: return TIMER3_BASE;
+        case 1: return (void*)TIMER1_BASE;
+        case 2: return (void*)TIMER2_BASE;
+        case 3: return (void*)TIMER3_BASE;
     }
-    return TIMER3_BASE;
+    return (void*)TIMER3_BASE;
 }
 
 unsigned int sanitizeLength(int timer, unsigned int length){
@@ -64,7 +64,7 @@ void setMode(int timer, int mode) {
 
 
 void initializeTimer(int timer, int frequency, unsigned int length, int mode){
-    int BASE = getTimerBase(timer);
+    void* BASE = getTimerBase(timer);
     *(int*)(BASE + CRTL_OFFSET) &= ~ENABLE_MASK;
     unsigned int sanitizedLength = sanitizeLength(timer, length);
     *(int*)(BASE + LDR_OFFSET) = sanitizedLength;
@@ -74,7 +74,7 @@ void initializeTimer(int timer, int frequency, unsigned int length, int mode){
 }
 
 unsigned int getValue(int timer) {
-    int BASE = getTimerBase(timer);
+    void* BASE = getTimerBase(timer);
     unsigned int value = *(int*)(BASE + VAL_OFFSET);
     if(timer!=3)
         value &= LOWER_MASK;
