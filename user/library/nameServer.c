@@ -8,12 +8,11 @@
 #define MAX_RESULT 100
 
 int Registration(Map* NameTable, char* symbol, int tId){
-    return putMap(NameTable, alphaNumericHash(symbol), tId);
+    return putMap(NameTable, alphaNumericHash(symbol), (void*)tId);
 }
 
 int Retrieve(Map* NameTable, char* symbol){
-    int stuff = getMap(NameTable, alphaNumericHash(symbol));
-    return stuff;
+    return (int) getMap(NameTable, alphaNumericHash(symbol));
 }
 
 void RegistrationPreamble(Map* NameTable, char* symbol, int caller){
@@ -44,7 +43,7 @@ void nameServer(){
     Map NameTable;
     initializeMap(&NameTable);
     int caller;
-    char* requestBuf[MAX_REQUEST];
+    char requestBuf[MAX_REQUEST];
     char command;
     char* symbol;
 
@@ -76,8 +75,8 @@ int getNsTid() {
 }
 
 int RegisterAs(const char *name){
-    char* buffer[100];
-    char* receiveBuffer[100];
+    char buffer[100];
+    char receiveBuffer[100];
     formatStrn(buffer, 100, "R %s", name);
     int result = Send(getNsTid(), buffer, 100, receiveBuffer, 100);
     if(result>0){
@@ -88,8 +87,8 @@ int RegisterAs(const char *name){
 }
 
 int WhoIs(const char *name){
-    char* buffer[100];
-    char* receiveBuffer[100];
+    char buffer[100];
+    char receiveBuffer[100];
     formatStrn(buffer, 100, "W %s", name);
     int result = Send(getNsTid(), buffer, 100, receiveBuffer, 100);
     if(result>0){

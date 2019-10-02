@@ -119,7 +119,7 @@ void rpsServer() {
         } else if (yourOpponentHasQuit[who]) {
             Reply(who, THEY_QUIT_MSG, strlen(THEY_QUIT_MSG));
         } else if (0 == strcmp(buf, SIGNUP_MSG)) {
-            push(&signups, who);
+            push(&signups, (void*)who);
         } else if (p1 == who && isMoveStr(buf)) {
             p1Move = buf[0];
         } else if (p2 == who && isMoveStr(buf)) {
@@ -133,8 +133,8 @@ void rpsServer() {
         }
 
         if (p1 == -1 && 2 == ringFill(&signups)) {
-            p1 = pop(&signups);
-            p2 = pop(&signups);
+            p1 = (int)pop(&signups);
+            p2 = (int)pop(&signups);
             Reply(p1, FIRSTCHOICE_MSG, strlen(FIRSTCHOICE_MSG));
             Reply(p2, FIRSTCHOICE_MSG, strlen(FIRSTCHOICE_MSG));
         } else if (isMoveChar(p1Move) && isMoveChar(p2Move)) {
