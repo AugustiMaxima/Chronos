@@ -6,13 +6,13 @@ extern Scheduler* scheduler;
 
 void initializeCOMM(COMM* com){
     int i=0;
-    initializeQueue(&(com->sendQueue));
-    initializeQueue(&(com->receiveQueue));
+    initializeQueue(&(com->senderFQ));
+    initializeQueue(&(com->receiverFQ));
     for(i=0; i<MAX_SENDER; i++){
-	    push(&(com->sendQueue), com->sendPool + i);
+	    push(&(com->senderFQ), com->sendPool + i);
     }
     for(i=0; i<MAX_RECEIVER; i++){
-	    push(&(com->receiveQueue), com->receivePool + i);
+	    push(&(com->receiverFQ), com->receivePool + i);
     }
     initializeMap(&(com->senderRequestTable));
     initializeMap(&(com->receiverTable));
@@ -36,7 +36,7 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
     removeMap(&(com->senderRequestTable), receiver->tId);
     insertMap(&(com->senderReplyTable), sender->tId, sender);
     removeMap(&(com->receiverTable), receiver->tId);
-    push(&(com->receiveQueue), receiver);
+    push(&(com->receiverFQ), receiver);
 
     Task* task = getTask(scheduler, receiver->tId);
 
@@ -60,7 +60,7 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
     //Clean up
     removeMap(&(com->senderReplyTable), sender->tId);
     // free the object
-    push(&(com->sendQueue), sender);
+    push(&(com->senderFQ), sender);
     Task* task = getTask(scheduler, sender->tId);
     task->stackEntry[1] = i;
     insertTaskToQueue(scheduler, task);
@@ -76,7 +76,7 @@ int processSender(COMM* com, Sender* sender){
             insertMap(&(com->senderRequestTable), sender->requestTId, sender);
             return 0;
         } else {
-            push(&(com->sendQueue), sender);
+            push(&(com->senderFQ), sender);
             return -1;
         }
     } else {
@@ -98,7 +98,7 @@ int processReceiver(COMM* com, Receiver* receiver){
 }
 
 int insertSender(COMM* com, int tId, int requestTId, const char* source, int length, char* receive, int rlength){
-    Sender* sender = pop(&(com->sendQueue));
+    Sender* sender = pop(&(com->senderFQ));
     if(!sender)
         return -1;
     sender->tId = tId;
@@ -111,7 +111,7 @@ int insertSender(COMM* com, int tId, int requestTId, const char* source, int len
 }
 
 int insertReceiver(COMM* com, int tId, char* receive, int length){
-    Receiver* receiver = pop(&(com->receiveQueue));
+    Receiver* receiver = pop(&(com->receiverFQ));
     if(!receiver)
         return -1;
     receiver->tId = tId;

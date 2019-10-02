@@ -30,8 +30,8 @@ typedef struct receiverConstruct{
 typedef struct SendReceiveReply{
     Sender sendPool[MAX_SENDER];
     Receiver receivePool[MAX_RECEIVER];
-    Queue sendQueue;
-    Queue receiveQueue;
+    Queue senderFQ;
+    Queue receiverFQ;
     Map senderRequestTable;
     Map receiverTable;
     Map senderReplyTable;
