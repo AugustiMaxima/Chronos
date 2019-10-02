@@ -22,16 +22,6 @@ int strcmp(char* s1, char* s2) {
     return *s1 - *s2;
 }
 
-// gcc is generating memcpys
-// https://code.woboq.org/gcc/libgcc/memcpy.c.html
-void * memcpy (void *dest, const void *src, size_t len) {
-  char *d = dest;
-  const char *s = src;
-  while (len--)
-    *d++ = *s++;
-  return dest;
-}
-
 void * memset ( void * ptr, int value, size_t num ){
     int i;
     char* block = ptr;
