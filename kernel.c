@@ -16,21 +16,6 @@
 #include <clock.h>
 #include <timer.h>
 
-// should be in timer.c
-#include <ts7200.h>
-
-void setMode(int timer, int mode) {
-    int* CRTL = getTimerBase(timer) + CRTL_OFFSET;
-    switch (mode){
-    case 1:
-        *CRTL |= MODE_MASK;
-    break;
-    default:
-        *CRTL &= ~MODE_MASK;
-    }
-}
-// end should
-
 Scheduler* scheduler;
 COMM* com;
 // each task-local seed is derived as seed = seedSeed + MyTid()

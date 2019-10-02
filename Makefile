@@ -16,8 +16,9 @@ LD = $(XBINDIR)/arm-elf-ld
 # XLIBDIR2=$(XDIR)lib/gcc/arm-none-eabi/9.2.0
 # CC = $(XBINDIR)/arm-none-eabi-gcc
 # AS = $(XBINDIR)/arm-none-eabi-as
-# LD = $(XBINDIR)/arm-none-eabi-ld
+# LD = /u/cs452/public/xdev/bin/arm-none-eabi-ld
 
+ASFLAGS = -mfloat-abi=soft
 
 # -g: include debug information for gdb
 # -S: only compile and emit assembly
@@ -35,7 +36,7 @@ CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lnameServer -lcharay -ltimer -lclock -lssrTest -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lnameServer -lcharay -ltimer -ltimer2 -lclock -lssrTest -lgcc
 
 all: kernel.elf
 
@@ -45,7 +46,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a
+kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a timer2.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: misc/dump.c
@@ -218,6 +219,15 @@ timer.o: timer.s
 
 timer.a: timer.o
 	$(AR) $(ARFLAGS) $@ timer.o
+
+timer2.s: devices/timer2.c
+	$(CC) -S $(CFLAGS) devices/timer2.c
+
+timer2.o: timer2.s
+	$(AS) $(ASFLAGS) -o timer2.o timer2.s
+
+timer2.a: timer2.o
+	$(AR) $(ARFLAGS) $@ timer2.o
 
 clock.s: resource/clock.c
 	$(CC) -S $(CFLAGS) resource/clock.c

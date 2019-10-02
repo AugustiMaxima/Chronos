@@ -1,6 +1,17 @@
 #include <timer.h>
 #include <ts7200.h>
 
+void setMode(int timer, int mode) {
+    int* CRTL = getTimerBase(timer) + CRTL_OFFSET;
+    switch (mode){
+    case 1:
+        *CRTL |= MODE_MASK;
+    break;
+    default:
+        *CRTL &= ~MODE_MASK;
+    }
+}
+
 unsigned int sanitizeLength(int timer, unsigned int length){
     if (timer!=3){
         length &= LOWER_MASK;
