@@ -2,7 +2,7 @@
 #define KERN_H
 
 
-//Exiting kernel and jump 
+//Exiting kernel and jump
 void exitKernel(void* usrsp);
 
 //assumes that we are resuming execution

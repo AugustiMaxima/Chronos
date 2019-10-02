@@ -39,7 +39,7 @@ void getTimeString(char* buffer, TimeStamp* time){
     for(i=0;i<3;i++){
         buffer[3*i] = '0' + timeSeries[i]/10;
         buffer[3*i+1] = '0' + timeSeries[i]%10;
-        buffer[3*i+2] = i==2? '.' : ':';    
+        buffer[3*i+2] = i==2? '.' : ':';
     }
     buffer[9] = '0' + time->miliseconds/100;
     buffer[10] = 0;
