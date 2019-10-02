@@ -1,6 +1,15 @@
 #include <timer.h>
 #include <ts7200.h>
 
+void* getTimerBase(int timer){
+    switch (timer){
+        case 1: return (void*)TIMER1_BASE;
+        case 2: return (void*)TIMER2_BASE;
+        case 3: return (void*)TIMER3_BASE;
+    }
+    return (void*)TIMER3_BASE;
+}
+
 void setMode(int timer, int mode) {
     int* CRTL = getTimerBase(timer) + CRTL_OFFSET;
     switch (mode){
@@ -28,15 +37,6 @@ void setFrequency(int timer, int frequency) {
     default:
         *CRTL &= ~CLKSEL_MASK;
     }
-}
-
-void* getTimerBase(int timer){
-    switch (timer){
-        case 1: return (void*)TIMER1_BASE;
-        case 2: return (void*)TIMER2_BASE;
-        case 3: return (void*)TIMER3_BASE;
-    }
-    return (void*)TIMER3_BASE;
 }
 
 unsigned int getValue(int timer) {
