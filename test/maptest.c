@@ -51,9 +51,9 @@ void MapTestPut(){
     putMap(m, 6, NULL);
     putMap(m, -1, NULL);
     putMap(m, 2, NULL);
-    putMap(m, 1, 2);
+    putMap(m, 1, (void*) 2);
     putMap(m, 2, NULL);
     putMap(m, 2, NULL);
-    bwputr(COM2, getMap(m, 1));
+    bwputr(COM2, (int) getMap(m, 1));
 
 }

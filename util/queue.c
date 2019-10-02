@@ -1,24 +1,24 @@
 #include <queue.h>
 #include <bwio.h>
 
-int ring(int num){
+int ring(int num) {
     return num % QUEUE_SIZE;
 }
 
-int ringFill(Queue* queue){
+int ringFill(Queue* queue) {
     return queue->length - queue->cursor;
 }
 
-int ringCapacity(Queue* queue){
+int ringCapacity(Queue* queue) {
     return QUEUE_SIZE - (ringFill(queue));
 }
 
-void initializeQueue(Queue* queue){
+void initializeQueue(Queue* queue) {
     queue->cursor = 0;
     queue->length = 0;
 }
 
-void* pop(Queue* queue){
+void* pop(Queue* queue) {
     if (ringFill(queue)) {
         int ret = queue->queue[ring(queue->cursor++)];
         return ret;
@@ -27,7 +27,7 @@ void* pop(Queue* queue){
     }
 };
 
-int peep(Queue* queue){
+int peep(Queue* queue) {
     if (ringFill(queue)) {
         int ret = queue->queue[ring(queue->cursor)];
         return ret;
@@ -36,7 +36,7 @@ int peep(Queue* queue){
     }
 };
 
-int push(Queue* queue, void* obj){
+int push(Queue* queue, void* obj) {
     if(ringCapacity(queue)){
         queue->queue[ring(queue->length++)] = obj;
         return 0;
