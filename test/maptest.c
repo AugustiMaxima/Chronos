@@ -57,3 +57,31 @@ void MapTestPut(){
     bwputr(COM2, (int) getMap(m, 1));
 
 }
+
+void DynamoTest(){
+    bwprintf(COM2, "Starting dynamo test\r\n");
+    Map map;
+    Map* m = &map;
+    initializeMap(m);
+    putMap(m, 4, NULL);
+    putMap(m, 37, NULL);
+    putMap(m, 95, NULL);
+    putMap(m, 197, NULL);
+    putMap(m, 56, NULL);
+    putMap(m, 22, NULL);
+    putMap(m, 117, NULL);
+    putMap(m, 100011, NULL);
+    putMap(m, 18, NULL);
+    putMap(m, 78, NULL);
+    putMap(m, 63, NULL);
+    putMap(m, 15, NULL);
+    putMap(m, 12, NULL);
+    volatile Node* node = NULL;
+    printTree(m);
+    do {
+	bwprintf(COM2, "Looping\r\n");
+	node = iterateMap(m, node);
+	bwprintf(COM2, "Element: %d at %x\r\n", node->key, node);
+	bwprintf(COM2, "Seriously, this value is %d\r\n", node);
+    } while(node!=NULL);
+}

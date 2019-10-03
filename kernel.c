@@ -15,6 +15,7 @@
 #include <k2.h>
 #include <clock.h>
 #include <timer.h>
+#include <maptest.h>;
 
 Scheduler* scheduler;
 COMM* com;
@@ -40,7 +41,7 @@ int main( int argc, char* argv[] ) {
     Clock clock;
     initializeClock(&clock, 3, 508000, 0,0,0,0);
 
-    scheduleTask(scheduler, 10, 0, nameServer);
+    // scheduleTask(scheduler, 10, 0, nameServer);
     // scheduleTask(scheduler, 0, 0, NameServerTest);
     // scheduleTask(scheduler, 0, 0, k2_rps_main);
 
@@ -50,7 +51,9 @@ int main( int argc, char* argv[] ) {
     //         break;
     //     }
     // }
-    scheduleTask(scheduler, 1, 0, SendReceive4);
+    // scheduleTask(scheduler, 1, 0, SendReceive4);
+
+    scheduleTask(scheduler, 1, 0, DynamoTest);
 
     TimeStamp begin;
     TimeStamp finish;
@@ -66,8 +69,10 @@ int main( int argc, char* argv[] ) {
     // getCurrentTime(&clock, &finish);
     // bwprintf(COM2, "SendReceive4: %dms\r\n", compareTime(&finish, &begin));
 
-    scheduleTask(scheduler, 1, 0, ReceiveSend4);
+    // scheduleTask(scheduler, 1, 0, ReceiveSend4);
+    
     getCurrentTime(&clock, &begin);
+
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {
             break;

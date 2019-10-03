@@ -11,6 +11,7 @@ typedef struct genericNode{
     int height;
     struct genericNode* left;
     struct genericNode* right;
+    struct genericNode*	up;
 } Node;
 
 typedef struct genericMap{
@@ -31,6 +32,8 @@ int putMap(Map* map, int key, void* value);
 void* getMap(Map* map, int key);
 
 void* removeMap(Map* map, int key);
+
+Node* iterateMap(Map* map, Node* key);
 
 void printTree(Map* map);
 

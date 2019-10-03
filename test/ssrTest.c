@@ -1,6 +1,7 @@
 #include <syslib.h>
 #include <nameServer.h>
 #include <ssrTest.h>
+#include <bwio.h>
 
 void Sender4(){
     char* sendMsg = "SOS";
@@ -12,8 +13,6 @@ void Sender4(){
     for(i=0;i<1000;i++){
         Send(tId, sendMsg, 4, receiveBuffer, 4);
     }
-
-
 }
 
 void Receiver4(){
@@ -24,6 +23,7 @@ void Receiver4(){
 
     int i;
     for(i=0;i<1000;i++){
+	bwprintf(COM2, "%d\r\n", i);
         Receive(&tId, buffer, 4);
         Reply(tId, buffer, 4);
     }
