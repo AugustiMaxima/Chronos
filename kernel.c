@@ -116,12 +116,14 @@ int main( int argc, char* argv[] ) {
     // getCurrentTime(&clock, &finish);
     // bwprintf(COM2, "ReceiveSend256: %dms\r\n", compareTime(&finish, &begin));
 
-    if (
-        (0 != com->senderRequestTable.root) ||
-        (0 != com->receiverTable.root) ||
-        (0 != com->senderReplyTable.root)
-    ) {
-        bwprintf(COM2, "\r\nwarning: kernel exiting with blocked tasks\r\n");
+    if (0 != com->senderRequestTable.root) {
+        bwprintf(COM2, "\r\nwarning: kernel exiting with senders blocked on receive\r\n");
+    }
+    if (0 != com->receiverTable.root) {
+        bwprintf(COM2, "\r\nwarning: kernel exiting with receivers blocked\r\n");
+    }
+    if (0 != com->senderReplyTable.root) {
+        bwprintf(COM2, "\r\nwarning: kernel exiting with senders blocked on reply\r\n");
     }
 
     return 0;
