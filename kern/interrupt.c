@@ -1,3 +1,5 @@
+#include <ARM.h>
+#include <syscode.h>
 #include <interrupt.h>
 
 
@@ -22,16 +24,13 @@ void __attribute__((naked)) interruptHandler(){
     asm("SUB SP, SP, #4");
     asm("SUB LR, LR, #4");
     asm("STR LR, [SP]");
-   
-    //now that LR is reliably saved
-    //use LR as a scratch register
-    asm("MRS R14, CPSR");
-    //switches to sysmode
-    asm("ADD R14, R14, #13");
-    asm("MSR CPSR, R14");
 
-    asm("STMFD SP!, ")
+    asm("MSR CPSR_c"TOSTRING(SYS_MODE))
+
+    asm("STMFD SP!, {R0-R12, R14-R15}");
  
+    asm("MSR CPSR_c"TOSTRING(IRQ_MODE));
+
     //handles actual processing
     asm("BL interruptProcessor");
 
@@ -41,9 +40,7 @@ void __attribute__((naked)) interruptHandler(){
     asm("ADD SP, SP, #4");
     
     //switches to svc mode from irq
-    asm("MRS R2, CPSR");
-    asm("ADD R2, R2, #1");
-    asm("MSR CPSR, R2");
+    asm("MSR CPSR_c"TOSTRING(SVC_MODE));
     
     //handles restoration
     asm("BL handleSuspendedTasks");

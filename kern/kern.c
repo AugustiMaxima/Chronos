@@ -1,6 +1,6 @@
+#include <ARM.h>
 #include <kern.h>
 #include <bwio.h>
-#include <dump.h>
 
 void exitKernel(void* processStackPtr){
     // save kernel registers on kernel stack

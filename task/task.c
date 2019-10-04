@@ -33,9 +33,6 @@ void initializeStack(Task* task, void* functionPtr){
 
     task->stackEntry =  (int*)((int)stack_base + STACK_SIZE) - 16;
 
-    // set r13 (aka sp)
-    //*stack = task->stackEntry + 1; //user sp at time of resumption will be missing cpsr
-
     int i;
     // set r0-r12 registers to 0
     for(i=12;i>=0;i--){
@@ -45,12 +42,7 @@ void initializeStack(Task* task, void* functionPtr){
 
     stack --;
 
-    int cpsr;
-
-    asm("MRS %0, CPSR" : "=r"(cpsr));
-
-    cpsr &= ~CPSR_M_FLAG;
-    cpsr |= CPSR_M_USR;
+    int cpsr = USR_MODE;
 
     //cpsr status, for hardware interrupt capable trap frame
     *stack = cpsr;
