@@ -20,8 +20,8 @@ void printRegisters(int* stack){
 }
 
 void printTask(Task* task){
-    bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
-    printRegisters(task->stackEntry);
+//    bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
+//    printRegisters(task->stackEntry);
 }
 
 void initializeScheduler(Scheduler* scheduler){
@@ -46,7 +46,7 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     initializeTask(task, tId, parent, priority, READY, functionPtr);
     insertMap(&(scheduler->taskTable), tId, task);
     insertTaskToQueue(scheduler, task);
-    bwprintf(COM2,"Finished scheduling\r\n");
+//    bwprintf(COM2,"Finished scheduling\r\n");
     return tId;
 }
 
@@ -55,7 +55,7 @@ void freeTask(Scheduler* scheduler, Task* task){
 }
 
 int runFirstAvailableTask(Scheduler* scheduler) {
-    bwprintf(COM2,"is this the last?\r\n");
+//    bwprintf(COM2,"is this the last?\r\n");
     Task* task;
     task = removeMin(&(scheduler->readyQueue));
     if(task){
@@ -67,7 +67,7 @@ int runFirstAvailableTask(Scheduler* scheduler) {
 }
 
 void runTask(Scheduler* scheduler, Task* task){    
-    bwprintf(COM2,"is this the last?\r\n");
+//    bwprintf(COM2,"is this the last?\r\n");
     scheduler->currentTask = task;
     task->status = RUNNING;
     //printTask(task);
@@ -77,7 +77,6 @@ void runTask(Scheduler* scheduler, Task* task){
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
     //printRegisters(task->stackEntry);
     task->status = READY;
-    bwprintf(COM2, "Do you h8 urself?\r\n");
     return insert(&(scheduler->readyQueue), task);
 }
 
@@ -89,6 +88,8 @@ Task* getTask(Scheduler* schedule, int tId){
 
 void handleSuspendedTasks(void* lr){
     int* stackPtr;
+    asm("STR R1, [SP, #-4]");
+    asm("STR R3, [SP, #-8]");
     //changes from svc to sys mode
     asm("MRS R3, CPSR");
     //12 is the distance from svc to sys mode
@@ -102,19 +103,21 @@ void handleSuspendedTasks(void* lr){
     asm("SUB R3, R3, #12");
     asm("MSR CPSR, R3");
     asm volatile("MOV %0, R1":"=r"(stackPtr));
+    asm("LDR R1, [SP, #-4]");
+    asm("LDR R3, [SP, #-8]");
 
     stackPtr[16] = lr;
-    bwprintf(COM2,"No seriously!\r\n");
+    //bwprintf(COM2,"No seriously!\r\n");
     scheduler->currentTask->stackEntry = stackPtr;        
-    bwprintf(COM2,"Who the hell takes this course!\r\n");
+    //bwprintf(COM2,"Who the hell takes this course!\r\n");
     //TODO: Figure out and design the blocked queue based on different conditions and status
     // Current iteration : Pretend every suspended task will be ready again right now
     if(scheduler->currentTask->status == RUNNING){
         int code = insertTaskToQueue(scheduler, scheduler->currentTask);
-        bwprintf(COM2,"Who the hell takes this course!\r\n");
+        //bwprintf(COM2,"Who the hell takes this course!\r\n");
     }
     scheduler->currentTask = NULL;
 
-    bwprintf(COM2,"User program halt, trapframe printing!\r\n");
+    //bwprintf(COM2,"User program halt, trapframe printing!\r\n");
     printRegisters(stackPtr);
 }
