@@ -43,20 +43,20 @@ int main( int argc, char* argv[] ) {
 
     // scheduleTask(scheduler, 10, 0, nameServer);
     // scheduleTask(scheduler, 0, 0, NameServerTest);
-    // scheduleTask(scheduler, 0, 0, k2_rps_main);
+    scheduleTask(scheduler, 0, 0, k2_rps_main);
 
     // runFirstAvailableTask(scheduler);
-    // while(1) {
-    //     if (-1 == runFirstAvailableTask(scheduler)) {
-    //         break;
-    //     }
-    // }
+    while(1) {
+        if (-1 == runFirstAvailableTask(scheduler)) {
+            break;
+        }
+    }
     // scheduleTask(scheduler, 1, 0, SendReceive4);
 
-    scheduleTask(scheduler, 1, 0, DynamoTest);
+    // scheduleTask(scheduler, 1, 0, DynamoTest);
 
-    TimeStamp begin;
-    TimeStamp finish;
+    // TimeStamp begin;
+    // TimeStamp finish;
 
     // getCurrentTime(&clock, &begin);
 
@@ -70,16 +70,16 @@ int main( int argc, char* argv[] ) {
     // bwprintf(COM2, "SendReceive4: %dms\r\n", compareTime(&finish, &begin));
 
     // scheduleTask(scheduler, 1, 0, ReceiveSend4);
-    
-    getCurrentTime(&clock, &begin);
 
-    while(1) {
-        if (-1 == runFirstAvailableTask(scheduler)) {
-            break;
-        }
-    }
-    getCurrentTime(&clock, &finish);
-    bwprintf(COM2, "ReceiveSend4: %dms\r\n", compareTime(&finish, &begin));
+    // getCurrentTime(&clock, &begin);
+
+    // while(1) {
+    //     if (-1 == runFirstAvailableTask(scheduler)) {
+    //         break;
+    //     }
+    // }
+    // getCurrentTime(&clock, &finish);
+    // bwprintf(COM2, "ReceiveSend4: %dms\r\n", compareTime(&finish, &begin));
 
     // scheduleTask(scheduler, 1, 0, SendReceive64);
     // getCurrentTime(&clock, &begin);
@@ -121,15 +121,26 @@ int main( int argc, char* argv[] ) {
     // getCurrentTime(&clock, &finish);
     // bwprintf(COM2, "ReceiveSend256: %dms\r\n", compareTime(&finish, &begin));
 
-    if (0 != com->senderRequestTable.root) {
-        bwprintf(COM2, "\r\nwarning: kernel exiting with senders blocked on receive\r\n");
-    }
-    if (0 != com->receiverTable.root) {
-        bwprintf(COM2, "\r\nwarning: kernel exiting with receivers blocked\r\n");
-    }
-    if (0 != com->senderReplyTable.root) {
-        bwprintf(COM2, "\r\nwarning: kernel exiting with senders blocked on reply\r\n");
-    }
+    volatile Node* node = 0;
+    do {
+	    node = iterateMap(&(com->senderRequestTable), node);
+        Receiver* receiver = (Receiver*) node;
+	    if (node) bwprintf(COM2, "Warning: TID %d blocked because it executed a send but target task has not called receive\r\n", receiver->tId);
+    } while(node!=0);
+
+    node = 0;
+    do {
+	    node = iterateMap(&(com->receiverTable), node);
+        Receiver* receiver = (Receiver*) node;
+	    if (node) bwprintf(COM2, "Warning: TID %d blocked on receive\r\n", receiver->tId);
+    } while(node!=0);
+
+    node = 0;
+    do {
+	    node = iterateMap(&(com->senderReplyTable), node);
+        Receiver* receiver = (Receiver*) node;
+	    if (node) bwprintf(COM2, "Warning: TID %d blocked because it executed a send but target task has not called reply\r\n", receiver->tId);
+    } while(node!=0);
 
     return 0;
 }

@@ -119,8 +119,8 @@ Node* insertNode(Node* position, Node* node){
 }
 
 Node* putNode(Map* map, Node* position, int key, void* value){
-    if(!position){ 
-        Node* node = pop(&(map->freeQueue));    
+    if(!position){
+        Node* node = pop(&(map->freeQueue));
         if(!node){
             map->retainer = NULL;
             return node;
@@ -235,17 +235,15 @@ Node* iterateNode(Node* node){
 	return up;
     }
     while(up=node->up){
-	bwprintf(COM2, "Parent:%d Child: %d\r\n", up->key, node->key);
 	if(up->left == node){
 	    bwprintf(COM2, "Left\r\n");
 	    return up;
 	}
 	else {
-	   node = up; 
+	   node = up;
 	}
     }
     if(!up){
-	bwprintf(COM2, "Fucking work please\r\n");
     }
     return up;
 }
