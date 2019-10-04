@@ -25,25 +25,20 @@ int min(int a, int b){
 }
 
 int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
-    bwprintf(COM2, "Matched and sending\r\n");
     int length = min(sender->sourceLength, receiver->receiveLength - 1);
     int i;
     for(i=0;i<length && sender->source[i];i++){
-	bwprintf(COM2, "Char: %d, %c, %d\r\n", sender->source[i], sender->source[i], i);
         receiver->receiveBuffer[i] = sender->source[i];
     }
     receiver->receiveBuffer[i] = 0;
     //Block for cleanup
     //Note on this operation: For this to be true, crucial that we have stable order
     removeMap(&(com->senderRequestTable), receiver->tId);
-    bwprintf(COM2, "Remove failed\r\n");
     insertMap(&(com->senderReplyTable), sender->tId, sender);
-    bwprintf(COM2, "Insert failed\r\n");
     removeMap(&(com->receiverTable), receiver->tId);
-    bwprintf(COM2, "Remove failed\r\n");
+    
     push(&(com->receiverFQ), receiver);
     
-    bwprintf(COM2, "Maloooba\r\n");
     
     Task* task = getTask(scheduler, receiver->tId);
 
@@ -76,7 +71,6 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
 }
 
 int processSender(COMM* com, Sender* sender){
-    bwprintf(COM2, "\r\nProcessing sender!\r\n");
     Receiver* target = getMap(&(com->receiverTable), sender->requestTId);
     if(!target){
         Task* receiverTask = getTask(scheduler, sender->requestTId);
