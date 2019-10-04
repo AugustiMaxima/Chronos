@@ -15,7 +15,8 @@
 #include <k2.h>
 #include <clock.h>
 #include <timer.h>
-#include <maptest.h>;
+#include <maptest.h>
+#include <interrupt.h>
 
 Scheduler* scheduler;
 COMM* com;
@@ -27,6 +28,7 @@ int nsTid = -1;
 int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
+    installInterruptHandler(interruptHandler);
 
     //hypeTrain();
     Scheduler base_scheduler;
@@ -37,6 +39,9 @@ int main( int argc, char* argv[] ) {
 
     initializeScheduler(scheduler);
     initializeCOMM(com);
+    
+    initializeTimer(3, 5080000, 5080, 1);
+
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 

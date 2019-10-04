@@ -12,6 +12,6 @@
 
 void interruptHandler();
 
-void installInterruptHandler();
+void installInterruptHandler(void* handler);
 
 #endif

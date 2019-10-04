@@ -1,6 +1,7 @@
 #include <ARM.h>
 #include <kern.h>
 #include <stdlib.h>
+#include <syscode.h>
 #include <scheduler.h>
 #include <bwio.h>
 
@@ -82,27 +83,17 @@ Task* getTask(Scheduler* schedule, int tId){
 
 
 void handleSuspendedTasks(void* lr){
-    int* stackPtr;
-    asm("STR R1, [SP, #-4]");
-    asm("STR R3, [SP, #-8]");
+    int* stack;
     //changes from svc to sys mode
-    asm("MRS R3, CPSR");
-    //12 is the distance from svc to sys mode
-    asm("ADD R3, R3, #12");
-    asm("MSR CPSR, R3");
+    asm(R"(
+        MSR CPSR_c, #0x1F
+        MOV R3, SP
+        MSR CPSR_c, #0x13
+        MOV %[stack], R3
+    )" : [stack]"=r"(stack)::"r3");
 
-    asm("MOV R1, SP");
-
-    //changes back to svc
-    asm("MRS R3, CPSR");
-    asm("SUB R3, R3, #12");
-    asm("MSR CPSR, R3");
-    asm volatile("MOV %0, R1":"=r"(stackPtr));
-    asm("LDR R1, [SP, #-4]");
-    asm("LDR R3, [SP, #-8]");
-
-    stackPtr[15] = lr;
-    scheduler->currentTask->stackEntry = stackPtr;        
+    stack[15] = lr;
+    scheduler->currentTask->stackEntry = stack;        
     if(scheduler->currentTask->status == RUNNING){
         int code = insertTaskToQueue(scheduler, scheduler->currentTask);
     }
