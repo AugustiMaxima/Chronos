@@ -64,7 +64,7 @@ int runFirstAvailableTask(Scheduler* scheduler) {
     }
 }
 
-void runTask(Scheduler* scheduler, Task* task){    
+void runTask(Scheduler* scheduler, Task* task){
     scheduler->currentTask = task;
     task->status = RUNNING;
     exitKernel(task->stackEntry);
@@ -101,7 +101,7 @@ void handleSuspendedTasks(void* lr){
     asm("LDR R1, [SP, #-4]");
     asm("LDR R3, [SP, #-8]");
 
-    stackPtr[16] = lr;
+    stackPtr[15] = lr;
     scheduler->currentTask->stackEntry = stackPtr;        
     if(scheduler->currentTask->status == RUNNING){
         int code = insertTaskToQueue(scheduler, scheduler->currentTask);

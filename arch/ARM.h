@@ -26,7 +26,9 @@
 #define CPSR_IT_7_2_FLAG 0x0000fc00
 #define CPSR_E_FLAG 0x00000200
 #define CPSR_A_FLAG 0x00000100
+//Enable or disable IRQ
 #define CPSR_I_FLAG 0x00000080
+//Enable or disable FIRQ
 #define CPSR_F_FLAG 0x00000040
 #define CPSR_T_FLAG 0x00000020
 #define CPSR_M_FLAG 0x0000001f

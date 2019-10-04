@@ -29,12 +29,12 @@ void initializeStack(Task* task, void* functionPtr){
     //TODO: Set up exit handler
     *stack = Exit;
 
-    stack--;
+    //stack--;
 
-    task->stackEntry =  (int*)((int)stack_base + STACK_SIZE) - 17;
+    task->stackEntry =  (int*)((int)stack_base + STACK_SIZE) - 16;
 
     // set r13 (aka sp)
-    *stack = task->stackEntry + 1; //user sp at time of resumption will be missing cpsr
+    //*stack = task->stackEntry + 1; //user sp at time of resumption will be missing cpsr
 
     int i;
     // set r0-r12 registers to 0
