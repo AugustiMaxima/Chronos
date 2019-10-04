@@ -66,15 +66,16 @@ void __attribute__((naked)) sys_handler(){
 
 //using R1, because these are less likely to be disturbed
 static inline __attribute__((always_inline)) enter_sys_mode() {
-    asm("MRS R1, CPSR");
-    asm("ADD R1, R1, #12");
-    asm("MSR CPSR, R1");
+    register int opmode asm("R3");
+    asm("MRS R3, CPSR");
+    asm("ADD R3, R3, #12");
+    asm("MSR CPSR, R3");
 }
 
 static inline __attribute__((always_inline)) exit_sys_mode() {
-    asm("MRS R1, CPSR");
-    asm("SUB R1, R1, #12");
-    asm("MSR CPSR, R1");
+    asm("MRS R3, CPSR");
+    asm("SUB R3, R3, #12");
+    asm("MSR CPSR, R3");
 }
 
 void sysYield(){
@@ -115,11 +116,9 @@ void sysCreateTask(){
     
     priority = sp[-2];
     funcPtr = sp[-1];
-    // printRegisters(sp);
-    bwprintf(COM2, "CreateTask priority:%d fptr:%x\r\n",priority,funcPtr);
+    // bwprintf(COM2, "CreateTask priority:%d fptr:%x\r\n",priority,funcPtr);
     int pId = scheduler->currentTask->tId;
     int result = scheduleTask(scheduler, priority, pId, funcPtr);
-    bwprintf(COM2, "Requested by %d\r\n", pId);
     //stores the result in the user stack
     sp[1] = result;
 }
@@ -151,7 +150,7 @@ void sysSend(){
     char* rep = args[3];
     int replylen = args[4];
 
-    bwprintf(COM2, "Send %d %x %d %x %d", tid, msg, msglen, rep, replylen);    
+    // bwprintf(COM2, "Send %d %x %d %x %d", tid, msg, msglen, rep, replylen);    
 
     int result = insertSender(com, scheduler->currentTask->tId, tid, msg, msglen, rep, replylen);
     if (result<0){
@@ -174,7 +173,7 @@ void sysReceive(){
     int* args = sp[-1];
     char* msg = args[1];
     int msglen = args[2];
-    bwprintf(COM2, "Receiving %x, %d\r\n", msg, msglen);
+    // bwprintf(COM2, "Receiving %x, %d\r\n", msg, msglen);
     int status = insertReceiver(com, scheduler->currentTask->tId, msg, msglen);
     sp[3] = args[0];
 }
@@ -194,7 +193,7 @@ void sysReply(){
     int tid = args[0];
     char* msg = args[1];
     int msglen = args[2];
-    bwprintf(COM2, "Replying %d, %x, %d", tid, msg, msglen);
+    // bwprintf(COM2, "Replying %d, %x, %d", tid, msg, msglen);
     int result = reply(com, msg, msglen, tid);
     sp[1] = result;
 }
