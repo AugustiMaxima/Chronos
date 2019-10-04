@@ -23,7 +23,6 @@ void Receiver4(){
 
     int i;
     for(i=0;i<1000;i++){
-	bwprintf(COM2, "%d\r\n", i);
         Receive(&tId, buffer, 4);
         Reply(tId, buffer, 4);
     }
@@ -107,4 +106,25 @@ void SendReceive256(){
 void ReceiveSend256(){
     Create(1, Sender256);
     Create(1, Receiver256);
+}
+
+void ssr_test_main() {
+    Create(10, nameServer);
+    Create(1, SendReceive4);
+
+
+    // TimeStamp begin;
+    // TimeStamp finish;
+
+    // getCurrentTime(&clock, &begin);
+
+    // while(1) {
+    //     if (-1 == runFirstAvailableTask(scheduler)) {
+    //         break;
+    //     }
+    // }
+
+    // getCurrentTime(&clock, &finish);
+    // bwprintf(COM2, "SendReceive4: %dms\r\n", compareTime(&finish, &begin));
+
 }
