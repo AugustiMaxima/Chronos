@@ -20,8 +20,8 @@ void printRegisters(int* stack){
 }
 
 void printTask(Task* task){
-//    bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
-//    printRegisters(task->stackEntry);
+    bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
+    printRegisters(task->stackEntry);
 }
 
 void initializeScheduler(Scheduler* scheduler){
@@ -55,7 +55,6 @@ void freeTask(Scheduler* scheduler, Task* task){
 }
 
 int runFirstAvailableTask(Scheduler* scheduler) {
-//    bwprintf(COM2,"is this the last?\r\n");
     Task* task;
     task = removeMin(&(scheduler->readyQueue));
     if(task){
@@ -67,10 +66,10 @@ int runFirstAvailableTask(Scheduler* scheduler) {
 }
 
 void runTask(Scheduler* scheduler, Task* task){    
-//    bwprintf(COM2,"is this the last?\r\n");
+    bwprintf(COM2, "Run tasks!\r\n");
     scheduler->currentTask = task;
     task->status = RUNNING;
-    //printTask(task);
+    printTask(task);
     exitKernel(task->stackEntry);
 }
 
