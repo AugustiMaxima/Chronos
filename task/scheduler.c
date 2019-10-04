@@ -46,7 +46,6 @@ int scheduleTask(Scheduler* scheduler, int priority, int parent, void* functionP
     initializeTask(task, tId, parent, priority, READY, functionPtr);
     insertMap(&(scheduler->taskTable), tId, task);
     insertTaskToQueue(scheduler, task);
-//    bwprintf(COM2,"Finished scheduling\r\n");
     return tId;
 }
 
@@ -66,15 +65,12 @@ int runFirstAvailableTask(Scheduler* scheduler) {
 }
 
 void runTask(Scheduler* scheduler, Task* task){    
-    bwprintf(COM2, "Run tasks!\r\n");
     scheduler->currentTask = task;
     task->status = RUNNING;
-    printTask(task);
     exitKernel(task->stackEntry);
 }
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
-    //printRegisters(task->stackEntry);
     task->status = READY;
     return insert(&(scheduler->readyQueue), task);
 }
@@ -106,17 +102,9 @@ void handleSuspendedTasks(void* lr){
     asm("LDR R3, [SP, #-8]");
 
     stackPtr[16] = lr;
-    //bwprintf(COM2,"No seriously!\r\n");
     scheduler->currentTask->stackEntry = stackPtr;        
-    //bwprintf(COM2,"Who the hell takes this course!\r\n");
-    //TODO: Figure out and design the blocked queue based on different conditions and status
-    // Current iteration : Pretend every suspended task will be ready again right now
     if(scheduler->currentTask->status == RUNNING){
         int code = insertTaskToQueue(scheduler, scheduler->currentTask);
-        //bwprintf(COM2,"Who the hell takes this course!\r\n");
     }
     scheduler->currentTask = NULL;
-
-    //bwprintf(COM2,"User program halt, trapframe printing!\r\n");
-    printRegisters(stackPtr);
 }

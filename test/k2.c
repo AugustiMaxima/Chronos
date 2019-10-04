@@ -33,11 +33,22 @@ void * memcpy (void *dest, const void *src, size_t len) {
 }
 
 void * memset ( void * ptr, int value, size_t num ){
-    int i;
-    char* block = ptr;
-    for(i=0;i<num;i++){
-        block[i] = value;
+    unsigned char value_downcast = value;
+    value = value_downcast * 0x01010101;
+    char* start = ptr;
+    char* end = ptr + num;
+    for(;(int)start%4 && start<end;start++){
+	*start = value_downcast;
     }
+    int* block = start;
+    for(;block + 1<end;block++){
+        *block = value;
+    }
+    start = block;
+    for(;start<block;start++){
+	*start = value_downcast;
+    }
+    return ptr;
 }
 
 // https://code.woboq.org/userspace/glibc/string/test-strlen.c.htmlsize_t
