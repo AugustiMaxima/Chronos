@@ -81,7 +81,7 @@ void DynamoTest(){
     do {
 	bwprintf(COM2, "Looping\r\n");
 	node = iterateMap(m, node);
-	bwprintf(COM2, "Element: %d at %x\r\n", node->key, node);
+	if (node) bwprintf(COM2, "Element: %d at %x\r\n", node->key, node);
 	bwprintf(COM2, "Seriously, this value is %d\r\n", node);
     } while(node!=NULL);
 }
