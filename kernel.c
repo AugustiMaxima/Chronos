@@ -38,89 +38,13 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    Clock clock;
-    initializeClock(&clock, 3, 508000, 0,0,0,0);
+    scheduleTask(scheduler, 0, 0, ssr_test_main);
 
-    // scheduleTask(scheduler, 10, 0, nameServer);
-    // scheduleTask(scheduler, 0, 0, NameServerTest);
-    //scheduleTask(scheduler, 0, 0, k1_main);
-    scheduleTask(scheduler, 0, 0, k2_rps_main);
-
-    // runFirstAvailableTask(scheduler);
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {
             break;
         }
     }
-    // scheduleTask(scheduler, 1, 0, SendReceive4);
-
-    // scheduleTask(scheduler, 1, 0, DynamoTest);
-
-    // TimeStamp begin;
-    // TimeStamp finish;
-
-    // getCurrentTime(&clock, &begin);
-
-    // while(1) {
-    //     if (-1 == runFirstAvailableTask(scheduler)) {
-    //         break;
-    //     }
-    // }
-
-    // getCurrentTime(&clock, &finish);
-    // bwprintf(COM2, "SendReceive4: %dms\r\n", compareTime(&finish, &begin));
-
-    // scheduleTask(scheduler, 1, 0, ReceiveSend4);
-
-    // getCurrentTime(&clock, &begin);
-
-    // while(1) {
-    //     if (-1 == runFirstAvailableTask(scheduler)) {
-    //         break;
-    //     }
-    // }
-    // getCurrentTime(&clock, &finish);
-    // bwprintf(COM2, "ReceiveSend4: %dms\r\n", compareTime(&finish, &begin));
-
-    // scheduleTask(scheduler, 1, 0, SendReceive64);
-    // getCurrentTime(&clock, &begin);
-    // while(1) {
-    //     if (-1 == runFirstAvailableTask(scheduler)) {
-    //         break;
-    //     }
-    // }
-    // getCurrentTime(&clock, &finish);
-    // bwprintf(COM2, "SendReceive64: %dms\r\n", compareTime(&finish, &begin));
-
-    // scheduleTask(scheduler, 1, 0, ReceiveSend64);
-    // getCurrentTime(&clock, &begin);
-    // while(1) {
-    //     if (-1 == runFirstAvailableTask(scheduler)) {
-    //         break;
-    //     }
-    // }
-    // getCurrentTime(&clock, &finish);
-    // bwprintf(COM2, "ReceiveSend64: %dms\r\n", compareTime(&finish, &begin));
-
-    // scheduleTask(scheduler, 1, 0, SendReceive256);
-    // getCurrentTime(&clock, &begin);
-    // while(1) {
-    //     if (-1 == runFirstAvailableTask(scheduler)) {
-    //         break;
-    //     }
-    // }
-    // getCurrentTime(&clock, &finish);
-    // bwprintf(COM2, "SendReceive256: %dms\r\n", compareTime(&finish, &begin));
-
-    // scheduleTask(scheduler, 1, 0, ReceiveSend256);
-    // getCurrentTime(&clock, &begin);
-    // while(1) {
-    //     if (-1 == runFirstAvailableTask(scheduler)) {
-    //         break;
-    //     }
-    // }
-    // getCurrentTime(&clock, &finish);
-    // bwprintf(COM2, "ReceiveSend256: %dms\r\n", compareTime(&finish, &begin));
 
     volatile Node* node = 0;
     do {
@@ -133,7 +57,7 @@ int main( int argc, char* argv[] ) {
     do {
 	    node = iterateMap(&(com->receiverTable), node);
         Receiver* receiver = (Receiver*) node;
-	    if (node) bwprintf(COM2, "Warning: TID %d blocked on receive\r\n", receiver->tId);
+	    if (node && receiver->tId != getNsTid()) bwprintf(COM2, "Warning: TID %d blocked on receive\r\n", receiver->tId);
     } while(node!=0);
 
     node = 0;

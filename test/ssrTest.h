@@ -1,12 +1,1 @@
-void Sender4();
-void Receiver4();
-void SendReceive4();
-void ReceiveSend4();
-void Sender64();
-void Receiver64();
-void SendReceive64();
-void ReceiveSend64();
-void Sender256();
-void Receiver256();
-void SendReceive256();
-void ReceiveSend256();
+void ssr_test_main();
