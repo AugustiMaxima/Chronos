@@ -10,13 +10,13 @@ int noneZeroIntString(char* writeBuffer, int buflen, int num, int base);
 
 int stringToNum(char* string, int base);
 
-int strlcmp(char* str1, char* str2);
+int strcmp(const char* s1, const char* s2);
 
 int alphaNumericHash(char* name);
 
 void split(char** tokens, int length, char* base, char divider);
 
-int strlcpy(char* source, char* dest, int length);
+int strcpy(const char* source, char* dest, int length);
 
 void formatStrn(char* result, int length, char* format, ...);
 

@@ -3,6 +3,7 @@
 #include <bwio.h>
 #include <stdlib.h>
 #include <map.h>
+#include <charay.h>
 #include <nameServer.h>
 
 extern int seedSeed;
@@ -13,44 +14,9 @@ unsigned lrand(int* seed) {
 	return *seed = (*seed * 1103515245 + 12345) & ((1U << 31) - 1);
 }
 
-// https://stackoverflow.com/questions/34873209/implementation-of-strcmp
-int strcmp(const char* s1, const char* s2) {
-    while(*s1 && (*s1 == *s2)) {
-        s1++;
-        s2++;
-    }
-    return *s1 - *s2;
-}
-
 // gcc is generating memcpys
 // https://code.woboq.org/gcc/libgcc/memcpy.c.html
-/*
-void * memcpy (void *dest, const void *src, size_t len) {
-  char *d = dest;
-  const char *s = src;
-  while (len--)
-    *d++ = *s++;
-  return dest;
-}*/
 
-void * memset ( void * ptr, int value, size_t num ){
-    unsigned char value_downcast = value;
-    value = value_downcast * 0x01010101;
-    char* start = ptr;
-    char* end = ptr + num;
-    for(;(int)start%4 && start<end;start++){
-	*start = value_downcast;
-    }
-    int* block = start;
-    for(;block + 1<end;block++){
-        *block = value;
-    }
-    start = block;
-    for(;start<block;start++){
-	*start = value_downcast;
-    }
-    return ptr;
-}
 
 // https://code.woboq.org/userspace/glibc/string/test-strlen.c.htmlsize_t
 int chos_strlen (const char *s) {

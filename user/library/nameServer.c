@@ -49,7 +49,7 @@ void nameServer(){
 
     nsTid = MyTid();
     while(Receive(&caller, requestBuf, MAX_REQUEST)){
-        if (0 == strlcmp(requestBuf, "kys")) {
+        if (0 == strcmp(requestBuf, "kys")) {
             Reply(caller, "ok", strlen("ok"));
             Exit();
         }
@@ -93,7 +93,7 @@ int WhoIs(const char *name){
     formatStrn(buffer, 100, "W %s", name);
     int result = Send(getNsTid(), buffer, 100, receiveBuffer, 100);
     if(result>0){
-        if(strlcmp("Registration not found", receiveBuffer))
+        if(strcmp("Registration not found", receiveBuffer))
             return stringToNum(receiveBuffer, 10);
         else
             return 0;

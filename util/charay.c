@@ -41,20 +41,13 @@ int stringToNum(char* strint, int base){
     return result;
 }
 
-int strlcmp(char* str1, char* str2){
-    int i=0;
-    for(i=0;str1[i]&&str2[i];i++){
-        if(str1[i]!=str2[i]){
-            return str1[i] - str2[i];
-        }
+// https://stackoverflow.com/questions/34873209/implementation-of-strcmp
+int strcmp(const char* s1, const char* s2) {
+    while(*s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
     }
-    if(str1[i]){
-        return -1;
-    }
-    else if(str2[i]){
-        return 1;
-    }
-    return 0;
+    return *s1 - *s2;
 }
 
 int getCharMap(char a){
