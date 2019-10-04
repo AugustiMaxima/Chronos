@@ -22,6 +22,36 @@ int strcmp(const char* s1, const char* s2) {
     return *s1 - *s2;
 }
 
+// gcc is generating memcpys
+// https://code.woboq.org/gcc/libgcc/memcpy.c.html
+/*
+void * memcpy (void *dest, const void *src, size_t len) {
+  char *d = dest;
+  const char *s = src;
+  while (len--)
+    *d++ = *s++;
+  return dest;
+}*/
+
+void * memset ( void * ptr, int value, size_t num ){
+    unsigned char value_downcast = value;
+    value = value_downcast * 0x01010101;
+    char* start = ptr;
+    char* end = ptr + num;
+    for(;(int)start%4 && start<end;start++){
+	*start = value_downcast;
+    }
+    int* block = start;
+    for(;block + 1<end;block++){
+        *block = value;
+    }
+    start = block;
+    for(;start<block;start++){
+	*start = value_downcast;
+    }
+    return ptr;
+}
+
 // https://code.woboq.org/userspace/glibc/string/test-strlen.c.htmlsize_t
 int chos_strlen (const char *s) {
   const char *p;
@@ -93,6 +123,7 @@ int whoWon(char p1Move, char p2Move) {
 }
 
 void rpsServer() {
+    bwprintf(COM2, "Entering the RPS server\r\n");
     // Queue<int>
     Queue signups;
     char buf[100];
@@ -101,17 +132,26 @@ void rpsServer() {
     int p2 = -1;
     char p1Move = 'x';
     char p2Move = 'x';
+    
+    bwprintf(COM2, "surely this isnt where it crashed to the ground");
 
     char yourOpponentHasQuit[64];
 
     int i;
     for (i=0; i<64; i++) {
+	//bwprintf(COM2 , "Seriouisly? %d\r\n", i);
         yourOpponentHasQuit[i] = 0;
     }
 
+    bwprintf(COM2, "Did my task crash here?\r\n");
+
     initializeQueue(&signups);
 
+    bwprintf(COM2, "Did my queue crash here?\r\n");
+
     RegisterAs("server");
+
+    bwprintf(COM2, "Did the registration crash everything?\r\n");
 
     while (1) {
         trace_Receive("rpsServer", &who, buf);

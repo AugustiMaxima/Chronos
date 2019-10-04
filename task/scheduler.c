@@ -20,8 +20,8 @@ void printRegisters(int* stack){
 }
 
 void printTask(Task* task){
-    // bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
-    // printRegisters(task->stackEntry);
+    bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
+    printRegisters(task->stackEntry);
 }
 
 void initializeScheduler(Scheduler* scheduler){
@@ -64,15 +64,10 @@ int runFirstAvailableTask(Scheduler* scheduler) {
     }
 }
 
-void runTask(Scheduler* scheduler, Task* task){
+void runTask(Scheduler* scheduler, Task* task){    
     scheduler->currentTask = task;
     task->status = RUNNING;
-    printTask(task);
     exitKernel(task->stackEntry);
-    // asm("MOV R0, #1");
-    // asm("MOV R1, SP");
-    // asm("BL bwputr(PLT)");
-    // bwprintf(COM2, "end of runTask\r\n");
 }
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
@@ -88,33 +83,28 @@ Task* getTask(Scheduler* schedule, int tId){
 
 void handleSuspendedTasks(void* lr){
     int* stackPtr;
+    asm("STR R1, [SP, #-4]");
+    asm("STR R3, [SP, #-8]");
     //changes from svc to sys mode
-    asm("MRS R0, CPSR");
+    asm("MRS R3, CPSR");
     //12 is the distance from svc to sys mode
-    asm("ADD R0, R0, #12");
-    asm("MSR CPSR, R0");
+    asm("ADD R3, R3, #12");
+    asm("MSR CPSR, R3");
 
-    asm("MOV R0, SP");
+    asm("MOV R1, SP");
 
     //changes back to svc
     asm("MRS R3, CPSR");
     asm("SUB R3, R3, #12");
     asm("MSR CPSR, R3");
-    asm("MOV %0, R0":"=r"(stackPtr));
+    asm volatile("MOV %0, R1":"=r"(stackPtr));
+    asm("LDR R1, [SP, #-4]");
+    asm("LDR R3, [SP, #-8]");
 
-    // bwprintf(COM2, "\r\n");
-    // bwprintf(COM2, "Scheduler Ptr: %x\r\n", scheduler);
-    // bwprintf(COM2, "acquired stackPtr: %x\r\n", stackPtr);
-
-    scheduler->currentTask->stackEntry = stackPtr;
     stackPtr[16] = lr;
-    //TODO: Figure out and design the blocked queue based on different conditions and status
-    // Current iteration : Pretend every suspended task will be ready again right now
+    scheduler->currentTask->stackEntry = stackPtr;        
     if(scheduler->currentTask->status == RUNNING){
         int code = insertTaskToQueue(scheduler, scheduler->currentTask);
     }
     scheduler->currentTask = NULL;
-
-    // bwprintf(COM2,"User program halt, trapframe printing!\r\n");
-    // printRegisters(stackPtr);
 }

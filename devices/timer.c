@@ -65,4 +65,3 @@ void initializeTimer(int timer, int frequency, unsigned int length, int mode){
     setMode(timer, mode);
     *(int*)(BASE + CRTL_OFFSET) |= ENABLE_MASK;
 }
-

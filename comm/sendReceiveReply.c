@@ -36,15 +36,17 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
     removeMap(&(com->senderRequestTable), receiver->tId);
     insertMap(&(com->senderReplyTable), sender->tId, sender);
     removeMap(&(com->receiverTable), receiver->tId);
+    
     push(&(com->receiverFQ), receiver);
-
+    
+    
     Task* task = getTask(scheduler, receiver->tId);
 
     //stores in R1, R2, keeping R0 safe so we can just dereference it
     task->stackEntry[1] = i;
     task->stackEntry[2] = sender->tId;
     if(task->status == BLOCKED){
-	    insertTaskToQueue(scheduler, task);
+	insertTaskToQueue(scheduler, task);
     }
     return i;
 }

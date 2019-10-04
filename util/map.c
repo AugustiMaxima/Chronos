@@ -170,7 +170,6 @@ Node* promote(Node* position, bool left){
 }
 
 Node* successor(Map* map, Node* position){
-    Node* up = position->up;
     Node* candidate = NULL;
     if(position->right){
         if(!position->right->left){
@@ -193,7 +192,6 @@ Node* successor(Map* map, Node* position){
     }
     map->retainer = position->value;
     freeNode(map, position);
-    candidate->up = up;
     updateHeight(candidate);
     return candidate;
 }
