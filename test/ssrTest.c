@@ -1,25 +1,29 @@
 #include <syslib.h>
 #include <nameServer.h>
 #include <ssrTest.h>
+#include <bwio.h>
 
 void Sender4(){
     char* sendMsg = "SOS";
     char* receiveBuffer[4];
-    int tId = 2;
+    int tId = 0;
+    while(!tId)
+        tId = WhoIs("Receiver");
     int i;
-    for(i=0;i<10000;i++){
+    for(i=0;i<1000;i++){
         Send(tId, sendMsg, 4, receiveBuffer, 4);
     }
-
-
 }
 
 void Receiver4(){
     char buffer[4];
     int tId;
 
+    RegisterAs("Receiver");
+
     int i;
-    for(i=0;i<10000;i++){
+    for(i=0;i<1000;i++){
+	bwprintf(COM2, "%d\r\n", i);
         Receive(&tId, buffer, 4);
         Reply(tId, buffer, 4);
     }

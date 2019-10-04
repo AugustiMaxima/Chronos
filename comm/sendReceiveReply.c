@@ -6,13 +6,13 @@ extern Scheduler* scheduler;
 
 void initializeCOMM(COMM* com){
     int i=0;
-    initializeQueue(&(com->sendQueue));
-    initializeQueue(&(com->receiveQueue));
+    initializeQueue(&(com->senderFQ));
+    initializeQueue(&(com->receiverFQ));
     for(i=0; i<MAX_SENDER; i++){
-	    push(&(com->sendQueue), com->sendPool + i);
+	    push(&(com->senderFQ), com->sendPool + i);
     }
     for(i=0; i<MAX_RECEIVER; i++){
-	    push(&(com->receiveQueue), com->receivePool + i);
+	    push(&(com->receiverFQ), com->receivePool + i);
     }
     initializeMap(&(com->senderRequestTable));
     initializeMap(&(com->receiverTable));
@@ -25,26 +25,33 @@ int min(int a, int b){
 }
 
 int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
+    bwprintf(COM2, "Matched and sending\r\n");
     int length = min(sender->sourceLength, receiver->receiveLength - 1);
     int i;
     for(i=0;i<length && sender->source[i];i++){
+	bwprintf(COM2, "Char: %d, %c, %d\r\n", sender->source[i], sender->source[i], i);
         receiver->receiveBuffer[i] = sender->source[i];
     }
     receiver->receiveBuffer[i] = 0;
     //Block for cleanup
     //Note on this operation: For this to be true, crucial that we have stable order
     removeMap(&(com->senderRequestTable), receiver->tId);
+    bwprintf(COM2, "Remove failed\r\n");
     insertMap(&(com->senderReplyTable), sender->tId, sender);
+    bwprintf(COM2, "Insert failed\r\n");
     removeMap(&(com->receiverTable), receiver->tId);
-    push(&(com->receiveQueue), receiver);
-
+    bwprintf(COM2, "Remove failed\r\n");
+    push(&(com->receiverFQ), receiver);
+    
+    bwprintf(COM2, "Maloooba\r\n");
+    
     Task* task = getTask(scheduler, receiver->tId);
 
     //stores in R1, R2, keeping R0 safe so we can just dereference it
     task->stackEntry[1] = i;
     task->stackEntry[2] = sender->tId;
     if(task->status == BLOCKED){
-	    insertTaskToQueue(scheduler, task);
+	insertTaskToQueue(scheduler, task);
     }
     return i;
 }
@@ -60,7 +67,7 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
     //Clean up
     removeMap(&(com->senderReplyTable), sender->tId);
     // free the object
-    push(&(com->sendQueue), sender);
+    push(&(com->senderFQ), sender);
     Task* task = getTask(scheduler, sender->tId);
     task->stackEntry[1] = i;
     insertTaskToQueue(scheduler, task);
@@ -69,6 +76,7 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
 }
 
 int processSender(COMM* com, Sender* sender){
+    bwprintf(COM2, "\r\nProcessing sender!\r\n");
     Receiver* target = getMap(&(com->receiverTable), sender->requestTId);
     if(!target){
         Task* receiverTask = getTask(scheduler, sender->requestTId);
@@ -76,7 +84,7 @@ int processSender(COMM* com, Sender* sender){
             insertMap(&(com->senderRequestTable), sender->requestTId, sender);
             return 0;
         } else {
-            push(&(com->sendQueue), sender);
+            push(&(com->senderFQ), sender);
             return -1;
         }
     } else {
@@ -98,7 +106,7 @@ int processReceiver(COMM* com, Receiver* receiver){
 }
 
 int insertSender(COMM* com, int tId, int requestTId, const char* source, int length, char* receive, int rlength){
-    Sender* sender = pop(&(com->sendQueue));
+    Sender* sender = pop(&(com->senderFQ));
     if(!sender)
         return -1;
     sender->tId = tId;
@@ -111,7 +119,7 @@ int insertSender(COMM* com, int tId, int requestTId, const char* source, int len
 }
 
 int insertReceiver(COMM* com, int tId, char* receive, int length){
-    Receiver* receiver = pop(&(com->receiveQueue));
+    Receiver* receiver = pop(&(com->receiverFQ));
     if(!receiver)
         return -1;
     receiver->tId = tId;

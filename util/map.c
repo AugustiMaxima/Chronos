@@ -14,6 +14,7 @@ void initializeNode(Node* node, int key, void* value){
     node->height = 1;
     node->left = NULL;
     node->right = NULL;
+    node->up = NULL;
 }
 
 void freeNode(Map* map, Node* node){
@@ -32,18 +33,24 @@ void initializeMap(Map* map){
 void updateHeight(Node* node){
     if(!node)
         return;
-    node->height = max(node->left? node->left->height : 0, node->right? node->right->height : 0) + 1;
+    int lh = 0, rh = 0;
+    if(node->left){
+	node->left->up = node;
+	lh = node->left->height;
+    }
+    if(node->right){
+	node->right->up = node;
+	rh = node->right->height;
+    }
+    node->height = max(lh, rh) + 1;
 }
 
 Node* rotation(Node* position){
-
     if(!position){
         return position;
     }
-
     int lh = position->left ? position->left->height : 0;
     int rh = position->right? position->right->height : 0;
-
     int bal = lh - rh;
     if(bal>1){
         //zig zag left
@@ -55,14 +62,14 @@ Node* rotation(Node* position){
         if(lrh > llh){
             Node* outlier = position->left;
             Node* root = outlier->right;
-            outlier->right = root->left;
+	    outlier->right = root->left;
             position->left = root->right;
             root->left = outlier;
             root->right = position;
             updateHeight(outlier);
             updateHeight(position);
             updateHeight(root);
-            return root;
+	    return root;
         } else {//straight line
             Node* median  = position->left;
             position->left = median->right;
@@ -112,8 +119,8 @@ Node* insertNode(Node* position, Node* node){
 }
 
 Node* putNode(Map* map, Node* position, int key, void* value){
-    if(!position){ 
-        Node* node = pop(&(map->freeQueue));    
+    if(!position){
+        Node* node = pop(&(map->freeQueue));
         if(!node){
             map->retainer = NULL;
             return node;
@@ -216,6 +223,29 @@ void* search(Node* node, int key){
     }
 }
 
+Node* iterateNode(Node* node){
+    Node* up;
+    if(node->right){
+	//if the right actually has content, always start by returning the left most of the branch
+	up = node->right;
+	while(up->left)
+	    up = up->left;
+	return up;
+    }
+    while(up=node->up){
+	if(up->left == node){
+	    bwprintf(COM2, "Left\r\n");
+	    return up;
+	}
+	else {
+	   node = up;
+	}
+    }
+    if(!up){
+    }
+    return up;
+}
+
 int insertMap(Map* map, int key, void* value){
     Node* node = pop(&(map->freeQueue));
     if(!node)
@@ -229,6 +259,9 @@ int insertMap(Map* map, int key, void* value){
 int putMap(Map* map, int key, void* value){
     map->retainer = NULL;
     map->root = putNode(map, map->root, key, value);
+    if(map->root){
+	map->root->up = NULL;
+    }
     if(map->retainer == value){
         //newly created, usually
         return 1;
@@ -249,7 +282,23 @@ void* getMap(Map* map, int key){
 void* removeMap(Map* map, int key){
     map->retainer = NULL;
     map->root = removeNode(map, map->root, key);
+    if(map->root){
+	map->root->up = NULL;
+    }
     return map->retainer;
+}
+
+Node* iterateMap(Map* map, Node* key){
+    if(!map->root){
+	return NULL;
+    }
+    if(!key){
+	key = map->root;
+	while(key->left)
+	    key = key->left;
+	return key;
+    }
+    return iterateNode(key);
 }
 
 void debugTree(Node* node){

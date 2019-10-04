@@ -1,7 +1,6 @@
 #include <syslib.h>
 #include <userprogram.h>
 #include <bwio.h>
-#include <stdlib.h>
 #include <nameServer.h>
 #include <map.h>
 #include <scheduler.h>

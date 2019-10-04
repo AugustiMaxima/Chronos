@@ -14,7 +14,7 @@ unsigned lrand(int* seed) {
 }
 
 // https://stackoverflow.com/questions/34873209/implementation-of-strcmp
-int strcmp(char* s1, char* s2) {
+int strcmp(const char* s1, const char* s2) {
     while(*s1 && (*s1 == *s2)) {
         s1++;
         s2++;
@@ -24,13 +24,14 @@ int strcmp(char* s1, char* s2) {
 
 // gcc is generating memcpys
 // https://code.woboq.org/gcc/libgcc/memcpy.c.html
+/*
 void * memcpy (void *dest, const void *src, size_t len) {
   char *d = dest;
   const char *s = src;
   while (len--)
     *d++ = *s++;
   return dest;
-}
+}*/
 
 void * memset ( void * ptr, int value, size_t num ){
     unsigned char value_downcast = value;
@@ -52,7 +53,7 @@ void * memset ( void * ptr, int value, size_t num ){
 }
 
 // https://code.woboq.org/userspace/glibc/string/test-strlen.c.htmlsize_t
-int strlen (const char *s) {
+int chos_strlen (const char *s) {
   const char *p;
   for (p = s; *p; ++p);
   return p - s;
@@ -96,13 +97,17 @@ int isMoveChar(char msg) {
 }
 
 void trace_Send(const char* taskName, int tid, const char* msg, char* reply) {
-    int ret = Send(tid, msg, strlen(msg), reply, 100);
+    int ret = Send(tid, msg, chos_strlen(msg), reply, 100);
     bwprintf(COM2, "[%s %d]\t%d = Send(%d, %s, =%s)\r\n", taskName, MyTid(), ret, tid, msg, reply);
 }
 
 void trace_Receive(const char* taskName, int* tid, char* msg) {
     int ret = Receive(tid, msg, 100);
     bwprintf(COM2, "[%s %d]\t%d = Receive(=%d, =%s)\r\n", taskName, MyTid(), ret, *tid, msg);
+}
+
+void wrap_Reply(int who, const char* msg) {
+    Reply(who, msg, chos_strlen(msg));
 }
 
 int whoWon(char p1Move, char p2Move) {
@@ -153,12 +158,12 @@ void rpsServer() {
 
         // handle receive
         if (0 == strcmp(buf, KYS_MSG)) {
-            Reply(who, "ok", strlen("ok"));
+            wrap_Reply(who, "ok");
             Exit();
         } else if (yourOpponentHasQuit[who]) {
-            Reply(who, THEY_QUIT_MSG, strlen(THEY_QUIT_MSG));
+            wrap_Reply(who, THEY_QUIT_MSG);
         } else if (0 == strcmp(buf, SIGNUP_MSG)) {
-            push(&signups, who);
+            push(&signups, (void*)who);
         } else if (p1 == who && isMoveStr(buf)) {
             p1Move = buf[0];
         } else if (p2 == who && isMoveStr(buf)) {
@@ -172,39 +177,39 @@ void rpsServer() {
         }
 
         if (p1 == -1 && 2 == ringFill(&signups)) {
-            p1 = pop(&signups);
-            p2 = pop(&signups);
-            Reply(p1, FIRSTCHOICE_MSG, strlen(FIRSTCHOICE_MSG));
-            Reply(p2, FIRSTCHOICE_MSG, strlen(FIRSTCHOICE_MSG));
+            p1 = (int)pop(&signups);
+            p2 = (int)pop(&signups);
+            wrap_Reply(p1, FIRSTCHOICE_MSG);
+            wrap_Reply(p2, FIRSTCHOICE_MSG);
         } else if (isMoveChar(p1Move) && isMoveChar(p2Move)) {
             int winner = whoWon(p1Move, p2Move);
             p1Move = 'x';
             p2Move = 'x';
             if (winner == 0) {
-                Reply(p1, DRAW_MSG, strlen(DRAW_MSG));
-                Reply(p2, DRAW_MSG, strlen(DRAW_MSG));
+                wrap_Reply(p1, DRAW_MSG);
+                wrap_Reply(p2, DRAW_MSG);
             } else if (winner == 1) {
-                Reply(p1, WON_MSG, strlen(WON_MSG));
-                Reply(p2, LOST_MSG, strlen(LOST_MSG));
+                wrap_Reply(p1, WON_MSG);
+                wrap_Reply(p2, LOST_MSG);
             } else if (winner == 2) {
-                Reply(p1, LOST_MSG, strlen(LOST_MSG));
-                Reply(p2, WON_MSG, strlen(WON_MSG));
+                wrap_Reply(p1, LOST_MSG);
+                wrap_Reply(p2, WON_MSG);
             } else {
                 bwprintf(COM2, "unknown \r\n");
                 for (;;) {}
             }
 
         } else if (p1Move == 'q') {
-            Reply(p1, THEY_QUIT_MSG, strlen(THEY_QUIT_MSG));
-            Reply(p2, THEY_QUIT_MSG, strlen(THEY_QUIT_MSG));
+            wrap_Reply(p1, THEY_QUIT_MSG);
+            wrap_Reply(p2, THEY_QUIT_MSG);
             yourOpponentHasQuit[p2] = 1;
             p1 = -1;
             p2 = -1;
             p1Move = 'x';
             p2Move = 'x';
         } else if (p2Move == 'q') {
-            Reply(p1, THEY_QUIT_MSG, strlen(THEY_QUIT_MSG));
-            Reply(p2, THEY_QUIT_MSG, strlen(THEY_QUIT_MSG));
+            wrap_Reply(p1, THEY_QUIT_MSG);
+            wrap_Reply(p2, THEY_QUIT_MSG);
             yourOpponentHasQuit[p1] = 1;
             p1 = -1;
             p2 = -1;

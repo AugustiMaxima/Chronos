@@ -15,4 +15,6 @@ void* pop(Queue* queue);
 
 int push(Queue* queue, void* obj);
 
+int ringFill(Queue* queue);
+
 #endif

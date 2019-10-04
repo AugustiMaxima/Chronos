@@ -18,6 +18,7 @@ CC = $(XBINDIR)/arm-none-eabi-gcc
 AS = $(XBINDIR)/arm-none-eabi-as
 LD = $(XBINDIR)/arm-none-eabi-ld
 
+ASFLAGS = -mfloat-abi=soft
 
 # -g: include debug information for gdb
 # -S: only compile and emit assembly

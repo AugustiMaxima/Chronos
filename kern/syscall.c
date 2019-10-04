@@ -150,7 +150,7 @@ void sysSend(){
     char* rep = args[3];
     int replylen = args[4];
 
-    // bwprintf(COM2, "Send %d %x %d %x %d", tid, msg, msglen, rep, replylen);    
+    bwprintf(COM2, "Send %d %x %d %x %d", tid, msg, msglen, rep, replylen);    
 
     int result = insertSender(com, scheduler->currentTask->tId, tid, msg, msglen, rep, replylen);
     if (result<0){
@@ -173,7 +173,7 @@ void sysReceive(){
     int* args = sp[-1];
     char* msg = args[1];
     int msglen = args[2];
-    // bwprintf(COM2, "Receiving %x, %d\r\n", msg, msglen);
+    bwprintf(COM2, "Receiving %x, %d\r\n", msg, msglen);
     int status = insertReceiver(com, scheduler->currentTask->tId, msg, msglen);
     sp[3] = args[0];
 }
@@ -193,7 +193,7 @@ void sysReply(){
     int tid = args[0];
     char* msg = args[1];
     int msglen = args[2];
-    // bwprintf(COM2, "Replying %d, %x, %d", tid, msg, msglen);
+    bwprintf(COM2, "Replying %d, %x, %d", tid, msg, msglen);
     int result = reply(com, msg, msglen, tid);
     sp[1] = result;
 }

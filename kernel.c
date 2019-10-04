@@ -14,6 +14,8 @@
 #include <k1.h>
 #include <k2.h>
 #include <clock.h>
+#include <timer.h>
+#include <maptest.h>;
 
 Scheduler* scheduler;
 COMM* com;
@@ -44,13 +46,15 @@ int main( int argc, char* argv[] ) {
     //scheduleTask(scheduler, 0, 0, k1_main);
     scheduleTask(scheduler, 0, 0, k2_rps_main);
 
-    runFirstAvailableTask(scheduler);
+    // runFirstAvailableTask(scheduler);
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {
             break;
         }
     }
     // scheduleTask(scheduler, 1, 0, SendReceive4);
+
+    // scheduleTask(scheduler, 1, 0, DynamoTest);
 
     // TimeStamp begin;
     // TimeStamp finish;
@@ -67,7 +71,9 @@ int main( int argc, char* argv[] ) {
     // bwprintf(COM2, "SendReceive4: %dms\r\n", compareTime(&finish, &begin));
 
     // scheduleTask(scheduler, 1, 0, ReceiveSend4);
+
     // getCurrentTime(&clock, &begin);
+
     // while(1) {
     //     if (-1 == runFirstAvailableTask(scheduler)) {
     //         break;
@@ -116,13 +122,26 @@ int main( int argc, char* argv[] ) {
     // getCurrentTime(&clock, &finish);
     // bwprintf(COM2, "ReceiveSend256: %dms\r\n", compareTime(&finish, &begin));
 
-    if (
-        (0 != com->senderRequestTable.root) ||
-        (0 != com->receiverTable.root) ||
-        (0 != com->senderReplyTable.root)
-    ) {
-        bwprintf(COM2, "\r\nwarning: kernel exiting with blocked tasks\r\n");
-    }
+    volatile Node* node = 0;
+    do {
+	    node = iterateMap(&(com->senderRequestTable), node);
+        Receiver* receiver = (Receiver*) node;
+	    if (node) bwprintf(COM2, "Warning: TID %d blocked because it executed a send but target task has not called receive\r\n", receiver->tId);
+    } while(node!=0);
+
+    node = 0;
+    do {
+	    node = iterateMap(&(com->receiverTable), node);
+        Receiver* receiver = (Receiver*) node;
+	    if (node) bwprintf(COM2, "Warning: TID %d blocked on receive\r\n", receiver->tId);
+    } while(node!=0);
+
+    node = 0;
+    do {
+	    node = iterateMap(&(com->senderReplyTable), node);
+        Receiver* receiver = (Receiver*) node;
+	    if (node) bwprintf(COM2, "Warning: TID %d blocked because it executed a send but target task has not called reply\r\n", receiver->tId);
+    } while(node!=0);
 
     return 0;
 }
