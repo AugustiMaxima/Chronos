@@ -109,9 +109,12 @@ void ReceiveSend256(){
 }
 
 void ssr_test_main() {
+
     Create(10, nameServer);
     Create(1, SendReceive4);
 
+    // Clock clock;
+    // initializeClock(&clock, 3, 508000, 0,0,0,0);
 
     // TimeStamp begin;
     // TimeStamp finish;

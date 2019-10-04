@@ -38,9 +38,6 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    Clock clock;
-    initializeClock(&clock, 3, 508000, 0,0,0,0);
-
     scheduleTask(scheduler, 0, 0, ssr_test_main);
 
     while(1) {
@@ -60,7 +57,7 @@ int main( int argc, char* argv[] ) {
     do {
 	    node = iterateMap(&(com->receiverTable), node);
         Receiver* receiver = (Receiver*) node;
-	    if (node) bwprintf(COM2, "Warning: TID %d blocked on receive\r\n", receiver->tId);
+	    if (node && receiver->tId != getNsTid()) bwprintf(COM2, "Warning: TID %d blocked on receive\r\n", receiver->tId);
     } while(node!=0);
 
     node = 0;
