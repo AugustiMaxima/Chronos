@@ -15,7 +15,7 @@ void setMode(int timer, int mode) {
     switch (mode){
     case 1:
         *CRTL |= MODE_MASK;
-    break;
+        break;
     default:
         *CRTL &= ~MODE_MASK;
     }

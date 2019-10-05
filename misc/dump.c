@@ -49,3 +49,10 @@ void printCpsrI() {
         bwprintf(COM2, "interrupts disabled\r\n");
     }
 }
+
+void enableInterrupts() {
+    unsigned int cpsr;
+    asm volatile("mrs %0, cpsr" : "=r" (cpsr));
+    cpsr = cpsr & ~0x80;
+    asm("MSR CPSR, %0" :: "r" (cpsr));
+}

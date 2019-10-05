@@ -13,13 +13,13 @@ typedef struct {
 
 typedef struct osClock{
     int timer;
-    int precision;
+    int frequency;
     TimeStamp time;
     unsigned underflow;
     unsigned lastRead;
 } Clock;
 
-void initializeClock(Clock* clock, int timer, int precision, int hours, int minutes, int seconds, int miliseconds);
+void initializeClock(Clock* clock, int timer, int frequency, int hours, int minutes, int seconds, int miliseconds);
 
 void updateTime(Clock* clock, int delta);
 

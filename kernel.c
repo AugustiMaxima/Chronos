@@ -38,7 +38,7 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    // scheduleTask(scheduler, 0, 0, k2_rps_main);
+    scheduleTask(scheduler, 0, 0, k2_rps_main);
 
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {
@@ -46,6 +46,7 @@ int main( int argc, char* argv[] ) {
         }
     }
 
+    // enableInterrupts();
     printCpsrI();
 
     volatile Node* node = 0;
