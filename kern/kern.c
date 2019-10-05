@@ -5,12 +5,12 @@
 void exitKernel(void* processStackPtr){
     // save kernel registers on kernel stack
     asm("STMFD SP!, {R0-R12, R14-R15}");
-    asm("ADD R2, PC, #16");
+    asm("ADD R2, PC, #24");
     //sets where the return address should be
     asm("STR R2, [SP, #56]");
 
     asm("LDR R1, [R0]");
-    asm("MSR CPSR, R1");
+    asm("MSR SPSR, R1");
 
     //restores the stack pointer, minus the cpsr
     // sp <- r0 - 4
@@ -18,7 +18,9 @@ void exitKernel(void* processStackPtr){
 
     //loads user mode registers
     //includes the PC register, and starts executing
-    asm("LDMFD SP!, {R0-R12, R14-R15}");
+    asm("LDMFD SP!, {R0-R12, R14}");
+    asm("LDMFD SP!, {R14}");
+    asm("MOVS R15, R14");
     // bwprintf(COM2, "end of exitKernel\r\n");
 }
 

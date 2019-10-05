@@ -27,8 +27,6 @@ void __attribute__((naked)) interruptHandler(){
     //BLOCK 1:
     //saving context as system mode
 
-    asm("MSR CPSR_c, #"TOSTRING(SVC_MODE));
-
     //save the LR - 4 first as this is our reentry    
     asm("SUB SP, SP, #4");
     asm("SUB LR, LR, #4");
@@ -37,10 +35,13 @@ void __attribute__((naked)) interruptHandler(){
     asm("MSR CPSR_c, #"TOSTRING(SYS_MODE));
 
     asm("STMFD SP!, {R0-R12, R14-R15}");
+
+    asm("MSR CPSR_c, #"TOSTRING(IRQ_MODE));
     asm("MRS R2, SPSR");
+    asm("MSR CPSR_c, #"TOSTRING(SYS_MODE));
     asm("STMFD SP!, {R2}");
 
-    asm("MSR CPSR_c, #"TOSTRING(SVC_MODE));
+    asm("MSR CPSR_c, #"TOSTRING(IRQ_MODE));
     //handles actual processing
     asm("BL interruptProcessor");
 
@@ -48,6 +49,8 @@ void __attribute__((naked)) interruptHandler(){
     //primed for arguments
     asm("LDR R0, [SP]");
     asm("ADD SP, SP, #4");
+    
+    asm("MSR CPSR_c, #"TOSTRING(SVC_MODE));
     
     //handles restoration
     asm("BL handleSuspendedTasks");

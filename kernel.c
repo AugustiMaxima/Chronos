@@ -42,11 +42,14 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
     
-    initializeTimer(3, 2000, 20000, 1);
+    initializeTimer(3, 508000, 508000, 1);
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 
-    scheduleTask(scheduler, 0, 0, k2_rps_main);
+    //scheduleTask(scheduler, 0, 0, k2_rps_main);
+
+    scheduleTask(scheduler, 0, 0, clockTest);
+
 
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {

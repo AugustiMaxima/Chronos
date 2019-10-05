@@ -42,7 +42,7 @@ void initializeStack(Task* task, void* functionPtr){
 
     stack --;
 
-    int cpsr = 0x10U;
+    int cpsr = USR_MODE;
 
     //cpsr status, for hardware interrupt capable trap frame
     *stack = cpsr;

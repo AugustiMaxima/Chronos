@@ -97,5 +97,7 @@ void handleSuspendedTasks(void* lr){
     if(scheduler->currentTask->status == RUNNING){
         int code = insertTaskToQueue(scheduler, scheduler->currentTask);
     }
+    printTask(scheduler->currentTask);
     scheduler->currentTask = NULL;
+
 }
