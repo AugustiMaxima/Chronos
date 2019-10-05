@@ -29,7 +29,7 @@ int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
     installInterruptHandler(interruptHandler);
-    enableDevice(0, 0x8000);
+    enableDevice(0x0, 0x80000);
 
 
     //hypeTrain();
@@ -42,8 +42,7 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
     
-    initializeTimer(3, 5080000, 508000, 1);
-
+    initializeTimer(3, 2000, 20000, 1);
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 
