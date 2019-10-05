@@ -24,12 +24,12 @@ void exitKernel(void* processStackPtr){
     //sets where the return address should be
     asm("STR R2, [SP, #60]");
 
-    asm("ldr r1, [r0]");
-    asm("msr cpsr_c, r1");
+    asm("LDR R1, [R0]");
+    asm("MSR CPSR, R1");
 
     //restores the stack pointer, minus the cpsr
     // sp <- r0 - 4
-    asm("add sp, r0, #4");
+    asm("ADD SP, R0, #4");
 
     //loads user mode registers
     //includes the PC register, and starts executing
