@@ -28,7 +28,7 @@ int nsTid = -1;
 int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
-    installInterruptHandler(interruptHandler);
+    // installInterruptHandler(interruptHandler);
 
     //hypeTrain();
     Scheduler base_scheduler;
