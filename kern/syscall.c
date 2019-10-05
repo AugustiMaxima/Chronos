@@ -66,7 +66,7 @@ void __attribute__((naked)) sys_handler(){
 
 //using R1, because these are less likely to be disturbed
 static inline __attribute__((always_inline)) enter_sys_mode() {
-    register int opmode asm("R3");
+    register int opmode asm("r3");
     asm("MRS R3, CPSR");
     asm("ADD R3, R3, #12");
     asm("MSR CPSR, R3");
@@ -112,7 +112,7 @@ void sysCreateTask(){
     exit_sys_mode();
 
     asm("MOV %0, R0": "=r"(sp));
-    
+
     priority = sp[-2];
     funcPtr = sp[-1];
     // bwprintf(COM2, "CreateTask priority:%d fptr:%x\r\n",priority,funcPtr);
@@ -149,7 +149,7 @@ void sysSend(){
     char* rep = args[3];
     int replylen = args[4];
 
-    // bwprintf(COM2, "Send %d %x %d %x %d", tid, msg, msglen, rep, replylen);    
+    // bwprintf(COM2, "Send %d %x %d %x %d", tid, msg, msglen, rep, replylen);
 
     int result = insertSender(com, scheduler->currentTask->tId, tid, msg, msglen, rep, replylen);
     if (result<0){
