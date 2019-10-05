@@ -24,6 +24,26 @@ const unsigned seedSeed = 0xdeadbeef;
 
 int nsTid = -1;
 
+void handleInterrupt() {
+    bwprintf(COM2, "handleInterrupt\r\n");
+    bwprintf(COM2, "VIC1IRQStatus=0x%x\r\n", *(int*)VIC1_BASE);
+
+}
+
+void installInterruptHandler(void* handler){
+    /*
+    Install Interrupt handler
+
+    0x18        LDR pc, [pc, #0x18]
+    0x0c        ?
+    ...         ?
+    0x38        <absolute address of handle_Interrupt>
+
+    */
+    *(unsigned*)0x18 = 0xe59ff018;
+    *(unsigned*)0x38 = handler;
+}
+
 int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
@@ -38,7 +58,7 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    scheduleTask(scheduler, 0, 0, k2_rps_main);
+    // scheduleTask(scheduler, 0, 0, k2_rps_main);
 
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {
@@ -46,8 +66,16 @@ int main( int argc, char* argv[] ) {
         }
     }
 
-    // enableInterrupts();
-    printCpsrI();
+    installInterruptHandler(handleInterrupt);
+
+    *(int*)(VIC1_BASE + 0x10) = 0x10;
+    enableInterrupts();
+
+    initializeTimer(1, 2000, 0x1ffe, 0);
+
+    for (int i=0;;i++) {
+        bwprintf(COM2, "i=%d\tvalue=%d\tIntr=%d\r\n", i, getValue(1), *(int*)(VIC1_BASE));
+    }
 
     volatile Node* node = 0;
     do {
