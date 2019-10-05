@@ -28,7 +28,9 @@ int nsTid = -1;
 int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
-    // installInterruptHandler(interruptHandler);
+    installInterruptHandler(interruptHandler);
+    enableDevice(0, 0x8000);
+
 
     //hypeTrain();
     Scheduler base_scheduler;
@@ -40,7 +42,7 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
     
-    initializeTimer(3, 5080000, 5080, 1);
+    initializeTimer(3, 5080000, 508000, 1);
 
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);

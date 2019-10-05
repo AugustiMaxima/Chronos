@@ -33,11 +33,11 @@
 #define CPSR_T_FLAG 0x00000020
 #define CPSR_M_FLAG 0x0000001f
 
-#define SVC_MODE 0x13
-#define SYS_MODE 0x1F
-#define IRQ_MODE 0x12
+#define SVC_MODE 0x93
+#define SYS_MODE 0x9F
+#define IRQ_MODE 0x92
 //With interrupt enabled
-#define USR_MODE 0x90
+#define USR_MODE 0x10
 
 #define SWI_OPCODE_FLAG 0x00ffffff
 

@@ -2,15 +2,19 @@
 #include <syscode.h>
 #include <interrupt.h>
 #include <bwio.h>
-
+#include <ts7200.h>
+#include <timer.h>
 
 //Pattern:
 //Avoid stacks and any variable statements
 //Use a separate stackful function to deal with anything that requires stack manipulation
 //comfy and safe
 void interruptProcessor(){
-    bwprintf(COM2, "Hey! Watch!\r\n");
-
+    int statusMask = *((unsigned*)VIC2ADDR);
+    if(statusMask&&0x80000){
+        bwprintf(COM2, "Hey! Watch!\r\n");
+        *(volatile unsigned*)(TIMER3_BASE + CLR_OFFSET);
+    }
 }
 
 
@@ -65,21 +69,10 @@ void installInterruptHandler(void* handler){
     *(unsigned*)0x28 = interruptHandler;
 }
 
-void set(void* handle_swi) {
-    /*
-    Install SWI handler
-    The swi instruction executes at address 0x8. The following two lines write
-    this to the memory addresses:
 
-    0x08        LDR pc, [pc, #0x18]
-    0x0c        ?
-    ...         ?
-    0x28        <absolute address of handle_swi>
-
-    Note that ARM prefetches 2 instructions ahead. Hence, after a software
-    interrupt, instruction 0x08 executes with pc=0x10.
-    */
-    *((unsigned*)0x8) = 0xe59ff018;
-    *((unsigned*)0x28) = handle_swi;
+void enableDevice(int deviceList1, int deviceList2){
+    *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE_CLEAR) = 0;
+    *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE_CLEAR) = 0;
+    *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE) = deviceList1;
+    *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE) = deviceList2;
 }
-

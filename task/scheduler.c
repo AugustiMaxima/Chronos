@@ -86,9 +86,9 @@ void handleSuspendedTasks(void* lr){
     int* stack;
     //changes from svc to sys mode
     asm(R"(
-        MSR CPSR_c, #0x1F
+        MSR CPSR_c, #0x9F
         MOV R3, SP
-        MSR CPSR_c, #0x13
+        MSR CPSR_c, #0x93
         MOV %[stack], R3
     )" : [stack]"=r"(stack)::"r3");
 
