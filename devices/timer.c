@@ -1,13 +1,13 @@
 #include <timer.h>
 #include <ts7200.h>
 
-void* getTimerBase(int timer){
+int getTimerBase(int timer){
     switch (timer){
-        case 1: return (void*)TIMER1_BASE;
-        case 2: return (void*)TIMER2_BASE;
-        case 3: return (void*)TIMER3_BASE;
+        case 1: return TIMER1_BASE;
+        case 2: return TIMER2_BASE;
+        case 3: return TIMER3_BASE;
     }
-    return (void*)TIMER3_BASE;
+    return TIMER3_BASE;
 }
 
 void setMode(int timer, int mode) {

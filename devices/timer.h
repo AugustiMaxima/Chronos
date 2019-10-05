@@ -15,6 +15,6 @@ unsigned int getValue(int timer);
 
 unsigned int getWrap(int timer);
 
-int* getTimerBase(int timer);
+int getTimerBase(int timer);
 
 #endif

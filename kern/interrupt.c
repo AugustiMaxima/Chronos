@@ -9,12 +9,15 @@
 //Avoid stacks and any variable statements
 //Use a separate stackful function to deal with anything that requires stack manipulation
 //comfy and safe
-void interruptProcessor(){
+void interruptProcessor(){    
+    int statusMask1 = *((unsigned*)VIC1ADDR);
     int statusMask = *((unsigned*)VIC2ADDR);
     if(statusMask&&0x80000){
         bwprintf(COM2, "Hey! Watch!\r\n");
         *(volatile unsigned*)(TIMER3_BASE + CLR_OFFSET);
     }
+    bwprintf(COM2, "Mark1: %x\t", statusMask1);
+    bwprintf(COM2, "Mark2: %x\r\n", statusMask);
 }
 
 
@@ -66,7 +69,7 @@ void installInterruptHandler(void* handler){
 
     */
     *(unsigned*)0x18 = 0xe59ff018;
-    *(unsigned*)0x28 = interruptHandler;
+    *(unsigned*)0x38 = interruptHandler;
 }
 
 
