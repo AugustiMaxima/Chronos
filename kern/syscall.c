@@ -41,6 +41,9 @@ void jumpTable(int code){
         case REPLY_CODE:
             sysReply();
             break;
+        case AWAITEVENT_CODE:
+            sysAwaitEvent();
+            break;
         default:
             bwprintf(COM2, "Unknown SWI code %d!\r\n", code);
             while(1){}
@@ -93,6 +96,29 @@ void sysGetPid(){
     int* sp;
     asm("MOV %0, R0":"=r"(sp));
     sp[1] = scheduler->currentTask->pId;
+}
+
+void pls(int eventId) {
+    scheduler->waitingForInterrupt.task = scheduler->currentTask;
+    scheduler->waitingForInterrupt.eventId = eventId;
+    scheduler->currentTask->status = BLOCKED;
+}
+
+void sysAwaitEvent(){
+    int* sp;
+    int eventId;
+
+    enter_sys_mode();
+    asm("ADD SP, SP, #4");
+    asm("MOV R0, SP" ::: "r0");
+    exit_sys_mode();
+
+    asm("MOV %0, R0": "=r"(sp));
+
+    eventId = sp[-1];
+
+    // if this function is inlined, the system will crash
+    pls(eventId);
 }
 
 

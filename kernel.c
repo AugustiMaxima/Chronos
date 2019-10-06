@@ -13,6 +13,7 @@
 #include <ssrTest.h>
 #include <k1.h>
 #include <k2.h>
+#include <k3.h>
 #include <clock.h>
 #include <timer.h>
 #include <maptest.h>
@@ -42,11 +43,11 @@ int main( int argc, char* argv[] ) {
     initializeScheduler(scheduler);
     initializeCOMM(com);
 
-    initializeTimer(3, 2000, 2000, 1);
+    initializeTimer(3, 2000, 200, 1);
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 
-    scheduleTask(scheduler, 0, 0, k1_main);
+    scheduleTask(scheduler, 0, 0, k3_main);
 
 
     while(1) {
