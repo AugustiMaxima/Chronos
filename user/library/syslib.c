@@ -11,7 +11,7 @@ static inline __attribute__((always_inline)) int save_user_context() {
     asm("STMFD SP!, {R2}");
 }
 
-int Create(int priority, void (*function)()){
+int Create(int priority, void (*function)()) {
     save_user_context();
     //argument stuffing now
     asm("STMFD SP!, {R0-R1}");

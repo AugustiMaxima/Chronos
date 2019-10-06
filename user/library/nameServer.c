@@ -60,8 +60,8 @@ void nameServer(){
         command = requestBuf[0];
         symbol = requestBuf;
         symbol += 2;
-        if(command == 'R'){
-	    bwprintf(COM2, "Receiving registration %d, %s \r\n", caller, symbol);
+        if (command == 'R') {
+            // bwprintf(COM2, "Receiving registration %d, %s \r\n", caller, symbol);
             RegistrationPreamble(&NameTable, symbol, caller);
         } else if(command == 'W'){
             RetrievalPreamble(&NameTable, symbol, caller);

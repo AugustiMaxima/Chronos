@@ -9,10 +9,10 @@ void initializeCOMM(COMM* com){
     initializeQueue(&(com->senderFQ));
     initializeQueue(&(com->receiverFQ));
     for(i=0; i<MAX_SENDER; i++){
-	    push(&(com->senderFQ), com->sendPool + i);
+        push(&(com->senderFQ), com->sendPool + i);
     }
     for(i=0; i<MAX_RECEIVER; i++){
-	    push(&(com->receiverFQ), com->receivePool + i);
+        push(&(com->receiverFQ), com->receivePool + i);
     }
     initializeMap(&(com->senderRequestTable));
     initializeMap(&(com->receiverTable));
@@ -36,17 +36,17 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
     removeMap(&(com->senderRequestTable), receiver->tId);
     insertMap(&(com->senderReplyTable), sender->tId, sender);
     removeMap(&(com->receiverTable), receiver->tId);
-    
+
     push(&(com->receiverFQ), receiver);
-    
-    
+
+
     Task* task = getTask(scheduler, receiver->tId);
 
     //stores in R1, R2, keeping R0 safe so we can just dereference it
     task->stackEntry[1] = i;
     task->stackEntry[2] = sender->tId;
     if(task->status == BLOCKED){
-	insertTaskToQueue(scheduler, task);
+    insertTaskToQueue(scheduler, task);
     }
     return i;
 }
@@ -74,10 +74,12 @@ int processSender(COMM* com, Sender* sender){
     Receiver* target = getMap(&(com->receiverTable), sender->requestTId);
     if(!target){
         Task* receiverTask = getTask(scheduler, sender->requestTId);
-        if(receiverTask && receiverTask->status != EXITED){
+        if (receiverTask && receiverTask->status != EXITED) {
+            // receiver task exists
             insertMap(&(com->senderRequestTable), sender->requestTId, sender);
             return 0;
         } else {
+            // receiver task doesn't exist
             push(&(com->senderFQ), sender);
             return -1;
         }
@@ -89,7 +91,7 @@ int processSender(COMM* com, Sender* sender){
 
 int processReceiver(COMM* com, Receiver* receiver){
     Sender* sender = getMap(&(com->senderRequestTable), receiver->tId);
-    if(sender){
+    if (sender) {
         return SendMsg(com, sender, receiver);
     } else {
         //blocks untill something wakes it up
