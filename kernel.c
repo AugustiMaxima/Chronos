@@ -52,9 +52,7 @@ int main( int argc, char* argv[] ) {
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 
-    scheduleTask(scheduler, 0, 0, k2_rps_main);
-
-    // scheduleTask(scheduler, 0, 0, clockTest);
+    scheduleTask(scheduler, 0, 0, clockTest);
 
 
     while(1) {
@@ -77,7 +75,7 @@ int main( int argc, char* argv[] ) {
         bwprintf(COM2, "i=%d\tvalue=%d\tIntr=%d\r\n", i, getValue(1), *(int*)(VIC1_BASE));
     }
 
-    volatile Node* node = 0;
+    Node* node = 0;
     do {
 	    node = iterateMap(&(com->senderRequestTable), node);
         Receiver* receiver = (Receiver*) node;
