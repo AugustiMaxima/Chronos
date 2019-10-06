@@ -50,6 +50,10 @@ void nameServer(){
     nsTid = MyTid();
     while(Receive(&caller, requestBuf, MAX_REQUEST)){
         if (0 == strcmp(requestBuf, "kys")) {
+            /*
+            although strlen is not an available symbol when linking,
+            gcc computes the value of strlen("ok") at compile time
+            */
             Reply(caller, "ok", strlen("ok"));
             Exit();
         }

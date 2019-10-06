@@ -35,3 +35,24 @@ void printCurrentMode() {
         bwprintf(COM2, "illegal mode\r\n");
     }
 }
+
+void printCpsrI() {
+    // print the I bit of CPSr
+    unsigned int cpsr;
+    asm volatile("mrs %0, cpsr" : "=r" (cpsr));
+
+    cpsr = cpsr & 0x80; // get 7th bit
+
+    if (cpsr == 0) {
+        bwprintf(COM2, "interrupts enabled\r\n");
+    } if (cpsr == 0x80) {
+        bwprintf(COM2, "interrupts disabled\r\n");
+    }
+}
+
+void enableInterrupts() {
+    unsigned int cpsr;
+    asm volatile("mrs %0, cpsr" : "=r" (cpsr));
+    cpsr = cpsr & ~0x80;
+    asm("MSR CPSR, %0" :: "r" (cpsr));
+}

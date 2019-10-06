@@ -16,7 +16,7 @@ void setMode(int timer, int mode) {
     switch (mode){
     case 1:
         *CRTL |= MODE_MASK;
-    break;
+        break;
     default:
         *CRTL &= ~MODE_MASK;
     }
@@ -57,6 +57,8 @@ unsigned int getWrap(int timer) {
     }
 }
 
+// length = initial value
+// mode: 1 for pre-load (wrap-to-loaded), 0 for free-running (wrap-to-maximum)
 void initializeTimer(int timer, int frequency, unsigned int length, int mode){
     void* BASE = getTimerBase(timer);
     *(int*)(BASE + CRTL_OFFSET) &= ~ENABLE_MASK;

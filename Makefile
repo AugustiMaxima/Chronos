@@ -2,13 +2,7 @@
 # Makefile for busy-wait IO library
 #
 
-# XDIR=/u/cs452/public/gnuarm-4.0.2
-# XBINDIR=$(XDIR)/bin
-# XLIBDIR1=$(XDIR)/arm-elf/lib
-# XLIBDIR2=$(XDIR)/lib/gcc/arm-elf/4.0.2
-# CC = $(XBINDIR)/arm-elf-gcc
-# AS = $(XBINDIR)/arm-elf-as
-# LD = $(XBINDIR)/arm-elf-ld
+ifeq "useNew" "useNew"
 
 XDIR =/u/cs452/public/xdev/
 XBINDIR=$(XDIR)bin
@@ -18,6 +12,19 @@ CC = $(XBINDIR)/arm-none-eabi-gcc
 AS = $(XBINDIR)/arm-none-eabi-as
 LD = $(XBINDIR)/arm-none-eabi-ld
 
+else
+
+XDIR=/u/cs452/public/gnuarm-4.0.2
+XBINDIR=$(XDIR)/bin
+XLIBDIR1=$(XDIR)/arm-elf/lib
+XLIBDIR2=$(XDIR)/lib/gcc/arm-elf/4.0.2
+CC = $(XBINDIR)/arm-elf-gcc
+AS = $(XBINDIR)/arm-elf-as
+LD = $(XBINDIR)/arm-elf-ld
+
+endif
+
+
 ASFLAGS = -mfloat-abi=soft
 
 # -g: include debug information for gdb
@@ -26,7 +33,7 @@ ASFLAGS = -mfloat-abi=soft
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource
+CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource
 
 # -static: force static linking
 # -e: set entry point
@@ -165,6 +172,15 @@ queue.o: queue.s
 
 queue.a: queue.o
 	$(AR) $(ARFLAGS) $@ queue.o
+
+chlib.s: util/chlib.c
+	$(CC) -S $(CFLAGS) util/chlib.c
+
+chlib.o: chlib.s
+	$(AS) $(ASFLAGS) -o chlib.o chlib.s
+
+chlib.a: chlib.o
+	$(AR) $(ARFLAGS) $@ chlib.o
 
 priorityQueue.s: task/priorityQueue.c
 	$(CC) -S $(CFLAGS) task/priorityQueue.c

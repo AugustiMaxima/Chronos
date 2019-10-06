@@ -2,11 +2,11 @@
 #include <chlib.h>
 
 void * memcpy (void *dest, const void *src, size_t len) {
-  char *d = dest;
-  const char *s = src;
-  while (len--)
-    *d++ = *s++;
-  return dest;
+    char *d = dest;
+    const char *s = src;
+    while (len--)
+        *d++ = *s++;
+    return dest;
 }
 
 void * memset ( void * ptr, int value, size_t num ){
@@ -15,7 +15,7 @@ void * memset ( void * ptr, int value, size_t num ){
     char* start = ptr;
     char* end = ptr + num;
     for(;(int)start%4 && start<end;start++){
-	*start = value_downcast;
+        *start = value_downcast;
     }
     int* block = start;
     for(;block + 1<end;block++){
@@ -23,7 +23,7 @@ void * memset ( void * ptr, int value, size_t num ){
     }
     start = block;
     for(;start<block;start++){
-	*start = value_downcast;
+        *start = value_downcast;
     }
     return ptr;
 }

@@ -1,9 +1,9 @@
 #include <clock.h>
 
-void initializeClock(Clock* clock, int timer, int precision, int hours, int minutes, int seconds, int miliseconds){
+void initializeClock(Clock* clock, int timer, int frequency, int hours, int minutes, int seconds, int miliseconds){
     clock->timer = timer;
-    clock->precision = precision;
-    initializeTimer(timer, precision, getWrap(timer), 0);
+    clock->frequency = frequency;
+    initializeTimer(timer, frequency, getWrap(timer), 0);
     initializeTimeStamp(&(clock->time), hours, minutes, seconds, miliseconds);
     clock->lastRead = getWrap(timer);
     clock->underflow = 0;
@@ -11,9 +11,9 @@ void initializeClock(Clock* clock, int timer, int precision, int hours, int minu
 
 void updateTime(Clock* clock, int delta){
     clock->underflow += delta;
-    if(clock->underflow >= clock->precision/1000){
-        applyDeltaTime(&(clock->time), clock->underflow/(clock->precision/1000));
-        clock->underflow %= (clock->precision/1000);
+    if(clock->underflow >= clock->frequency/1000){
+        applyDeltaTime(&(clock->time), clock->underflow/(clock->frequency/1000));
+        clock->underflow %= (clock->frequency/1000);
     }
 }
 
