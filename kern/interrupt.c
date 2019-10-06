@@ -27,7 +27,7 @@ void interruptProcessor(){
 }
 
 void marker(){
-    bwprintf(COM2, "Fuck this handleSuspendedTask gay shit\r\n");
+    // bwprintf(COM2, "Fuck this handleSuspendedTask gay shit\r\n");
 }
 
 void __attribute__((naked)) interruptHandler(){
