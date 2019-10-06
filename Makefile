@@ -218,15 +218,6 @@ charay.o: charay.s
 charay.a: charay.o
 	$(AR) $(ARFLAGS) $@ charay.o
 
-chlib.s: util/chlib.c
-	$(CC) -S $(CFLAGS) util/chlib.c
-
-chlib.o: chlib.s
-	$(AS) $(ASFLAGS) -o chlib.o chlib.s
-
-chlib.a: chlib.o
-	$(AR) $(ARFLAGS) $@ chlib.o
-
 sendReceiveReply.s: comm/sendReceiveReply.c
 	$(CC) -S $(CFLAGS) comm/sendReceiveReply.c
 

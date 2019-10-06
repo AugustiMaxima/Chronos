@@ -31,20 +31,6 @@ void handleInterrupt() {
 
 }
 
-void installInterruptHandler(void* handler){
-    /*
-    Install Interrupt handler
-
-    0x18        LDR pc, [pc, #0x18]
-    0x0c        ?
-    ...         ?
-    0x38        <absolute address of handle_Interrupt>
-
-    */
-    *(unsigned*)0x18 = 0xe59ff018;
-    *(unsigned*)0x38 = handler;
-}
-
 int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
@@ -61,18 +47,18 @@ int main( int argc, char* argv[] ) {
 
     initializeScheduler(scheduler);
     initializeCOMM(com);
-    
+
     initializeTimer(3, 2000, 2000, 1);
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 
-    //scheduleTask(scheduler, 0, 0, k2_rps_main);
+    scheduleTask(scheduler, 0, 0, k1_main);
 
-    scheduleTask(scheduler, 0, 0, clockTest);
+    // scheduleTask(scheduler, 0, 0, clockTest);
 
 
     while(1) {
-	bwprintf(COM2, "We have returned to kernel\r\n");
+	// bwprintf(COM2, "We have returned to kernel\r\n");
         if (-1 == runFirstAvailableTask(scheduler)) {
             break;
         }
