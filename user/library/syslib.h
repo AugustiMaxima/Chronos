@@ -4,6 +4,8 @@
 
 int Create(int priority, void (*function)());
 
+int AwaitEvent(int eventId);
+
 int MyTid();
 
 int MyParentTid();

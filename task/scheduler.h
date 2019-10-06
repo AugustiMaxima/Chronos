@@ -8,12 +8,20 @@
 
 #define MAX_TASKS 64
 
+typedef struct awaitEventRequest_struct {
+    Task* task;
+    int eventId;
+} awaitEventRequest;
+
 typedef struct os_Scheduler{
     Task tasks[MAX_TASKS];
     Queue freeQueue;
     Task* currentTask;
     Map taskTable;
     PriorityQueue readyQueue;
+
+    // todo: replace with struct, FQ etc
+    awaitEventRequest waitingForInterrupt;
 } Scheduler;
 
 //TODO: This probably should be in some debugging file

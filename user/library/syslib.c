@@ -22,6 +22,17 @@ int Create(int priority, void (*function)()) {
     return ret;
 }
 
+int AwaitEvent(int eventId) {
+    save_user_context();
+    //argument stuffing
+    asm("STMFD SP!, {R0}");
+
+    asm("SWI " TOSTRING(AWAITEVENT_CODE) ::: "r0");
+    int ret;
+    asm("MOV %0, R0" : "=r" (ret));
+    return ret;
+}
+
 int MyTid(){
     save_user_context();
     asm("SWI " TOSTRING(MYTID_CODE) ::: "r0");

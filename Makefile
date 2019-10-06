@@ -43,7 +43,7 @@ CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I incl
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lk3 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -lgcc
 
 all: kernel.elf
 
@@ -53,7 +53,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a chlib.a interrupt.a
+kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a chlib.a interrupt.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: misc/dump.c
@@ -100,6 +100,15 @@ k2.o: k2.s
 
 k2.a: k2.o
 	$(AR) $(ARFLAGS) $@ k2.o
+
+k3.s: test/k3.c
+	$(CC) -S $(CFLAGS) test/k3.c -o k3.s
+
+k3.o: k3.s
+	$(AS) $(ASFLAGS) -o k3.o k3.s
+
+k3.a: k3.o
+	$(AR) $(ARFLAGS) $@ k3.o
 
 bwio.s: misc/bwio.c
 	$(CC) -S $(CFLAGS) misc/bwio.c

@@ -5,6 +5,10 @@
 #include <ts7200.h>
 #include <timer.h>
 #include <dump.h>
+#include <scheduler.h>
+
+
+extern Scheduler* scheduler;
 
 //Pattern:
 //Avoid stacks and any variable statements
@@ -16,12 +20,20 @@ void interruptProcessor(){
     int enabledMask1 = *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE);
     int enabledMask2 = *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE);
 
-    bwprintf(COM2, "Triggered Interrupts:\t%x\t%x\r\n", statusMask1, statusMask2);
-    bwprintf(COM2, "Unmasked Interrupts:\t%x\t%x\r\n", enabledMask1, enabledMask2);
+    // bwprintf(COM2, "Triggered Interrupts:\t%x\t%x\r\n", statusMask1, statusMask2);
+    // bwprintf(COM2, "Unmasked Interrupts:\t%x\t%x\r\n", enabledMask1, enabledMask2);
 
 
     if (statusMask2 & 0x80000) {
-        bwprintf(COM2, "Resetting TC3\r\n");
+        if (
+            (scheduler->waitingForInterrupt.task) &&
+            (scheduler->waitingForInterrupt.eventId == 42)
+        )
+        {
+            insertTaskToQueue(scheduler, scheduler->waitingForInterrupt.task);
+            scheduler->waitingForInterrupt.task = 0;
+        }
+        // bwprintf(COM2, "Resetting TC3\r\n");
         *(volatile unsigned*)(TIMER3_BASE + CLR_OFFSET) = 0;
     }
 }
