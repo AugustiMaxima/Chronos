@@ -4,9 +4,6 @@
  * Specific to the TS-7200 ARM evaluation board
  *
  */
-
-#define VIC1_BASE 0x800B0000
-
 #define	TIMER1_BASE	0x80810000
 #define	TIMER2_BASE	0x80810020
 #define	TIMER3_BASE	0x80810080

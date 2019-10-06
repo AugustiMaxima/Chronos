@@ -1,6 +1,7 @@
 #include <bwio.h>
 #include <ts7200.h>
 #include <sendReceiveReply.h>
+#include <interrupt.h>
 
 void printSp() {
     unsigned int sp;
@@ -59,6 +60,15 @@ void enableInterrupts() {
 }
 
 void warnAtEndOfKernel(COMM* com) {
+
+    int enabledMask1 = *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE);
+    int enabledMask2 = *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE);
+
+    if (enabledMask1 || enabledMask2) {
+        bwprintf(COM2, "PANIC: interrupts enabled at end of kernel\r\n");
+        while (1) {}
+    }
+
     Node* node = 0;
     do {
 	    node = iterateMap(&(com->senderRequestTable), node);
