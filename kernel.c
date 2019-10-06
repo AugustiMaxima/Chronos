@@ -18,10 +18,13 @@
 #include <timer.h>
 #include <maptest.h>
 #include <interrupt.h>
+#include <deviceRegistry.h>
 #include <dump.h>
 
 Scheduler* scheduler;
 COMM* com;
+DeviceRegistry* registry;
+
 // each task-local seed is derived as seed = seedSeed + MyTid()
 const unsigned seedSeed = 0xdeadbeef;
 
@@ -40,8 +43,12 @@ int main( int argc, char* argv[] ) {
     COMM commRelay;
     com = &commRelay;
 
+    DeviceRegistry deviceRegistry;
+    registry = &deviceRegistry;
+
     initializeScheduler(scheduler);
     initializeCOMM(com);
+    initializeDeviceRegistry(registry);
 
     initializeTimer(3, 2000, 200, 1);
 

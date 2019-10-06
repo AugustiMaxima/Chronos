@@ -1,14 +1,13 @@
 #include <ARM.h>
 #include <syscode.h>
-#include <interrupt.h>
-#include <bwio.h>
 #include <ts7200.h>
 #include <timer.h>
 #include <dump.h>
-#include <scheduler.h>
+#include <deviceRegistry.h>
+#include <interrupt.h>
+#include <bwio.h>
 
-
-extern Scheduler* scheduler;
+extern DeviceRegistry* registry;
 
 //Pattern:
 //Avoid stacks and any variable statements
@@ -25,14 +24,7 @@ void interruptProcessor(){
 
 
     if (statusMask2 & 0x80000) {
-        if (
-            (scheduler->waitingForInterrupt.task) &&
-            (scheduler->waitingForInterrupt.eventId == 42)
-        )
-        {
-            insertTaskToQueue(scheduler, scheduler->waitingForInterrupt.task);
-            scheduler->waitingForInterrupt.task = 0;
-        }
+        WakeForDevice(registry, 51);
         // bwprintf(COM2, "Resetting TC3\r\n");
         *(volatile unsigned*)(TIMER3_BASE + CLR_OFFSET) = 0;
     }
