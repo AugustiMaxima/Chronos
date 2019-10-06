@@ -99,7 +99,7 @@ void rpsServer() {
     int p2 = -1;
     char p1Move = 'x';
     char p2Move = 'x';
-    
+
     bwprintf(COM2, "surely this isnt where it crashed to the ground");
 
     char yourOpponentHasQuit[64];

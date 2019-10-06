@@ -4,20 +4,26 @@
 #include <bwio.h>
 #include <ts7200.h>
 #include <timer.h>
+#include <dump.h>
 
 //Pattern:
 //Avoid stacks and any variable statements
 //Use a separate stackful function to deal with anything that requires stack manipulation
 //comfy and safe
-void interruptProcessor(){    
+void interruptProcessor(){
     int statusMask1 = *((unsigned*)VIC1ADDR);
-    int statusMask = *((unsigned*)VIC2ADDR);
-    if(statusMask&0x80000){
-        bwprintf(COM2, "Hey! Watch!\r\n");
+    int statusMask2 = *((unsigned*)VIC2ADDR);
+    int enabledMask1 = *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE);
+    int enabledMask2 = *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE);
+
+    bwprintf(COM2, "Triggered Interrupts:\t%x\t%x\r\n", statusMask1, statusMask2);
+    bwprintf(COM2, "Unmasked Interrupts:\t%x\t%x\r\n", enabledMask1, enabledMask2);
+
+
+    if (statusMask2 & 0x80000) {
+        bwprintf(COM2, "Resetting TC3\r\n");
         *(volatile unsigned*)(TIMER3_BASE + CLR_OFFSET) = 0;
     }
-    bwprintf(COM2, "Mark1: %x\t", statusMask1);
-    bwprintf(COM2, "Mark2: %x\r\n", statusMask);
 }
 
 void marker(){
@@ -29,7 +35,7 @@ void __attribute__((naked)) interruptHandler(){
     //BLOCK 1:
     //saving context as system mode
 
-    //save the LR - 4 first as this is our reentry    
+    //save the LR - 4 first as this is our reentry
     asm("SUB SP, SP, #4");
     asm("SUB LR, LR, #4");
     asm("STR LR, [SP]");
@@ -51,12 +57,12 @@ void __attribute__((naked)) interruptHandler(){
     //primed for arguments
     asm("LDR R0, [SP]");
     asm("ADD SP, SP, #4");
-    
+
     asm("MSR CPSR_c, #"TOSTRING(SVC_MODE));
-    
+
     //handles restoration
     asm("BL handleSuspendedTasks");
-    
+
     asm("BL marker") ;
     //returns
     asm("B enterKernel");
@@ -75,13 +81,13 @@ void installInterruptHandler(void* handler){
 
     */
     *(unsigned*)0x18 = 0xe59ff018;
-    *(unsigned*)0x38 = interruptHandler;
+    *(unsigned*)0x38 = handler;
 }
 
 
-void enableDevice(int deviceList1, int deviceList2){
-    *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE_CLEAR) = 0;
-    *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE_CLEAR) = 0;
+void enableDevice(unsigned deviceList1, unsigned deviceList2){
+    *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE_CLEAR) = ~0;
+    *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE_CLEAR) = ~0;
     *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE) = deviceList1;
     *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE) = deviceList2;
 }

@@ -11,6 +11,8 @@
 
 void initializeTimer(int timer, int frequency, unsigned int length, int mode);
 
+void disableTimer();
+
 unsigned int getValue(int timer);
 
 unsigned int getWrap(int timer);

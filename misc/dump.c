@@ -1,5 +1,6 @@
 #include <bwio.h>
 #include <ts7200.h>
+#include <sendReceiveReply.h>
 
 void printSp() {
     unsigned int sp;
@@ -55,4 +56,27 @@ void enableInterrupts() {
     asm volatile("mrs %0, cpsr" : "=r" (cpsr));
     cpsr = cpsr & ~0x80;
     asm("MSR CPSR, %0" :: "r" (cpsr));
+}
+
+void warnAtEndOfKernel(COMM* com) {
+    Node* node = 0;
+    do {
+	    node = iterateMap(&(com->senderRequestTable), node);
+        Receiver* receiver = (Receiver*) node;
+	    if (node) bwprintf(COM2, "Warning: TID %d blocked because it executed a send but target task has not called receive\r\n", receiver->tId);
+    } while(node!=0);
+
+    node = 0;
+    do {
+	    node = iterateMap(&(com->receiverTable), node);
+        Receiver* receiver = (Receiver*) node;
+	    if (node && receiver->tId != getNsTid()) bwprintf(COM2, "Warning: TID %d blocked on receive\r\n", receiver->tId);
+    } while(node!=0);
+
+    node = 0;
+    do {
+	    node = iterateMap(&(com->senderReplyTable), node);
+        Receiver* receiver = (Receiver*) node;
+	    if (node) bwprintf(COM2, "Warning: TID %d blocked because it executed a send but target task has not called reply\r\n", receiver->tId);
+    } while(node!=0);
 }

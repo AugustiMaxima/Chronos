@@ -36,8 +36,7 @@
 #define SVC_MODE 0x93
 #define SYS_MODE 0x9F
 #define IRQ_MODE 0x92
-//With interrupt enabled
-#define USR_MODE 0x10
+#define USR_MODE 0b10000
 
 #define SWI_OPCODE_FLAG 0x00ffffff
 
