@@ -85,3 +85,12 @@ void DynamoTest(){
 	bwprintf(COM2, "Seriously, this value is %d\r\n", node);
     } while(node!=NULL);
 }
+
+
+void clockTest(){
+    int i=0;
+    for(;;){
+        i++;
+//        bwprintf(COM2, "Run\r\n");  
+    }
+}

@@ -1,6 +1,7 @@
 #include <ARM.h>
 #include <kern.h>
 #include <stdlib.h>
+#include <syscode.h>
 #include <scheduler.h>
 #include <bwio.h>
 
@@ -20,6 +21,7 @@ void printRegisters(int* stack){
 }
 
 void printTask(Task* task){
+    bwprintf(COM2, "Task Address: %x\r\n", task);
     bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
     printRegisters(task->stackEntry);
 }
@@ -56,6 +58,7 @@ void freeTask(Scheduler* scheduler, Task* task){
 int runFirstAvailableTask(Scheduler* scheduler) {
     Task* task;
     task = removeMin(&(scheduler->readyQueue));
+    bwprintf(COM2, "Removing task %x\r\n", task);
     if(task){
         runTask(scheduler, task);
         return 0;
@@ -64,7 +67,8 @@ int runFirstAvailableTask(Scheduler* scheduler) {
     }
 }
 
-void runTask(Scheduler* scheduler, Task* task){    
+void runTask(Scheduler* scheduler, Task* task){
+    bwprintf(COM2, "Running new task %x\r\n", task);
     scheduler->currentTask = task;
     task->status = RUNNING;
     exitKernel(task->stackEntry);
@@ -72,6 +76,7 @@ void runTask(Scheduler* scheduler, Task* task){
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
     task->status = READY;
+    bwprintf(COM2, "Fuck 452 %x \r\n", task);
     return insert(&(scheduler->readyQueue), task);
 }
 
@@ -82,29 +87,21 @@ Task* getTask(Scheduler* schedule, int tId){
 
 
 void handleSuspendedTasks(void* lr){
-    int* stackPtr;
-    asm("STR R1, [SP, #-4]");
-    asm("STR R3, [SP, #-8]");
+    bwprintf(COM2, "Handling the fucking task\r\n");
+    int* stack;
     //changes from svc to sys mode
-    asm("MRS R3, CPSR");
-    //12 is the distance from svc to sys mode
-    asm("ADD R3, R3, #12");
-    asm("MSR CPSR, R3");
+    asm(R"(
+        MSR CPSR_c, #0x9F
+        MOV R3, SP
+        MSR CPSR_c, #0x93
+        MOV %[stack], R3
+    )" : [stack]"=r"(stack)::"r3");
 
-    asm("MOV R1, SP");
-
-    //changes back to svc
-    asm("MRS R3, CPSR");
-    asm("SUB R3, R3, #12");
-    asm("MSR CPSR, R3");
-    asm volatile("MOV %0, R1":"=r"(stackPtr));
-    asm("LDR R1, [SP, #-4]");
-    asm("LDR R3, [SP, #-8]");
-
-    stackPtr[16] = lr;
-    scheduler->currentTask->stackEntry = stackPtr;        
+    stack[15] = lr;
+    scheduler->currentTask->stackEntry = stack;        
     if(scheduler->currentTask->status == RUNNING){
         int code = insertTaskToQueue(scheduler, scheduler->currentTask);
     }
+    printTask(scheduler->currentTask);
     scheduler->currentTask = NULL;
 }

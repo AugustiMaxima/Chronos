@@ -66,16 +66,11 @@ void __attribute__((naked)) sys_handler(){
 
 //using R1, because these are less likely to be disturbed
 static inline __attribute__((always_inline)) enter_sys_mode() {
-    register int opmode asm("r3");
-    asm("MRS R3, CPSR");
-    asm("ADD R3, R3, #12");
-    asm("MSR CPSR, R3");
+    asm("MSR CPSR_c, #"TOSTRING(SYS_MODE));
 }
 
 static inline __attribute__((always_inline)) exit_sys_mode() {
-    asm("MRS R3, CPSR");
-    asm("SUB R3, R3, #12");
-    asm("MSR CPSR, R3");
+    asm("MSR CPSR_c, #"TOSTRING(SVC_MODE));
 }
 
 void sysYield(){

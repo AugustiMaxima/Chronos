@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <map.h>
 #include <charay.h>
+#include <chlib.h>
 #include <nameServer.h>
 
 extern int seedSeed;

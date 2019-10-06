@@ -15,7 +15,8 @@
 #include <k2.h>
 #include <clock.h>
 #include <timer.h>
-#include <maptest.h>;
+#include <maptest.h>
+#include <interrupt.h>
 
 Scheduler* scheduler;
 COMM* com;
@@ -47,8 +48,11 @@ void installInterruptHandler(void* handler){
 int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
+    installInterruptHandler(interruptHandler);
+    enableDevice(0x0, 0x80000);
 
-    //hypeTrain();
+
+    hypeTrain();
     Scheduler base_scheduler;
     scheduler = &base_scheduler;
 
@@ -57,10 +61,18 @@ int main( int argc, char* argv[] ) {
 
     initializeScheduler(scheduler);
     initializeCOMM(com);
+    
+    initializeTimer(3, 2000, 2000, 1);
 
-    scheduleTask(scheduler, 0, 0, k2_rps_main);
+    //scheduleTask(scheduler, 0, 0, ssr_test_main);
+
+    //scheduleTask(scheduler, 0, 0, k2_rps_main);
+
+    scheduleTask(scheduler, 0, 0, clockTest);
+
 
     while(1) {
+	bwprintf(COM2, "We have returned to kernel\r\n");
         if (-1 == runFirstAvailableTask(scheduler)) {
             break;
         }
