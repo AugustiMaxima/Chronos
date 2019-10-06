@@ -13,7 +13,6 @@ int getTimerBase(int timer){
 
 void setMode(int timer, int mode) {
     int* CRTL = getTimerBase(timer) + CRTL_OFFSET;
-    bwprintf(COM2, "Timer Mode: %x\r\n", CRTL);
     switch (mode){
     case 1:
         *CRTL |= MODE_MASK;

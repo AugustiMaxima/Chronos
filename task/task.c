@@ -23,7 +23,7 @@ void initializeStack(Task* task, void* functionPtr){
     stack --;
     //PC
     *stack = functionPtr;
-
+    
     stack--;
 
     //TODO: Set up exit handler
