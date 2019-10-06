@@ -52,7 +52,7 @@ int main( int argc, char* argv[] ) {
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 
-    scheduleTask(scheduler, 0, 0, k1_main);
+    scheduleTask(scheduler, 0, 0, k2_rps_main);
 
     // scheduleTask(scheduler, 0, 0, clockTest);
 
