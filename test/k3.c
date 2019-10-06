@@ -102,7 +102,7 @@ void notifier() {
     char buf[100];
 
     for (;;) {
-        AwaitEvent(42);
+        AwaitEvent(51);
         Send(tId, "tick", strlen("tick"), buf, 100);
     }
 }

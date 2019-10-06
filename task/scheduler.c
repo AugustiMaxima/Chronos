@@ -36,7 +36,6 @@ void initializeScheduler(Scheduler* scheduler){
 	    push(&(scheduler->freeQueue), scheduler->tasks + i);
     }
     scheduler->currentTask = NULL;
-    scheduler->waitingForInterrupt.task = NULL;
 }
 
 //Allocates, configures and setups the stack layout for context switch

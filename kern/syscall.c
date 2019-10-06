@@ -3,12 +3,14 @@
 #include <kern.h>
 #include <scheduler.h>
 #include <sendReceiveReply.h>
+#include <deviceRegistry.h>
 #include <syscall.h>
 #include <bwio.h>
 
 //We will need to use this scheduler for keeping track of current proc, as well as other important tasks
 extern Scheduler* scheduler;
 extern COMM* com;
+extern DeviceRegistry* registry;
 
 //handles the switch statements
 void jumpTable(int code){
@@ -98,27 +100,26 @@ void sysGetPid(){
     sp[1] = scheduler->currentTask->pId;
 }
 
-void pls(int eventId) {
-    scheduler->waitingForInterrupt.task = scheduler->currentTask;
-    scheduler->waitingForInterrupt.eventId = eventId;
-    scheduler->currentTask->status = BLOCKED;
-}
-
 void sysAwaitEvent(){
     int* sp;
-    int eventId;
+
+    //bwprintf(COM2, "Are we still triggered\r\n");
 
     enter_sys_mode();
     asm("ADD SP, SP, #4");
-    asm("MOV R0, SP" ::: "r0");
-    exit_sys_mode();
+    asm(R"(
+        MOV R0, SP
+        MSR CPSR_c, #0x93
+        MOV %0, R0
+    )": "=r"(sp):: "r0");
 
-    asm("MOV %0, R0": "=r"(sp));
-
-    eventId = sp[-1];
+    int eventId = sp[-1];
 
     // if this function is inlined, the system will crash
-    pls(eventId);
+    
+    Task* task = scheduler->currentTask;
+    WaitForDevice(registry, task, eventId);
+    task->status = BLOCKED;
 }
 
 
