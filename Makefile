@@ -42,7 +42,7 @@ CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I incl
 #LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lk3 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lk3 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lgcc
 
 all: kernel.elf
 
@@ -52,7 +52,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a chlib.a interrupt.a deviceRegistry.a
+kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 dump.s: misc/dump.c
@@ -217,6 +217,15 @@ map.o: map.s
 map.a: map.o
 	$(AR) $(ARFLAGS) $@ map.o
 
+minHeap.s: util/minHeap.c
+	$(CC) -S $(CFLAGS) util/minHeap.c
+
+minHeap.o: minHeap.s
+	$(AS) $(ASFLAGS) -o minHeap.o minHeap.s
+
+minHeap.a: minHeap.o
+	$(AR) $(ARFLAGS) $@ minHeap.o
+
 charay.s: util/charay.c
 	$(CC) -S $(CFLAGS) util/charay.c
 
@@ -243,6 +252,15 @@ nameServer.o: nameServer.s
 
 nameServer.a: nameServer.o
 	$(AR) $(ARFLAGS) $@ nameServer.o
+
+clockServer.s: user/library/clockServer.c
+	$(CC) -S $(CFLAGS) user/library/clockServer.c
+
+clockServer.o: clockServer.s
+	$(AS) $(ASFLAGS) -o clockServer.o clockServer.s
+
+clockServer.a: clockServer.o
+	$(AR) $(ARFLAGS) $@ clockServer.o
 
 timer.s: devices/timer.c
 	$(CC) -S $(CFLAGS) devices/timer.c
