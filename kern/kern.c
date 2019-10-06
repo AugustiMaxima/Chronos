@@ -5,7 +5,7 @@
 void exitKernel(void* processStackPtr){
     // save kernel registers on kernel stack
     asm("STMFD SP!, {R0-R12, R14-R15}");
-    asm("ADD R2, PC, #36");
+    asm("ADD R2, PC, #44");
     //sets where the return address should be
     asm("STR R2, [SP, #56]");
 

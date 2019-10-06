@@ -12,15 +12,17 @@
 void interruptProcessor(){    
     int statusMask1 = *((unsigned*)VIC1ADDR);
     int statusMask = *((unsigned*)VIC2ADDR);
-    if(statusMask&&0x80000){
+    if(statusMask&0x80000){
         bwprintf(COM2, "Hey! Watch!\r\n");
-        *(volatile unsigned*)(TIMER3_BASE + CLR_OFFSET);
+        *(volatile unsigned*)(TIMER3_BASE + CLR_OFFSET) = 0;
     }
     bwprintf(COM2, "Mark1: %x\t", statusMask1);
     bwprintf(COM2, "Mark2: %x\r\n", statusMask);
 }
 
-
+void marker(){
+    bwprintf(COM2, "Fuck this handleSuspendedTask gay shit\r\n");
+}
 
 void __attribute__((naked)) interruptHandler(){
 
@@ -54,7 +56,8 @@ void __attribute__((naked)) interruptHandler(){
     
     //handles restoration
     asm("BL handleSuspendedTasks");
-
+    
+    asm("BL marker") ;
     //returns
     asm("B enterKernel");
 }

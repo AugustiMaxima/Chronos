@@ -91,6 +91,6 @@ void clockTest(){
     int i=0;
     for(;;){
         i++;
-        bwprintf(COM2, "Run\r\n");  
+//        bwprintf(COM2, "Run\r\n");  
     }
 }

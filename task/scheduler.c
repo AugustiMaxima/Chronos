@@ -21,6 +21,7 @@ void printRegisters(int* stack){
 }
 
 void printTask(Task* task){
+    bwprintf(COM2, "Task Address: %x\r\n", task);
     bwprintf(COM2, "Entering Task: %d\r\n", task->tId);
     printRegisters(task->stackEntry);
 }
@@ -57,6 +58,7 @@ void freeTask(Scheduler* scheduler, Task* task){
 int runFirstAvailableTask(Scheduler* scheduler) {
     Task* task;
     task = removeMin(&(scheduler->readyQueue));
+    bwprintf(COM2, "Removing task %x\r\n", task);
     if(task){
         runTask(scheduler, task);
         return 0;
@@ -66,6 +68,7 @@ int runFirstAvailableTask(Scheduler* scheduler) {
 }
 
 void runTask(Scheduler* scheduler, Task* task){
+    bwprintf(COM2, "Running new task %x\r\n", task);
     scheduler->currentTask = task;
     task->status = RUNNING;
     exitKernel(task->stackEntry);
@@ -73,6 +76,7 @@ void runTask(Scheduler* scheduler, Task* task){
 
 int insertTaskToQueue(Scheduler* scheduler, Task* task){
     task->status = READY;
+    bwprintf(COM2, "Fuck 452 %x \r\n", task);
     return insert(&(scheduler->readyQueue), task);
 }
 
@@ -83,6 +87,7 @@ Task* getTask(Scheduler* schedule, int tId){
 
 
 void handleSuspendedTasks(void* lr){
+    bwprintf(COM2, "Handling the fucking task\r\n");
     int* stack;
     //changes from svc to sys mode
     asm(R"(
@@ -97,6 +102,6 @@ void handleSuspendedTasks(void* lr){
     if(scheduler->currentTask->status == RUNNING){
         int code = insertTaskToQueue(scheduler, scheduler->currentTask);
     }
+    printTask(scheduler->currentTask);
     scheduler->currentTask = NULL;
-
 }

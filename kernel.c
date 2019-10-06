@@ -28,11 +28,11 @@ int nsTid = -1;
 int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
-    //installInterruptHandler(interruptHandler);
-    //enableDevice(0x0, 0x80000);
+    installInterruptHandler(interruptHandler);
+    enableDevice(0x0, 0x80000);
 
 
-    //hypeTrain();
+    hypeTrain();
     Scheduler base_scheduler;
     scheduler = &base_scheduler;
 
@@ -52,6 +52,7 @@ int main( int argc, char* argv[] ) {
 
 
     while(1) {
+	bwprintf(COM2, "We have returned to kernel\r\n");
         if (-1 == runFirstAvailableTask(scheduler)) {
             break;
         }
