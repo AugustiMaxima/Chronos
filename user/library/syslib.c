@@ -16,17 +16,26 @@ int Create(int priority, void (*function)()){
     //argument stuffing now
     asm("STMFD SP!, {R0-R1}");
 
-    asm("SWI " TOSTRING(CREATE_CODE));
+    asm("SWI " TOSTRING(CREATE_CODE) ::: "r0");
+    int ret;
+    asm("MOV %0, R0" : "=r" (ret));
+    return ret;
 }
 
 int MyTid(){
     save_user_context();
-    asm("SWI " TOSTRING(MYTID_CODE));
+    asm("SWI " TOSTRING(MYTID_CODE) ::: "r0");
+    int ret;
+    asm("MOV %0, R0" : "=r" (ret));
+    return ret;
 }
 
 int MyParentTid(){
     save_user_context();
-    asm("SWI " TOSTRING(MYPARENTTID_CODE));
+    asm("SWI " TOSTRING(MYPARENTTID_CODE) ::: "r0");
+    int ret;
+    asm("MOV %0, R0" : "=r" (ret));
+    return ret;
 }
 
 void Yield(){
