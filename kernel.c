@@ -53,7 +53,7 @@ int main( int argc, char* argv[] ) {
     initializeCOMM(com);
     initializeDeviceRegistry(registry);
 
-    initializeTimer(1, 2000, 20, 1);
+    initializeTimer(1, 508000, 5080, 1);
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
@@ -65,6 +65,8 @@ int main( int argc, char* argv[] ) {
     unsigned utilTime = 0;
     unsigned totalUtilTime = 0;
     unsigned fullTime = 0;
+    unsigned lastFullTime = 0;
+    unsigned lastUtilTime = 0;
     TimeStamp epoch;
     TimeStamp begin;
     TimeStamp end;
@@ -90,7 +92,14 @@ int main( int argc, char* argv[] ) {
         utilTime = compareTime(&end, &begin);
         totalUtilTime += utilTime;
         fullTime = compareTime(&end, &epoch);
-        // bwprintf(COM2, "Utilization time: %d\r\n", (fullTime - totalUtilTime)*1000/fullTime);
+	if(fullTime - lastFullTime > 500){//reduces the frequency of utilization printouts
+	    utilTime = (fullTime - lastFullTime - totalUtilTime + lastUtilTime)*1000/(fullTime - lastFullTime);
+	    lastUtilTime = totalUtilTime;
+	    lastFullTime = fullTime;
+	    bwprintf(COM2, "Utilization time: %d", utilTime/100);
+	    bwprintf(COM2, "%d", utilTime%100/10);
+	    bwprintf(COM2, ".%d\r\n", utilTime%10);
+	}
 	scheduler->currentTask = &idler;
 	exitKernel(idler.stackEntry);
     }
