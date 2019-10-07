@@ -22,11 +22,16 @@ void setMode(int timer, int mode) {
     }
 }
 
-unsigned int sanitizeLength(int timer, unsigned int length){
+unsigned int sanitizeLength(int timer, unsigned int length) {
+    unsigned ret = length;
     if (timer!=3){
-        length &= LOWER_MASK;
+        ret &= LOWER_MASK;
+        if (ret != length) {
+            bwprintf(COM2, "PANIC: initial timer load will overflow\r\n");
+            for (;;) {}
+        }
     }
-    return length;
+    return ret;
 }
 
 void setFrequency(int timer, int frequency) {

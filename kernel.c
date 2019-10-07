@@ -52,14 +52,14 @@ int main( int argc, char* argv[] ) {
     initializeCOMM(com);
     initializeDeviceRegistry(registry);
 
-    initializeTimer(1, 508000, 5080, 1);
+    initializeTimer(1, 2000, 20, 1);
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 
-    scheduleTask(scheduler, 0, 0, k2_rps_main);
+    // scheduleTask(scheduler, 0, 0, k2_rps_main);
 
-    // scheduleTask(scheduler, 0, 0, k3_main);
+    scheduleTask(scheduler, 0, 0, k3_main);
 
     //scheduleTask(scheduler, 0,0, heapTest);
 
