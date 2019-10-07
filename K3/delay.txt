@@ -1,8 +1,3 @@
-// note: this is the reference implementation
-// - tick_length=100ms
-// - clock server tracks requests with an array of size 4
-// - parameter passing in K3 faked via hardcoding
-// - awaiting task tracked by a single Task* in the scheduler
 time=0  	tId=5
 time=0  	tId=6
 time=0  	tId=7
@@ -41,8 +36,8 @@ time=170  	tId=5
 time=180  	tId=5
 time=184  	tId=6
 time=190  	tId=5
-delayer3 done
-delayer1 done
-delayer2 done
-delayer4 done
+time=198  	tId=7 	 done
+time=200  	tId=5 	 done
+time=207  	tId=6 	 done
+time=213  	tId=8 	 done
 
