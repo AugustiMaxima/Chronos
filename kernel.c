@@ -90,7 +90,7 @@ int main( int argc, char* argv[] ) {
         utilTime = compareTime(&end, &begin);
         totalUtilTime += utilTime;
         fullTime = compareTime(&end, &epoch);
-        bwprintf(COM2, "Utilization time: %d\r\n", totalUtilTime*1000/fullTime);
+        // bwprintf(COM2, "Utilization time: %d\r\n", (fullTime - totalUtilTime)*1000/fullTime);
 	scheduler->currentTask = &idler;
 	exitKernel(idler.stackEntry);
     }
