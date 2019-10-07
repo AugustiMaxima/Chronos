@@ -123,12 +123,18 @@ void split(char** tokens, int length, char* base, char divider){
     }
 }
 
-int strncpy(char* source, char* dest, int length){
+int strncpy(const char* source, char* dest, int length){
     int i;
     for(i=0;i<length && source[i]; i++){
         dest[i] = source[i];
     }
     dest[i] = 0;
+    return i;
+}
+
+int strlen(const char* str){
+    int i;
+    for(i=0;str[i];i++);
     return i;
 }
 

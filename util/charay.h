@@ -18,6 +18,8 @@ void split(char** tokens, int length, char* base, char divider);
 
 int strcpy(const char* source, char* dest, int length);
 
+int strlen(const char* str);
+
 void formatStrn(char* result, int length, char* format, ...);
 
 #endif

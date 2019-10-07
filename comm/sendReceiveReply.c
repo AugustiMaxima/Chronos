@@ -25,12 +25,11 @@ int min(int a, int b){
 }
 
 int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
-    int length = min(sender->sourceLength, receiver->receiveLength - 1);
+    int length = min(sender->sourceLength, receiver->receiveLength);
     int i;
-    for(i=0;i<length && sender->source[i];i++){
+    for(i=0;i<length;i++){
         receiver->receiveBuffer[i] = sender->source[i];
     }
-    receiver->receiveBuffer[i] = 0;
     //Block for cleanup
     //Note on this operation: For this to be true, crucial that we have stable order
     removeMap(&(com->senderRequestTable), receiver->tId);
@@ -52,13 +51,11 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
 }
 
 int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
-    int mlen = min(length, sender->receiveLength - 1);
+    int mlen = min(length, sender->receiveLength);
     int i;
-    for(i=0;i<mlen && reply[i];i++){
+    for(i=0;i<mlen;i++){
         sender->receiveBuffer[i] = reply[i];
     }
-    sender->receiveBuffer[i] = 0;
-
     //Clean up
     removeMap(&(com->senderReplyTable), sender->tId);
     // free the object

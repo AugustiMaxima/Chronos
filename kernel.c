@@ -54,8 +54,11 @@ int main( int argc, char* argv[] ) {
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 
+    // scheduleTask(scheduler, 0, 0, k2_rps_main);
+
     scheduleTask(scheduler, 0, 0, k3_main);
 
+    //scheduleTask(scheduler, 0,0, heapTest);
 
     while(1) {
         if (-1 == runFirstAvailableTask(scheduler)) {
