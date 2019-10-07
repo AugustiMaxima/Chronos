@@ -27,10 +27,6 @@ void interruptProcessor(){
     }
 }
 
-void marker(){
-    // bwprintf(COM2, "Fuck this handleSuspendedTask gay shit\r\n");
-}
-
 void __attribute__((naked)) interruptHandler(){
 
     //BLOCK 1:
@@ -64,7 +60,6 @@ void __attribute__((naked)) interruptHandler(){
     //handles restoration
     asm("BL handleSuspendedTasks");
 
-    asm("BL marker") ;
     //returns
     asm("B enterKernel");
 }

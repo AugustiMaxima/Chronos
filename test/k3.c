@@ -4,10 +4,10 @@
 #include <clockServer.h>
 #include <charay.h>
 
-void idle() {
-    for (;;) {
-    }
-}
+// void idle() {
+//     for (;;) {
+//     }
+// }
 
 void delayer(int delayTime, int numDelays) {
     int csTid = WhoIs("cs");
@@ -45,5 +45,5 @@ void k3_main() {
     Create(-4, delayer2);
     Create(-5, delayer3);
     Create(-6, delayer4);
-    Create(-10, idle);
+    // Create(-10, idle);
 }

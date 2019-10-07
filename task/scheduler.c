@@ -68,7 +68,6 @@ int runFirstAvailableTask(Scheduler* scheduler) {
 }
 
 void runTask(Scheduler* scheduler, Task* task){
-    // bwprintf(COM2, "Running new task %x\r\n", task);
     scheduler->currentTask = task;
     task->status = RUNNING;
     exitKernel(task->stackEntry);

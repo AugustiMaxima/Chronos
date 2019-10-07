@@ -18,6 +18,7 @@
 #include <timer.h>
 #include <maptest.h>
 #include <interrupt.h>
+#include <idle.h>
 #include <deviceRegistry.h>
 #include <dump.h>
 
@@ -61,14 +62,37 @@ int main( int argc, char* argv[] ) {
 
     scheduleTask(scheduler, 0, 0, k3_main);
 
+    unsigned utilTime = 0;
+    unsigned totalUtilTime = 0;
+    unsigned fullTime = 0;
+    TimeStamp epoch;
+    TimeStamp begin;
+    TimeStamp end;
+
+    Task idler;
+
+    initializeTimeStamp(&epoch, 0, 0, 0, 0);
+    initializeTask(&idler, -1, 0, -1, HALTED, idle);
+
     //scheduleTask(scheduler, 0,0, heapTest);
-
-    while(1) {
-        if (-1 == runFirstAvailableTask(scheduler)) {
-            break;
+    while(1){
+        getCurrentTime(&clock, &begin);
+        while(1) {
+            if (-1 == runFirstAvailableTask(scheduler)) {
+                break;
+            }
         }
+        //assumption: kernel isn't busy continuously for 2 hours
+        //if it ever gets that busy, move this into the small loop
+        timeElapsed(&clock);
+        getCurrentTime(&clock, &end);
+        utilTime = compareTime(&end, &begin);
+        totalUtilTime += utilTime;
+        fullTime = compareTime(&end, &epoch);
+        bwprintf(COM2, "Utilization time: %d\r\n", totalUtilTime*1000/fullTime);
+	scheduler->currentTask = &idler;
+	exitKernel(idler.stackEntry);
     }
-
     disableTimer();
 
     // set all ICU masks off
