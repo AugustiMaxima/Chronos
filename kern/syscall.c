@@ -101,7 +101,7 @@ void sysGetPid(){
 }
 
 void sysAwaitEvent(){
-    register int* sp asm("v1");
+    register int* sp asm("r0");
 
     /*
     - switch to SYS_MODE
