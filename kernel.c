@@ -34,7 +34,7 @@ int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
     installInterruptHandler(interruptHandler);
-    enableDevice(0x0, 0x80000);
+    enableDevice(0x10, 0x0);
 
     hypeTrain();
     Scheduler base_scheduler;
@@ -46,11 +46,14 @@ int main( int argc, char* argv[] ) {
     DeviceRegistry deviceRegistry;
     registry = &deviceRegistry;
 
+    Clock clock;
+
     initializeScheduler(scheduler);
     initializeCOMM(com);
     initializeDeviceRegistry(registry);
 
-    initializeTimer(3, 2000, 200, 1);
+    initializeTimer(1, 508000, 5080, 1);
+    initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 

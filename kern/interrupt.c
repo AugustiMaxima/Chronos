@@ -16,17 +16,15 @@ extern DeviceRegistry* registry;
 void interruptProcessor(){
     int statusMask1 = *((unsigned*)VIC1ADDR);
     int statusMask2 = *((unsigned*)VIC2ADDR);
-    int enabledMask1 = *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE);
-    int enabledMask2 = *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE);
 
     // bwprintf(COM2, "Triggered Interrupts:\t%x\t%x\r\n", statusMask1, statusMask2);
     // bwprintf(COM2, "Unmasked Interrupts:\t%x\t%x\r\n", enabledMask1, enabledMask2);
 
 
-    if (statusMask2 & 0x80000) {
-        WakeForDevice(registry, 51);
+    if (statusMask1 & 0x10) {
+        WakeForDevice(registry, 4);
         // bwprintf(COM2, "Resetting TC3\r\n");
-        *(volatile unsigned*)(TIMER3_BASE + CLR_OFFSET) = 0;
+        *(volatile unsigned*)(TIMER1_BASE + CLR_OFFSET) = 0;
     }
 }
 

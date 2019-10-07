@@ -94,10 +94,10 @@ void notifier() {
     int tId = 0;
     while(!tId) tId = WhoIs("cs");
 
-    char buf[3];
+    char buf[2];
 
     for (;;) {
-        AwaitEvent(51);
+        AwaitEvent(4);
         Send(tId, "TICK", strlen("TICK"), buf, 2);
     }
 }
