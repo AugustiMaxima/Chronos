@@ -106,7 +106,7 @@ void sysAwaitEvent(){
     //bwprintf(COM2, "Are we still triggered\r\n");
 
     enter_sys_mode();
-    asm("ADD SP, SP, #4");
+    asm("ADD SP, SP, #4"); // pop one argument
     asm(R"(
         MOV R0, SP
         MSR CPSR_c, #0x93
@@ -129,7 +129,7 @@ void sysCreateTask(){
     int* sp;
 
     enter_sys_mode();
-    asm("ADD SP, SP, #8");
+    asm("ADD SP, SP, #8"); // pop two arguments
     asm("MOV R0, SP");
     exit_sys_mode();
 
@@ -156,7 +156,7 @@ void sysDestroy(){
 void sysSend(){
     int* sp;
     enter_sys_mode();
-    asm("ADD SP, SP, #4");
+    asm("ADD SP, SP, #4"); // pop one argument - pointer to arguments array
     asm("MOV R0, SP");
     exit_sys_mode();
 
@@ -185,7 +185,7 @@ void sysReceive(){
     int* sp;
 
     enter_sys_mode();
-    asm("ADD SP, SP, #4");
+    asm("ADD SP, SP, #4"); // pop one argument - pointer to arguments array
     asm("MOV R0, SP");
     exit_sys_mode();
 
@@ -203,7 +203,7 @@ void sysReply(){
     int* sp;
     enter_sys_mode();
 
-    asm("ADD SP, SP, #4");
+    asm("ADD SP, SP, #4"); // pop one argument - pointer to arguments array
     asm("MOV R0, SP");
 
     exit_sys_mode();
