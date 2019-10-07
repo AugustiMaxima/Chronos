@@ -92,13 +92,13 @@ int main( int argc, char* argv[] ) {
         utilTime = compareTime(&end, &begin);
         totalUtilTime += utilTime;
         fullTime = compareTime(&end, &epoch);
-	if(fullTime - lastFullTime > 500){//reduces the frequency of utilization printouts
-	    utilTime = (fullTime - lastFullTime - totalUtilTime + lastUtilTime)*1000/(fullTime - lastFullTime);
+	if(fullTime - lastFullTime > 500){//only polls for changes in the last 500 miliseconds
+	    utilTime = (fullTime - lastFullTime - totalUtilTime + lastUtilTime)*100000/(fullTime - lastFullTime);
 	    lastUtilTime = totalUtilTime;
 	    lastFullTime = fullTime;
-	    bwprintf(COM2, "Utilization time: %d", utilTime/100);
-	    bwprintf(COM2, "%d", utilTime%100/10);
-	    bwprintf(COM2, ".%d\r\n", utilTime%10);
+	    bwprintf(COM2, "Utilization time: %d", utilTime/10000);
+	    bwprintf(COM2, "%d", utilTime%10000/1000);
+	    bwprintf(COM2, ".%d\r\n", utilTime%1000);
 	}
 	scheduler->currentTask = &idler;
 	exitKernel(idler.stackEntry);

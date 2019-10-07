@@ -11,7 +11,7 @@ void reposition(PriorityQueue* queue, int index){
     Task* temp;
     int direction;
     int target = (index - 1)/2;
-    if(target>=0 && task->priority>queue->queue[target]->priority){
+    if(target>=0 && task->priority<queue->queue[target]->priority){
         direction  = -1;
         temp = queue->queue[target];
         queue->queue[target] = task;
@@ -29,9 +29,9 @@ void reposition(PriorityQueue* queue, int index){
 		target += 1;
 	    }
 	    else {
-            target += (queue->queue[target+1]->priority > queue->queue[target+2]->priority)? 1 : 2;
+            target += (queue->queue[target+1]->priority < queue->queue[target+2]->priority)? 1 : 2;
 	    }
-            if(task->priority >= queue->queue[target]->priority){
+            if(task->priority <= queue->queue[target]->priority){
                 return;
             }
         } else{
@@ -39,7 +39,7 @@ void reposition(PriorityQueue* queue, int index){
             if(target < 0){
                 return;
             }
-            if(task->priority<=queue->queue[target]->priority){
+            if(task->priority>=queue->queue[target]->priority){
                 return;
             }
         }
