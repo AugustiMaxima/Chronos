@@ -23,10 +23,14 @@ void reposition(PriorityQueue* queue, int index){
     for(;;){
         if(direction>0){
             target = 2*index;
-            if(target+2>=queue->length){
+            if(target+1>=queue->length){
                 return;
-            }
+            } else if(target+2==queue->length) {
+		target += 1;
+	    }
+	    else {
             target += (queue->queue[target+1]->priority > queue->queue[target+2]->priority)? 1 : 2;
+	    }
             if(task->priority >= queue->queue[target]->priority){
                 return;
             }
