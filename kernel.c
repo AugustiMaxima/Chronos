@@ -76,6 +76,7 @@ int main( int argc, char* argv[] ) {
 
     //scheduleTask(scheduler, 0,0, heapTest);
     while(1){
+	timeElapsed(&clock);
         getCurrentTime(&clock, &begin);
         while(1) {
             if (-1 == runFirstAvailableTask(scheduler)) {
