@@ -62,24 +62,20 @@ int main( int argc, char* argv[] ) {
 
     scheduleTask(scheduler, 0, 0, k3_main);
 
-    unsigned utilTime = 0;
-    unsigned totalUtilTime = 0;
-    unsigned fullTime = 0;
-    unsigned lastFullTime = 0;
-    unsigned lastUtilTime = 0;
-    TimeStamp epoch;
-    TimeStamp begin;
-    TimeStamp end;
+    unsigned long last = 0;
+    unsigned long utilTime = 0;
+    unsigned long begin;
+    unsigned long end;
+    unsigned long rate;
 
     Task idler;
 
-    initializeTimeStamp(&epoch, 0, 0, 0, 0);
     initializeTask(&idler, -1, 0, -1, HALTED, idle);
 
     //scheduleTask(scheduler, 0,0, heapTest);
     while(1){
-	timeElapsed(&clock);
-        getCurrentTime(&clock, &begin);
+	    timeElapsed(&clock);
+        begin = getOscilation(&clock);
         while(1) {
             if (-1 == runFirstAvailableTask(scheduler)) {
                 break;
@@ -88,20 +84,20 @@ int main( int argc, char* argv[] ) {
         //assumption: kernel isn't busy continuously for 2 hours
         //if it ever gets that busy, move this into the small loop
         timeElapsed(&clock);
-        getCurrentTime(&clock, &end);
-        utilTime = compareTime(&end, &begin);
-        totalUtilTime += utilTime;
-        fullTime = compareTime(&end, &epoch);
-	if(fullTime - lastFullTime > 500){//only polls for changes in the last 500 miliseconds
-	    utilTime = (fullTime - lastFullTime - totalUtilTime + lastUtilTime)*100000/(fullTime - lastFullTime);
-	    lastUtilTime = totalUtilTime;
-	    lastFullTime = fullTime;
-	    bwprintf(COM2, "Utilization time: %d", utilTime/10000);
-	    bwprintf(COM2, "%d", utilTime%10000/1000);
-	    bwprintf(COM2, ".%d\r\n", utilTime%1000);
-	}
-	scheduler->currentTask = &idler;
-	exitKernel(idler.stackEntry);
+        end = getOscilation(&clock);
+        utilTime+=end - begin;
+        //bwprintf(COM2, "%d\r\n", end);
+        if(end - last > 508000){//only polls for changes in the last 100 miliseconds
+            rate = (end - last - utilTime)*1000/((unsigned)end - (unsigned)last);
+            bwprintf(COM2, "Utilized time %d / %d\r\n", end - begin, end - last);
+            utilTime = 0;
+            last = end;
+            bwprintf(COM2, "Utilization time: %d", rate/100);
+            bwprintf(COM2, "%d", rate%100/10);
+            bwprintf(COM2, ".%d\r\n", rate%10);
+        }
+	    scheduler->currentTask = &idler;
+	    exitKernel(idler.stackEntry);
     }
     disableTimer();
 

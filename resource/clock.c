@@ -31,6 +31,12 @@ int timeElapsed(Clock* clock){
 
 }
 
+unsigned long getOscilation(Clock* clock){
+    TimeStamp epoch;
+    initializeTimeStamp(&epoch, 0, 0, 0, 0);
+    return compareTime(&(clock->time), &epoch)*(clock->frequency/1000) + clock->underflow;
+}
+
 // expects a 10 - 12 character long buffer
 void getTimeString(char* buffer, TimeStamp* time){
     int hour = time->hours%24;
@@ -73,8 +79,8 @@ void applyDeltaTime(TimeStamp* time, int ms){
     }
 }
 
-int compareTime(TimeStamp* a, TimeStamp* b){
-    int delta = 0;
+unsigned long compareTime(TimeStamp* a, TimeStamp* b){
+    unsigned long delta = 0;
     delta += a->hours - b->hours;
     delta *= 60;
     delta += a->minutes - b->minutes;

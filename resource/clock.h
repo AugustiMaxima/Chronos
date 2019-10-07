@@ -3,7 +3,7 @@
 
 #include <timer.h>
 
-typedef struct {
+typedef struct time{
     int hours;
     int minutes;
     int seconds;
@@ -25,6 +25,8 @@ void updateTime(Clock* clock, int delta);
 
 int timeElapsed(Clock* clock);
 
+unsigned long getOscilation(Clock* clock);
+
 // expects a 9 character long buffer
 void getTimestring(char* buffer, TimeStamp* time);
 
@@ -34,7 +36,7 @@ void initializeTimeStamp(TimeStamp* time, int hours, int minutes, int seconds, i
 
 void applyDeltaTime(TimeStamp* time, int ms);
 
-int compareTime(TimeStamp* a, TimeStamp* b);
+unsigned long compareTime(TimeStamp* a, TimeStamp* b);
 
 int getDeltaTime(TimeStamp* a, TimeStamp* b);
 
