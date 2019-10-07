@@ -2,6 +2,7 @@
 #include <ts7200.h>
 #include <sendReceiveReply.h>
 #include <interrupt.h>
+#include <nameServer.h>
 
 void printSp() {
     unsigned int sp;

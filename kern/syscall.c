@@ -70,11 +70,11 @@ void __attribute__((naked)) sys_handler(){
 }
 
 //using R1, because these are less likely to be disturbed
-static inline __attribute__((always_inline)) enter_sys_mode() {
+static inline __attribute__((always_inline)) void enter_sys_mode() {
     asm("MSR CPSR_c, #"TOSTRING(SYS_MODE));
 }
 
-static inline __attribute__((always_inline)) exit_sys_mode() {
+static inline __attribute__((always_inline)) void exit_sys_mode() {
     asm("MSR CPSR_c, #"TOSTRING(SVC_MODE));
 }
 
@@ -116,7 +116,7 @@ void sysAwaitEvent(){
     int eventId = sp[-1];
 
     // if this function is inlined, the system will crash
-    
+
     Task* task = scheduler->currentTask;
     WaitForDevice(registry, task, eventId);
     task->status = BLOCKED;

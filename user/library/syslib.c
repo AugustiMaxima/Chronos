@@ -5,7 +5,7 @@
 
 #define MAX_ARGS 10
 
-static inline __attribute__((always_inline)) int save_user_context() {
+static inline __attribute__((always_inline)) void save_user_context() {
     asm("STMFD SP!, {R0-R12, R14-R15}");
     asm("MRS R2, CPSR");
     asm("STMFD SP!, {R2}");

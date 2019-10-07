@@ -5,7 +5,7 @@
 
 void Sender4(){
     char* sendMsg = "SOS";
-    char* receiveBuffer[4];
+    char receiveBuffer[4];
     int tId = 0;
     while(!tId)
         tId = WhoIs("Receiver");

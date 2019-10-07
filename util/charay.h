@@ -22,4 +22,6 @@ int strlen(const char* str);
 
 void formatStrn(char* result, int length, char* format, ...);
 
+int chos_strlen (const char *s);
+
 #endif

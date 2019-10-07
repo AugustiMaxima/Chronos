@@ -18,14 +18,6 @@ unsigned lrand(int* seed) {
 // gcc is generating memcpys
 // https://code.woboq.org/gcc/libgcc/memcpy.c.html
 
-
-// https://code.woboq.org/userspace/glibc/string/test-strlen.c.htmlsize_t
-int chos_strlen (const char *s) {
-  const char *p;
-  for (p = s; *p; ++p);
-  return p - s;
-}
-
 const char* KYS_MSG = "kys";
 const char* SIGNUP_MSG = "_signup";
 const char* FIRSTCHOICE_MSG = "first";

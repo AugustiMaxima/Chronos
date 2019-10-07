@@ -16,7 +16,6 @@ extern DeviceRegistry* registry;
 void interruptProcessor(){
     int statusMask1 = *((unsigned*)VIC1ADDR);
     int statusMask2 = *((unsigned*)VIC2ADDR);
-
     // bwprintf(COM2, "Triggered Interrupts:\t%x\t%x\r\n", statusMask1, statusMask2);
     // bwprintf(COM2, "Unmasked Interrupts:\t%x\t%x\r\n", enabledMask1, enabledMask2);
 
@@ -83,7 +82,7 @@ void installInterruptHandler(void* handler){
 
     */
     *(unsigned*)0x18 = 0xe59ff018;
-    *(unsigned*)0x38 = handler;
+    *(unsigned*)0x38 = (unsigned)handler;
 }
 
 

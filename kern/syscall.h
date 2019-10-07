@@ -39,7 +39,7 @@ void sysCreateTask();
 
 void sysExit();
 
-void sysDestory();
+void sysDestroy();
 
 void sysSend();
 

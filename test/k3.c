@@ -2,6 +2,7 @@
 #include <syslib.h>
 #include <nameServer.h>
 #include <clockServer.h>
+#include <charay.h>
 
 void idle() {
     for (;;) {

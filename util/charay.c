@@ -58,7 +58,7 @@ int getCharMap(char a){
     offset += 10;
     if(a>='a' && a<='z'){
         return a-'a' + offset;
-    } 
+    }
     offset += 26;
     if(a>='A' && a<='Z'){
         return a -'A' + offset;
@@ -91,7 +91,7 @@ int getCharMap(char a){
     if(a=='@'){
         return offset + 1;
     }
-    offset += 1;    
+    offset += 1;
     if(a=='*'){
         return offset + 1;
     }
@@ -181,4 +181,11 @@ void formatStrn(char* result, int length, char* format, ...){
     }
     va_end(varag);
     result[i] = 0;
+}
+
+// https://code.woboq.org/userspace/glibc/string/test-strlen.c.htmlsize_t
+int chos_strlen (const char *s) {
+  const char *p;
+  for (p = s; *p; ++p);
+  return p - s;
 }
