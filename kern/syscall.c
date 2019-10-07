@@ -101,21 +101,22 @@ void sysGetPid(){
 }
 
 void sysAwaitEvent(){
-    int* sp;
+    register int* sp asm("v1");
 
-    //bwprintf(COM2, "Are we still triggered\r\n");
-
-    enter_sys_mode();
-    asm("ADD SP, SP, #4"); // pop one argument
+    /*
+    - switch to SYS_MODE
+    - copy SP to the sp variable
+    - pop the argument off the stack
+    - switch to SVC_MODE
+    */
     asm(R"(
-        MOV R0, SP
+        MSR CPSR_c, #0x9F
+        MOV %0, SP
+        ADD SP, SP, #4
         MSR CPSR_c, #0x93
-        MOV %0, R0
-    )": "=r"(sp):: "r0");
+    )": "=r"(sp));
 
-    int eventId = sp[-1];
-
-    // if this function is inlined, the system will crash
+    int eventId = sp[0];
 
     Task* task = scheduler->currentTask;
     WaitForDevice(registry, task, eventId);
