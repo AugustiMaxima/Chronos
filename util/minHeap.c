@@ -2,12 +2,15 @@
 #include <minHeap.h>
 #include <bwio.h>
 
-void intializeMinHeap(MinHeap* heap){
+void initializeMinHeap(MinHeap* heap){
     heap->length = 0;
 }
 
 KV* peek(MinHeap* heap){
-    return heap->heap;
+    if(heap->length)
+	return (KV*)heap->heap;
+    else
+	return NULL;
 }
 
 void repositionHeap(MinHeap* heap, int index){
@@ -16,7 +19,7 @@ void repositionHeap(MinHeap* heap, int index){
     void* temp_value;
     int direction;
     int target = (index - 1)/2;
-    if(target>=0 && key>heap->heap[target].key){
+    if(target>=0 && key<heap->heap[target].key){
         direction  = -1;
         temp_key = heap->heap[target].key;
         temp_value = heap->heap[target].value;
@@ -32,10 +35,14 @@ void repositionHeap(MinHeap* heap, int index){
         key = heap->heap[index].key;
         if(direction>0){
             target = 2*index;
-            if(target+2>=heap->length){
+            if(target+1>=heap->length){
+		        return;
+	        } else if(target+2==heap->length){
                 target = target+1;
-            } else if(heap->heap[target+2].key>heap->heap[target+1].key){
+            } else if(heap->heap[target+2].key<heap->heap[target+1].key){
                 target = target+2;
+            } else {
+                target = target+1;
             }
             if(key <= heap->heap[target].key){
                 return;
@@ -74,20 +81,15 @@ int insertMinHeap(MinHeap* heap, int key, void* value){
     if(heap->length+1 == MINHEAP_SIZE){
         return -1;
     }
-    heap->heap[heap->length++].key = key;
-    heap->heap[heap->length++].value = value;
-    repositionHeap(heap, heap->length - 1);
+    heap->heap[heap->length].key = key;
+    heap->heap[heap->length].value = value;
+    repositionHeap(heap, heap->length++);
     return 0;
 }
 
 void printStackHeap(MinHeap* heap){
     int i=0;
-    int upgrade = 1;
     for(i=0;i<heap->length;i++){
-        if(i==upgrade){
-           bwprintf(COM2, "\r\n");
-           upgrade*= 2;
-        }
-        bwprintf(COM2, " %d ", heap->heap[i]);
+        bwprintf(COM2, " %d ", heap->heap[i].key);
     }
 }

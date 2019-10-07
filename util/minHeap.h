@@ -28,4 +28,5 @@ void* removeMinHeap(MinHeap* heap);
 
 int insertMinHeap(MinHeap* heap, int key, void* value);
 
+void printStackHeap(MinHeap* heap);
 #endif

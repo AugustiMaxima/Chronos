@@ -11,7 +11,7 @@ void clockServer() {
     MinHeap waitList;
 
     RegisterAs("cs");
-
+    initializeMinHeap(&waitList);
     char requestBuf[CLOCK_MAX];
     char reply[8];
     char command;
@@ -24,7 +24,8 @@ void clockServer() {
             ticks++;
             Reply(caller, "ok", strlen("ok"));
             KV* taskWait = peek(&waitList);
-            while(taskWait->key <= ticks){
+
+            while(taskWait && taskWait->key <= ticks){
                 //A little dangerous, copies a literal into the char array and attempt to dereference it on the other end
                 *(int*)reply = ticks;
                 Reply((int)(taskWait->value), reply, 4);
@@ -43,6 +44,7 @@ void clockServer() {
             else {
                 bwprintf(COM2, "unknown\r\n");
             }
+	    //bwprintf(COM2, "ClockServer: delay %d requested by %d\r\n", requestTicks, caller);
             if(requestTicks<ticks){
                 *(int*)reply = -2;
                 Reply(caller, reply, 4);
@@ -77,7 +79,7 @@ int Time(int csTid){
 int Delay(int csTid, int ticks) {
     char buffer[12];
     char receiveBuffer[8];
-    buffer[0] = 'U';
+    buffer[0] = 'D';
     *(int*)(buffer + 4) = ticks;
     buffer[9] = 0;
     int status = Send(csTid, buffer, 12, receiveBuffer, CLOCK_MAX);
@@ -96,6 +98,6 @@ void notifier() {
 
     for (;;) {
         AwaitEvent(51);
-        Send(tId, "tick", strlen("tick"), buf, 2);
+        Send(tId, "TICK", strlen("TICK"), buf, 2);
     }
 }

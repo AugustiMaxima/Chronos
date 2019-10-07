@@ -64,7 +64,7 @@ int isMoveChar(char msg) {
 }
 
 void trace_Send(const char* taskName, int tid, const char* msg, char* reply) {
-    int ret = Send(tid, msg, chos_strlen(msg), reply, 100);
+    int ret = Send(tid, msg, chos_strlen(msg) + 1, reply, 100);
     bwprintf(COM2, "[%s %d]\t%d = Send(%d, %s, =%s)\r\n", taskName, MyTid(), ret, tid, msg, reply);
 }
 

@@ -1,5 +1,6 @@
 #include <map.h>
 #include <stdlib.h>
+#include <minHeap.h>
 #include <bwio.h>
 
 void MapTest(){
@@ -93,4 +94,22 @@ void clockTest() {
         i++;
 //        bwprintf(COM2, "Run\r\n");
     }
+}
+
+void heapTest(){
+    MinHeap heap;
+    initializeMinHeap(&heap);
+    insertMinHeap(&heap, 6, 0);
+    insertMinHeap(&heap, 3, 0);
+    insertMinHeap(&heap, 4, 0);
+    insertMinHeap(&heap, 1, 0);
+    insertMinHeap(&heap, 72, 0);
+    insertMinHeap(&heap, 47, 0);
+    insertMinHeap(&heap, 56, 0);
+    insertMinHeap(&heap, 5, 0);
+    insertMinHeap(&heap, 67, 0);
+    insertMinHeap(&heap, 67, 0);
+    insertMinHeap(&heap, 7, 0);
+    insertMinHeap(&heap, 8, 0);
+    printStackHeap(&heap);
 }

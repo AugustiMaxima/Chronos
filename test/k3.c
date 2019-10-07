@@ -4,7 +4,8 @@
 #include <clockServer.h>
 
 void idle() {
-    for (;;) {}
+    for (;;) {
+    }
 }
 
 void delayer(int delayTime, int numDelays) {

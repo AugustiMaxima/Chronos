@@ -18,22 +18,22 @@ int Retrieve(Map* NameTable, char* symbol){
 void RegistrationPreamble(Map* NameTable, char* symbol, int caller){
     int returnCode = Registration(NameTable, symbol, caller);
     if(returnCode == 1)
-        Reply(caller, "Registration successful.", MAX_RESULT);
+        Reply(caller, "Registration successful", 24);
     else if(returnCode == 0)
-        Reply(caller, "Updated registration", MAX_RESULT);
+        Reply(caller, "Updated registration", 21);
     else
-        Reply(caller, "Register failed due to insufficent resources", MAX_RESULT);
+        Reply(caller, "Registeration failed", 20);
 }
 
 
 void RetrievalPreamble(Map* NameTable, char* symbol, int caller){
     int returnCode = Retrieve(NameTable, symbol);
     if(!returnCode){
-        Reply(caller, "Registration not found", MAX_RESULT);
+        Reply(caller, "Not found", 10);
     } else {
-        char numeral[MAX_RESULT];
-        noneZeroIntString(numeral, MAX_RESULT, returnCode, 10);
-        Reply(caller, numeral, MAX_RESULT);
+        char numeral[4];
+        *(int*)numeral = returnCode;
+        Reply(caller, numeral, 4);
     }
 }
 
@@ -61,12 +61,12 @@ void nameServer(){
         symbol = requestBuf;
         symbol += 2;
         if (command == 'R') {
-            // bwprintf(COM2, "Receiving registration %d, %s \r\n", caller, symbol);
+            // bwprintf(COM2, "Receiving registration return stringToNum(receiveBuffer, 10);%d, %s \r\n", caller, symbol);
             RegistrationPreamble(&NameTable, symbol, caller);
         } else if(command == 'W'){
             RetrievalPreamble(&NameTable, symbol, caller);
         } else {
-            Reply(caller, "Bad operation", MAX_RESULT);
+            Reply(caller, "Bad operation", 13);
         }
     }
 }
@@ -83,7 +83,7 @@ int RegisterAs(const char *name){
     char buffer[100];
     char receiveBuffer[100];
     formatStrn(buffer, 100, "R %s", name);
-    int result = Send(getNsTid(), buffer, 100, receiveBuffer, 100);
+    int result = Send(getNsTid(), buffer, strlen(buffer), receiveBuffer, 100);
     if(result>0){
         return 0;
     } else {
@@ -95,10 +95,10 @@ int WhoIs(const char *name){
     char buffer[100];
     char receiveBuffer[100];
     formatStrn(buffer, 100, "W %s", name);
-    int result = Send(getNsTid(), buffer, 100, receiveBuffer, 100);
+    int result = Send(getNsTid(), buffer, strlen(buffer), receiveBuffer, 100);
     if(result>0){
         if(strcmp("Registration not found", receiveBuffer))
-            return stringToNum(receiveBuffer, 10);
+            return *(int*)receiveBuffer;
         else
             return 0;
     } else {
