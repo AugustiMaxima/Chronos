@@ -21,7 +21,6 @@
 #include <idle.h>
 #include <deviceRegistry.h>
 #include <dump.h>
-#include <fast_hsv2rgb.h>
 
 Scheduler* scheduler;
 COMM* com;
@@ -57,24 +56,6 @@ int main( int argc, char* argv[] ) {
     initializeTimer(1, 508000, 5080, 1);
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
 
-
-	int hue = HSV_HUE_MIN;
-	int val = HSV_VAL_MAX;
-	int dir = -3;
-    char r, g, b;
-
-    for (int i=0;;i++) {
-
-        if (i < 10000) continue;;
-        i = 0;
-
-        hue++;
-		if(hue > HSV_HUE_MAX) hue -= HSV_HUE_MAX;
-
-		fast_hsv2rgb_32bit(hue, HSV_SAT_MAX * 2 / 3, val, &r, &g, &b);
-
-        bwprintf(COM2, "\033[48;2;%d;%d;%dm\r\n", r, g, b);
-    }
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 
     // scheduleTask(scheduler, 0, 0, k2_rps_main);
