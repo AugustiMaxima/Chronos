@@ -211,11 +211,11 @@ void killServer() {
 }
 
 void k2_rps_main() {
-    Create(1000, nameServer);
-    Create(100, rpsServer);
+    Create(1, nameServer);
+    Create(2, rpsServer);
     int k;
     for (k=0; k<20; k++) {
         Create(5, rpsClient);
     }
-    Create(-1, killServer);
+    Create(100, killServer);
 }

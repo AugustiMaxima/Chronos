@@ -53,14 +53,14 @@ int main( int argc, char* argv[] ) {
     initializeCOMM(com);
     initializeDeviceRegistry(registry);
 
-    initializeTimer(1, 508000, 5080, 1);
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
 
     //scheduleTask(scheduler, 0, 0, ssr_test_main);
 
-    // scheduleTask(scheduler, 0, 0, k2_rps_main);
+    scheduleTask(scheduler, 0, 0, k2_rps_main);
 
-    scheduleTask(scheduler, 0, 0, k3_main);
+    // initializeTimer(1, 508000, 5080, 1);
+    // scheduleTask(scheduler, 0, 0, k3_main);
 
     unsigned long last = 0;
     unsigned long utilTime = 0;

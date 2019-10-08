@@ -73,7 +73,7 @@ void nameServer(){
 
 int getNsTid() {
     if (nsTid == -1) {
-        bwprintf(COM2, "nameserver not up yet\r\n");
+        bwprintf(COM2, "PANIC: nameserver not up yet\r\n");
         for (;;) {}
     }
     return nsTid;
