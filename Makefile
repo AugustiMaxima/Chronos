@@ -42,7 +42,7 @@ CFLAGS = -std=gnu99 -O0 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I incl
 #LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lk3 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lk3 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -lgcc
 
 all: kernel.elf
 
@@ -63,6 +63,15 @@ dump.o: dump.s
 
 dump.a: dump.o
 	$(AR) $(ARFLAGS) $@ dump.o
+
+fast_hsv2rgb.s: misc/fast_hsv2rgb.c
+	$(CC) -S $(CFLAGS) misc/fast_hsv2rgb.c
+
+fast_hsv2rgb.o: fast_hsv2rgb.s
+	$(AS) $(ASFLAGS) -o fast_hsv2rgb.o fast_hsv2rgb.s
+
+fast_hsv2rgb.a: fast_hsv2rgb.o
+	$(AR) $(ARFLAGS) $@ fast_hsv2rgb.o
 
 arm.s: arch/ARM.c
 	$(CC) -S $(CFLAGS) arch/ARM.c -o arm.s
