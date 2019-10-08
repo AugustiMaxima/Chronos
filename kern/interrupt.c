@@ -21,7 +21,7 @@ void interruptProcessor(){
 
 
     if (statusMask1 & 0x10) {
-        WakeForDevice(registry, 4);
+        WakeForDevice(registry, 4, *(volatile unsigned*)(TIMER1_BASE + VAL_OFFSET));
         // bwprintf(COM2, "Resetting TC3\r\n");
         *(volatile unsigned*)(TIMER1_BASE + CLR_OFFSET) = 0;
     }

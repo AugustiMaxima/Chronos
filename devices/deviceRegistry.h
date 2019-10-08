@@ -16,6 +16,6 @@ typedef struct DeviceTracker{
 
 void initializeDeviceRegistry(DeviceRegistry* registry);
 int WaitForDevice(DeviceRegistry* registry, Task* task, int device);
-int WakeForDevice(DeviceRegistry* registry, int device);
+int WakeForDevice(DeviceRegistry* registry, int device, int value);
 
 #endif
