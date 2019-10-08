@@ -71,14 +71,7 @@ int main( int argc, char* argv[] ) {
         hue++;
 		if(hue > HSV_HUE_MAX) hue -= HSV_HUE_MAX;
 
-		// val += dir;		// Vary value between 1/4 and 4/4 of HSV_VAL_MAX
-		// if(val < HSV_VAL_MAX / 4 || val == HSV_VAL_MAX)
-		// 	dir = -dir;	// Reverse value direction
-
-		// Perform conversion at fully saturated color
 		fast_hsv2rgb_32bit(hue, HSV_SAT_MAX * 2 / 3, val, &r, &g, &b);
-
-        // bwprintf(COM2, "%d %d %d\r\n", r, g, b);
 
         bwprintf(COM2, "\033[48;2;%d;%d;%dm\r\n", r, g, b);
     }
