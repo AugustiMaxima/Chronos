@@ -33,7 +33,7 @@ ASFLAGS = -mfloat-abi=soft
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource
+CFLAGS = -std=gnu99 -O0 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource
 
 # -static: force static linking
 # -e: set entry point
@@ -42,7 +42,7 @@ CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I incl
 #LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lk3 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -lk1 -lk2 -lk3 -lk4 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -lgcc
 
 all: kernel.elf
 
@@ -52,8 +52,17 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a
+kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
+
+a0.s: a0.c
+	$(CC) -S $(CFLAGS) a0.c
+
+a0.o: a0.s
+	$(AS) $(ASFLAGS) -o a0.o a0.s
+
+a0.elf: a0.o
+	$(LD) $(LDFLAGS) -o $@ a0.o $(LIBS) $(LIBS)
 
 dump.s: misc/dump.c
 	$(CC) -S $(CFLAGS) misc/dump.c
@@ -117,6 +126,15 @@ k3.o: k3.s
 
 k3.a: k3.o
 	$(AR) $(ARFLAGS) $@ k3.o
+
+k4.s: test/k4.c
+	$(CC) -S $(CFLAGS) test/k4.c -o k4.s
+
+k4.o: k4.s
+	$(AS) $(ASFLAGS) -o k4.o k4.s
+
+k4.a: k4.o
+	$(AR) $(ARFLAGS) $@ k4.o
 
 bwio.s: misc/bwio.c
 	$(CC) -S $(CFLAGS) misc/bwio.c
@@ -321,5 +339,5 @@ ssrTest.a: ssrTest.o
 clean:
 	-rm -f kernel.elf *.s *.o *.a
 
-install: kernel.elf
-	-cp kernel.elf /u/cs452/tftp/ARM/$(shell whoami)
+install: kernel.elf a0.elf
+	-cp kernel.elf a0.elf /u/cs452/tftp/ARM/$(shell whoami)

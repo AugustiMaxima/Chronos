@@ -3,6 +3,7 @@
 #include <sendReceiveReply.h>
 #include <interrupt.h>
 #include <nameServer.h>
+#include <clockServer.h>
 
 void printSp() {
     unsigned int sp;

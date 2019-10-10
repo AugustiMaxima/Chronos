@@ -23,6 +23,7 @@ typedef char *va_list;
 #define	OFF	0
 
 int bwsetfifo( int channel, int state );
+int bwsetstopbits(int channel, int two_stop_bits);
 
 int bwsetspeed( int channel, int speed );
 

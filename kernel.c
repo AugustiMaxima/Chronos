@@ -14,6 +14,7 @@
 #include <k1.h>
 #include <k2.h>
 #include <k3.h>
+#include <k4.h>
 #include <clock.h>
 #include <timer.h>
 #include <maptest.h>
@@ -31,11 +32,28 @@ const unsigned seedSeed = 0xdeadbeef;
 
 int nsTid = -1;
 
+int kernelRunning = 1;
+
 int main( int argc, char* argv[] ) {
+    bwsetfifo(COM1, OFF);
     bwsetfifo(COM2, OFF);
+    bwsetspeed(COM1, 2400);
+    bwsetstopbits(COM1, ON);
+
     setUpSWIHandler(sys_handler);
     installInterruptHandler(interruptHandler);
-    setEnabledDevices((1 << TC1UI_DEV_ID), 0x0);
+
+    // enable UART1 TX Interrupt and RX Interrupt
+    int* uart1_ctrl = (int *)( UART1_BASE + UART_CTLR_OFFSET );
+    *uart1_ctrl |= (TIEN_MASK | RIEN_MASK);
+
+    // enable UART2 RX Interrupt
+    int* uart2_ctrl = (int *)( UART2_BASE + UART_CTLR_OFFSET );
+    *uart2_ctrl |= (TIEN_MASK | RIEN_MASK);
+
+    setEnabledDevices(
+        (1 << TC1UI_DEV_ID),
+    0x0);
 
     hypeTrain();
     Scheduler base_scheduler;
@@ -55,49 +73,20 @@ int main( int argc, char* argv[] ) {
 
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
 
-    //scheduleTask(scheduler, 0, 0, ssr_test_main);
-
-    scheduleTask(scheduler, 0, 0, k2_rps_main);
-
-    // initializeTimer(1, 508000, 5080, 1);
-    // scheduleTask(scheduler, 0, 0, k3_main);
-
-    unsigned long last = 0;
-    unsigned long utilTime = 0;
-    unsigned long begin;
-    unsigned long end;
-    unsigned long rate;
+    initializeTimer(1, 2000, 20, 1); // 10ms
+    scheduleTask(scheduler, 0, 0, k4_main);
 
     Task idler;
-
     initializeTask(&idler, -1, 0, -1, HALTED, idle);
 
-    //scheduleTask(scheduler, 0,0, heapTest);
-    while(1){
-	    timeElapsed(&clock);
-        begin = getOscilation(&clock);
-        while(1) {
-            if (-1 == runFirstAvailableTask(scheduler)) {
-                break;
-            }
+    while(1) {
+        if (!kernelRunning) {
+            break;
         }
-        //assumption: kernel isn't busy continuously for 2 hours
-        //if it ever gets that busy, move this into the small loop
-        timeElapsed(&clock);
-        end = getOscilation(&clock);
-        utilTime+=end - begin;
-        //bwprintf(COM2, "%d\r\n", end);
-        if(end - last > 508000){//only polls for changes in the last 100 miliseconds
-            rate = (end - last - utilTime)*1000/((unsigned)end - (unsigned)last);
-            bwprintf(COM2, "Utilized time %d / %d\r\n", end - begin, end - last);
-            utilTime = 0;
-            last = end;
-            bwprintf(COM2, "Utilization time: %d", rate/100);
-            bwprintf(COM2, "%d", rate%100/10);
-            bwprintf(COM2, ".%d\r\n", rate%10);
+        if (-1 == runFirstAvailableTask(scheduler)) {
+            scheduler->currentTask = &idler;
+    	    exitKernel(idler.stackEntry);
         }
-	    scheduler->currentTask = &idler;
-	    exitKernel(idler.stackEntry);
     }
     disableTimer();
 

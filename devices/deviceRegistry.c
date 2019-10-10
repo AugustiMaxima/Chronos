@@ -1,9 +1,10 @@
 #include <deviceRegistry.h>
+#include <interrupt.h>
 #include <bwio.h>
 
 extern Scheduler* scheduler;
 
-void initializeDeviceRegistry(DeviceRegistry* registry){
+void initializeDeviceRegistry(DeviceRegistry* registry) {
     initializeQueue(&(registry->freeQueue));
     initializeMap(&(registry->deviceMap));
     int i;
@@ -20,13 +21,16 @@ int WaitForDevice(DeviceRegistry* registry, Task* task, int device){
     }
     node->task = task;
     node->next = getMap(&(registry->deviceMap), device);
+
+    enableDevice(1 << device, 0x0);
+
     return putMap(&(registry->deviceMap), device, node);
 }
 
 int WakeForDevice(DeviceRegistry* registry, int device, int value){
     int status = 0;
     TaskNode* node = removeMap(&(registry->deviceMap), device);
-    //bwprintf(COM2, "Retrieved node %x for device %d\r\n", node, device);
+    // bwprintf(COM2, "Retrieved node %x for device %d\r\n", node, device);
     while(node){
         node->task->stackEntry[1] = value;
         status = insertTaskToQueue(scheduler, node->task);

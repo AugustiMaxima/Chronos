@@ -34,6 +34,35 @@ int bwsetfifo( int channel, int state ) {
 	return 0;
 }
 
+int bwsetstopbits(int channel, int two_stop_bits) {
+
+    int* line;
+    int buf;
+
+    switch (channel) {
+        case COM1:
+            line = (int *)( UART1_BASE + UART_LCRH_OFFSET );
+            break;
+        case COM2:
+            line = (int *)( UART2_BASE + UART_LCRH_OFFSET );
+            break;
+        default:
+            return -1;
+            break;
+    }
+    buf = *line;
+
+    if (two_stop_bits) {
+        buf = buf | STP2_MASK;
+    } else {
+        buf = buf & ~STP2_MASK;
+    }
+
+    *line = buf;
+    return 0;
+}
+
+
 int bwsetspeed( int channel, int speed ) {
 	int *high, *low;
 	switch( channel ) {

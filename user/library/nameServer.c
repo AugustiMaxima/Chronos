@@ -29,7 +29,7 @@ void RegistrationPreamble(Map* NameTable, char* symbol, int caller){
 void RetrievalPreamble(Map* NameTable, char* symbol, int caller){
     int returnCode = Retrieve(NameTable, symbol);
     if(!returnCode){
-        Reply(caller, "Not found", 10);
+        Reply(caller, "Not found", strlen("Not found"));
     } else {
         char numeral[4];
         *(int*)numeral = returnCode;
@@ -97,10 +97,13 @@ int WhoIs(const char *name){
     formatStrn(buffer, 100, "W %s", name);
     int result = Send(getNsTid(), buffer, strlen(buffer), receiveBuffer, 100);
     if(result>0){
-        if(strcmp("Registration not found", receiveBuffer))
+        if(strcmp("Not found", receiveBuffer)) {
             return *(int*)receiveBuffer;
-        else
+        } else {
+            bwprintf(COM2, "PANIC: registration not found\r\n");
+            for (;;) {}
             return 0;
+        }
     } else {
         return -1;
     }

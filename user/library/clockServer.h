@@ -11,4 +11,6 @@ int Delay(int csTid, int ticks);
 
 void notifier();
 
+void testNotifier();
+
 #endif

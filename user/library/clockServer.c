@@ -102,3 +102,14 @@ void notifier() {
         Send(tId, "TICK", strlen("TICK"), buf, 2);
     }
 }
+
+/*
+Simulates a notifier task by calling `AwaitEvent`; however, instead of sending a
+tick to the clock server, prints the tick to COM2
+*/
+void testNotifier() {
+    for (int i=0;;i++) {
+        AwaitEvent(TC1UI_DEV_ID);
+        bwprintf(COM2, "tick %d\r\n", i);
+    }
+}
