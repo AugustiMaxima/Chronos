@@ -16,15 +16,16 @@ extern DeviceRegistry* registry;
 void interruptProcessor(){
     int statusMask1 = *((unsigned*)VIC1ADDR);
     int statusMask2 = *((unsigned*)VIC2ADDR);
-    // bwprintf(COM2, "Triggered Interrupts:\t%x\t%x\r\n", statusMask1, statusMask2);
-    // bwprintf(COM2, "Unmasked Interrupts:\t%x\t%x\r\n", enabledMask1, enabledMask2);
 
-
-    if (statusMask1 & 0x10) {
-        WakeForDevice(registry, 4, *(volatile unsigned*)(TIMER1_BASE + VAL_OFFSET));
+    if (statusMask1 & (1 << TC1UI_DEV_ID)) {
+        WakeForDevice(registry, TC1UI_DEV_ID, *(volatile unsigned*)(TIMER1_BASE + VAL_OFFSET));
         // bwprintf(COM2, "Resetting TC3\r\n");
         *(volatile unsigned*)(TIMER1_BASE + CLR_OFFSET) = 0;
+    } else {
+        bwprintf(COM2, "Unexpected Interrupt\r\n");
+        bwprintf(COM2, "Triggered Interrupts:\t%x\t%x\r\n", statusMask1, statusMask2);
     }
+
 }
 
 void __attribute__((naked)) interruptHandler(){
@@ -81,7 +82,7 @@ void installInterruptHandler(void* handler){
 }
 
 
-void enableDevice(unsigned deviceList1, unsigned deviceList2){
+void setEnabledDevices(unsigned deviceList1, unsigned deviceList2){
     *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE_CLEAR) = ~0;
     *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE_CLEAR) = ~0;
     *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE) = deviceList1;

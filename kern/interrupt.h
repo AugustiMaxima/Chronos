@@ -10,13 +10,13 @@
 #define VIC_RAW_INTR 0x08
 #define VIC_ENABLE 0x10
 #define VIC_ENABLE_CLEAR 0x14
-#define VIC_ADDR_REG 0x30
 
+#define TC1UI_DEV_ID 4
 
 void interruptHandler();
 
 void installInterruptHandler(void* handler);
 
-void enableDevice(unsigned deviceList1, unsigned deviceList2);
+void setEnabledDevices(unsigned deviceList1, unsigned deviceList2);
 
 #endif

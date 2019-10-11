@@ -35,7 +35,7 @@ int main( int argc, char* argv[] ) {
     bwsetfifo(COM2, OFF);
     setUpSWIHandler(sys_handler);
     installInterruptHandler(interruptHandler);
-    enableDevice(0x10, 0x0);
+    setEnabledDevices((1 << TC1UI_DEV_ID), 0x0);
 
     hypeTrain();
     Scheduler base_scheduler;
@@ -102,7 +102,7 @@ int main( int argc, char* argv[] ) {
     disableTimer();
 
     // set all ICU masks off
-    enableDevice(0x0, 0x0);
+    setEnabledDevices(0x0, 0x0);
 
     warnAtEndOfKernel(com);
 

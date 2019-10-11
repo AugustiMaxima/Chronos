@@ -3,6 +3,7 @@
 #include <nameServer.h>
 #include <syslib.h>
 #include <bwio.h>
+#include <interrupt.h>
 
 #define CLOCK_MAX 24
 
@@ -97,7 +98,7 @@ void notifier() {
     char buf[2];
 
     for (;;) {
-        AwaitEvent(4);
+        AwaitEvent(TC1UI_DEV_ID);
         Send(tId, "TICK", strlen("TICK"), buf, 2);
     }
 }

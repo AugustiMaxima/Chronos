@@ -53,7 +53,7 @@ void printCpsrI() {
     }
 }
 
-void enableInterrupts() {
+void enableCpsrI() {
     unsigned int cpsr;
     asm volatile("mrs %0, cpsr" : "=r" (cpsr));
     cpsr = cpsr & ~0x80;
