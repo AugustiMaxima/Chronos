@@ -135,7 +135,9 @@ void rpsServer() {
             bwprintf(COM2, "[rpsServer]\tUnknown message %s %d %d\r\n", buf, p1, p2);
         }
 
-        if (p1 == -1 && 2 == ringFill(&signups)) {
+        if (ringFill(&signups) > 2) {
+            bwprintf(COM2, "PANIC: signups should not have exceeded 2\r\n");
+        } else if (p1 == -1 && 2 == ringFill(&signups)) {
             p1 = (int)pop(&signups);
             p2 = (int)pop(&signups);
             wrap_Reply(p1, FIRSTCHOICE_MSG);
@@ -215,7 +217,7 @@ void k2_rps_main() {
     Create(2, rpsServer);
     int k;
     for (k=0; k<20; k++) {
-        Create(5, rpsClient);
+        Create(k+3, rpsClient);
     }
     Create(100, killServer);
 }
