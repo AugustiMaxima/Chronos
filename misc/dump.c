@@ -73,9 +73,9 @@ void warnAtEndOfKernel(COMM* com) {
     Node* node = 0;
     do {
         node = iterateMap(&(com->senderRequestTable), node);
-    if (!node){
-        break;
-    }
+        if (!node){
+            break;
+        }
         Sender* sender = (Sender*) node->value;
         if (node) bwprintf(COM2, "Warning: TID %d blocked because it executed a send but target task has not called receive\r\n", sender->tId);
     } while(node!=0);
@@ -83,9 +83,9 @@ void warnAtEndOfKernel(COMM* com) {
     node = 0;
     do {
         node = iterateMap(&(com->receiverTable), node);
-    if(!node){
-        break;
-    }
+        if(!node){
+            break;
+        }
         Receiver* receiver = (Receiver*) node->value;
         if (node && receiver->tId != getNsTid()) bwprintf(COM2, "Warning: TID %d blocked on receive\r\n", receiver->tId);
     } while(node!=0);
@@ -93,9 +93,9 @@ void warnAtEndOfKernel(COMM* com) {
     node = 0;
     do {
         node = iterateMap(&(com->senderReplyTable), node);
-    if(!node){
-        break;
-    }
+        if(!node){
+            break;
+        }
         Sender* sender = (Sender*) node->value;
         if (node) bwprintf(COM2, "Warning: TID %d blocked because it executed a send to %d but target task has not called reply\r\n", sender->tId, sender->requestTId);
     } while(node!=0);
