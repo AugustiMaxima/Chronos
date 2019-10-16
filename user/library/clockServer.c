@@ -82,8 +82,7 @@ int Delay(int csTid, int ticks) {
     char receiveBuffer[8];
     buffer[0] = 'D';
     *(int*)(buffer + 4) = ticks;
-    buffer[9] = 0;
-    int status = Send(csTid, buffer, 12, receiveBuffer, CLOCK_MAX);
+    int status = Send(csTid, buffer, 8, receiveBuffer, CLOCK_MAX);
     if(status==-1)
         return status;
     return *(int*)receiveBuffer;
