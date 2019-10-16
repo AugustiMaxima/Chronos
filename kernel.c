@@ -76,10 +76,18 @@ int main( int argc, char* argv[] ) {
     initializeTimer(1, 2000, 20, 1); // 10ms
     scheduleTask(scheduler, 0, 0, k4_main);
 
+    unsigned long last = 0;
+    unsigned long utilTime = 0;
+    unsigned long begin;
+    unsigned long end;
+    unsigned long rate;
+
     Task idler;
     initializeTask(&idler, -1, 0, -1, HALTED, idle);
 
     while(1) {
+        timeElapsed(&clock);
+        begin = getOscilation(&clock);
         if (!kernelRunning) {
             break;
         }
@@ -87,7 +95,21 @@ int main( int argc, char* argv[] ) {
             scheduler->currentTask = &idler;
     	    exitKernel(idler.stackEntry);
         }
+        
+        timeElapsed(&clock);
+        end = getOscilation(&clock);
+        utilTime+=end - begin;
+        if(end - last > 508000){//only polls for changes in the last 100 miliseconds
+            rate = (end - last - utilTime)*1000/((unsigned)end - (unsigned)last);
+            utilTime = 0;
+            last = end;
+            //do your display here
+        }
+	    scheduler->currentTask = &idler;
+	    exitKernel(idler.stackEntry);
+
     }
+
     disableTimer();
 
     // set all ICU masks off
