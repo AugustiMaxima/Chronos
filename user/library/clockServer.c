@@ -7,11 +7,28 @@
 
 #define CLOCK_MAX 24
 
+void clockNotifier() {
+    int tId = 0;
+    while(!tId) tId = WhoIs("cs");
+
+    char buf[2];
+
+    for (;;) {
+        AwaitEvent(TC1UI_DEV_ID);
+        Send(tId, "TICK", strlen("TICK"), buf, 2);
+    }
+}
+
 void clockServer() {
     int ticks = 0;
     MinHeap waitList;
 
     RegisterAs("cs");
+
+    //For the sake of standardization, all events waiting for device interrupts gets -2
+    //If one event is particular sensitive, bump it up to -3
+    Create(-3, clockNotifier);
+
     initializeMinHeap(&waitList);
     char requestBuf[CLOCK_MAX];
     char reply[8];
@@ -88,19 +105,6 @@ int Delay(int csTid, int ticks) {
     return *(int*)receiveBuffer;
 }
 
-void notifier() {
-    bwprintf(COM2, "notifier\r\n");
-
-    int tId = 0;
-    while(!tId) tId = WhoIs("cs");
-
-    char buf[2];
-
-    for (;;) {
-        AwaitEvent(TC1UI_DEV_ID);
-        Send(tId, "TICK", strlen("TICK"), buf, 2);
-    }
-}
 
 /*
 Simulates a notifier task by calling `AwaitEvent`; however, instead of sending a

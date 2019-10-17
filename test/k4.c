@@ -277,9 +277,8 @@ void com1RxNotifier() {
 }
 
 void k4_main() {
-    Create(-10, nameServer);
-    Create(-9, clockServer);
-    Create(-8, /*clock*/notifier);
+    Create(-1, nameServer);
+    Create(-1, clockServer);
 
     Create(1, com1RxNotifier);
     Create(2, com1TxServer);

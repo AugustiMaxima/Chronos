@@ -91,10 +91,7 @@ int main( int argc, char* argv[] ) {
         if (!kernelRunning) {
             break;
         }
-        if (-1 == runFirstAvailableTask(scheduler)) {
-            scheduler->currentTask = &idler;
-    	    exitKernel(idler.stackEntry);
-        }
+        while (-1 != runFirstAvailableTask(scheduler));
         
         timeElapsed(&clock);
         end = getOscilation(&clock);
@@ -107,7 +104,6 @@ int main( int argc, char* argv[] ) {
         }
 	    scheduler->currentTask = &idler;
 	    exitKernel(idler.stackEntry);
-
     }
 
     disableTimer();

@@ -38,9 +38,8 @@ void delayer4() {
 }
 
 void k3_main() {
-    Create(-10, nameServer);
-    Create(-9, clockServer);
-    Create(-8, notifier);
+    Create(-1, nameServer);
+    Create(-1, clockServer);
     Create(3, delayer1);
     Create(4, delayer2);
     Create(5, delayer3);

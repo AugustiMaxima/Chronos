@@ -9,8 +9,6 @@ int Time(int csTid);
 
 int Delay(int csTid, int ticks);
 
-void notifier();
-
 void testNotifier();
 
 #endif
