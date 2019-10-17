@@ -22,16 +22,6 @@ int Create(int priority, void (*function)()) {
     return ret;
 }
 
-int AwaitEvent(int eventId) {
-    save_user_context();
-    //argument stuffing
-    asm("STMFD SP!, {R0}");
-
-    asm("SWI " TOSTRING(AWAITEVENT_CODE) ::: "r0");
-    int ret;
-    asm("MOV %0, R0" : "=r" (ret));
-    return ret;
-}
 
 int MyTid(){
     save_user_context();
@@ -108,4 +98,42 @@ int Reply( int tid, const char *reply, int replylen ) {
     asm("SUB SP, SP, #4");
     asm("STR %0, [SP]"::"r"(argument.args));
     asm("SWI " TOSTRING(REPLY_CODE));
+}
+
+int AwaitEvent(int eventId) {
+    save_user_context();
+    //argument stuffing
+    asm("STMFD SP!, {R0}");
+
+    asm("SWI " TOSTRING(AWAITEVENT_CODE) ::: "r0");
+    int ret;
+    asm("MOV %0, R0" : "=r" (ret));
+    return ret;
+}
+
+int AwaitMultipleEvent(int* val, int deviceCount, ...){
+    if(deviceCount > 5){
+	return -1;
+    }
+    Arguments argument;
+    va_list varags;
+    va_start(varags, deviceCount);
+    int i;
+    for(i=0;i<deviceCount;i++){
+        argument.args[i] = va_arg(varags, int);
+    }
+    va_end(varags);
+
+    save_user_context();
+    
+    asm("SUB SP, SP, #12");
+    asm("STR %0, [SP]"::"r"(val));
+    asm("STR %0, [SP, #4]"::"r"(deviceCount));
+    asm("STR %0, [SP, #8]"::"r"(argument.args));
+    
+    asm("SWI " TOSTRING(AWAITMULTIPLE_CODE) ::: "r0");
+    int ret;
+    asm("MOV %0, R0" : "=r" (ret));
+
+    return ret;
 }

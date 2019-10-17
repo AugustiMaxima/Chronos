@@ -47,6 +47,10 @@ void sysReceive();
 
 void sysReply();
 
+void sysAwaitEvent();
+
+void sysAwaitMultiple();
+
 void setUpSWIHandler(void* handle_swi);
 
 #endif

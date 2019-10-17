@@ -46,6 +46,9 @@ void jumpTable(int code){
         case AWAITEVENT_CODE:
             sysAwaitEvent();
             break;
+	case AWAITMULTIPLE_CODE:
+	    sysAwaitMultiple(); 
+	    break;
         default:
             bwprintf(COM2, "Unknown SWI code %d!\r\n", code);
             while(1){}
@@ -99,30 +102,6 @@ void sysGetPid(){
     asm("MOV %0, R0":"=r"(sp));
     sp[1] = scheduler->currentTask->pId;
 }
-
-void sysAwaitEvent(){
-    register int* sp asm("r0");
-
-    /*
-    - switch to SYS_MODE
-    - copy SP to the sp variable
-    - pop the argument off the stack
-    - switch to SVC_MODE
-    */
-    asm(R"(
-        MSR CPSR_c, #0x9F
-        MOV %0, SP
-        ADD SP, SP, #4
-        MSR CPSR_c, #0x93
-    )": "=r"(sp));
-
-    int eventId = sp[0];
-
-    Task* task = scheduler->currentTask;
-    WaitForDevice(registry, task, eventId);
-    task->status = BLOCKED;
-}
-
 
 void sysCreateTask(){
     void* funcPtr;
@@ -218,6 +197,45 @@ void sysReply(){
     // bwprintf(COM2, "Replying %d, %x, %d", tid, msg, msglen);
     int result = reply(com, msg, msglen, tid);
     sp[1] = result;
+}
+
+void sysAwaitEvent(){
+    register int* sp asm("r0");
+
+    /*
+    - switch to SYS_MODE
+    - copy SP to the sp variable
+    - pop the argument off the stack
+    - switch to SVC_MODE
+    */
+    asm(R"(
+        MSR CPSR_c, #0x9F
+        MOV %0, SP
+        ADD SP, SP, #4
+        MSR CPSR_c, #0x93
+    )": "=r"(sp));
+
+    int eventId = sp[0];
+
+    Task* task = scheduler->currentTask;
+    WaitForDevice(registry, task, eventId);
+    task->status = BLOCKED;
+}
+
+void sysAwaitMultiple(){
+    int* sp;
+    enter_sys_mode();
+    asm("ADD SP, SP, #12");
+    asm("MOV R0, SP");
+    exit_sys_mode();
+
+    asm("MOV %0, R0" : "=r"(sp));
+
+    int* val = sp[-3];
+    int deviceCount = sp[-2];
+    int* deviceList = sp[-1];
+    WaitMultipleDevice(registry, scheduler->currentTask, val, deviceCount, deviceList);
+    task->status = BLOCKED;
 }
 
 void setUpSWIHandler(void* handle_swi) {

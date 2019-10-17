@@ -15,5 +15,6 @@
 #define RECEIVE_CODE 7
 #define REPLY_CODE 8
 #define AWAITEVENT_CODE 9
+#define AWAITMULTIPLE_CODE 10
 
 #endif
