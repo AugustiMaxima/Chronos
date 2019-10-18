@@ -2,9 +2,10 @@
 #include <syscode.h>
 #include <ts7200.h>
 #include <timer.h>
-#include <dump.h>
+#include <uart.h>
 #include <deviceRegistry.h>
 #include <interrupt.h>
+#include <dump.h>
 #include <bwio.h>
 
 extern DeviceRegistry* registry;
@@ -43,6 +44,10 @@ void interruptProcessor(){
         WakeForDevice(registry, UART1RX_DEV_ID, /*unused*/0);
         interruptProcessed++;
     }
+    if (statusMask2 & (1 << INT_UART1 - 32)) {
+        disableDevice(0x0, 1<<INT_UART1 - 32);
+        WakeForDevice(registry, INT_UART1, *(volatile unsigned*)(UART1_BASE + UART_INTR_OFFSET));
+    }
     if (statusMask1 & (1 << UART2RX_DEV_ID)) {
         disableDevice((1 << UART2RX_DEV_ID), 0x0);
         WakeForDevice(registry, UART2RX_DEV_ID, /*unused*/0);
@@ -52,6 +57,10 @@ void interruptProcessor(){
         disableDevice((1 << UART2TX_DEV_ID), 0x0);
         WakeForDevice(registry, UART2TX_DEV_ID, /*unused*/0);
         interruptProcessed++;
+    }
+    if (statusMask2 & (1 << INT_UART2 - 32)) {
+        disableDevice(0x0, 1<<INT_UART2 - 32);
+        WakeForDevice(registry, INT_UART2, *(volatile unsigned*)(UART2_BASE + UART_INTR_OFFSET));
     }
     if(!interruptProcessed){
         bwprintf(COM2, "PANIC: Unexpected Interrupt\r\n");

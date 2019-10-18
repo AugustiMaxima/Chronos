@@ -100,9 +100,7 @@ int WhoIs(const char *name){
         if(strcmp("Not found", receiveBuffer)) {
             return *(int*)receiveBuffer;
         } else {
-            bwprintf(COM2, "PANIC: registration not found\r\n");
-            for (;;) {}
-            return 0;
+            return -1;
         }
     } else {
         return -1;

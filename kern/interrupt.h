@@ -8,13 +8,6 @@
 #define VIC_ENABLE 0x10 // VICxIntEnable
 #define VIC_ENABLE_CLEAR 0x14 // VICxIntEnClear
 
-#define TC1UI_DEV_ID 4
-#define TC2UI_DEV_ID 5
-#define UART1RX_DEV_ID 23
-#define UART1TX_DEV_ID 24
-#define UART2RX_DEV_ID 25
-#define UART2TX_DEV_ID 26
-
 void interruptHandler();
 
 void installInterruptHandler(void* handler);

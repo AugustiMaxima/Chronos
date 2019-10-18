@@ -2,8 +2,11 @@
  * kernel.c
  */
 
+//ARCH
 #include <ts7200.h>
 #include <ARM.h>
+
+//Kernel
 #include <kern.h>
 #include <syscall.h>
 #include <scheduler.h>
@@ -11,9 +14,13 @@
 #include <interrupt.h>
 #include <deviceRegistry.h>
 #include <idle.h>
+
+//Devices and abstractions
 #include <clock.h>
 #include <timer.h>
+#include <uart.h>
 
+//User programs
 #include <userprogram.h>
 #include <bwio.h>
 #include <ssrTest.h>
@@ -37,21 +44,24 @@ int nsTid = -1;
 int kernelRunning = 1;
 
 int main( int argc, char* argv[] ) {
-    bwsetfifo(COM1, OFF);
-    bwsetfifo(COM2, OFF);
-    bwsetspeed(COM1, 2400);
-    bwsetstopbits(COM1, ON);
+    // bwsetfifo(COM1, OFF);
+    // bwsetfifo(COM2, OFF);
+    // bwsetspeed(COM1, 2400);
+    // bwsetstopbits(COM1, ON);
 
     setUpSWIHandler(sys_handler);
     installInterruptHandler(interruptHandler);
 
-    // enable UART1 TX Interrupt and RX Interrupt
-    int* uart1_ctrl = (int *)( UART1_BASE + UART_CTLR_OFFSET );
-    *uart1_ctrl |= (TIEN_MASK | RIEN_MASK);
+    // // enable UART1 TX Interrupt and RX Interrupt
+    // int* uart1_ctrl = (int *)( UART1_BASE + UART_CTLR_OFFSET );
+    // *uart1_ctrl |= (TIEN_MASK | RIEN_MASK);
 
-    // enable UART2 RX Interrupt
-    int* uart2_ctrl = (int *)( UART2_BASE + UART_CTLR_OFFSET );
-    *uart2_ctrl |= (TIEN_MASK | RIEN_MASK);
+    // // enable UART2 RX Interrupt
+    // int* uart2_ctrl = (int *)( UART2_BASE + UART_CTLR_OFFSET );
+    // *uart2_ctrl |= (TIEN_MASK | RIEN_MASK);
+
+    initializeUART(1, 2400, false, false, true, true, true);
+    initializeUART(2, 115200, true, true, true, true, true);
 
     setEnabledDevices((1 << TC1UI_DEV_ID), 0x0);
 
@@ -74,7 +84,7 @@ int main( int argc, char* argv[] ) {
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
 
     initializeTimer(1, 2000, 20, 1); // 10ms
-    // scheduleTask(scheduler, 0, 0, k4_main);
+    
     scheduleTask(scheduler, 0, 0, windows);
 
     unsigned long last = 0;
