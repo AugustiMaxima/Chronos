@@ -115,22 +115,34 @@ int AwaitMultipleEvent(int* val, int deviceCount, ...){
     if(deviceCount > 5){
 	return -1;
     }
-    Arguments argument;
+    volatile int deviceList[5];
     va_list varags;
     va_start(varags, deviceCount);
+
     int i;
     for(i=0;i<deviceCount;i++){
-        argument.args[i] = va_arg(varags, int);
+        deviceList[i] = va_arg(varags, int);
     }
     va_end(varags);
 
-    save_user_context();
-    
-    asm("SUB SP, SP, #12");
-    asm("STR %0, [SP]"::"r"(val));
-    asm("STR %0, [SP, #4]"::"r"(deviceCount));
-    asm("STR %0, [SP, #8]"::"r"(argument.args));
-    
+
+    asm(R"(
+        MOV R0, %[val]
+        MOV R1, %[deviceCount]
+        MOV R2, %[deviceList]
+        STMFD SP!, {R0-R12, R14-R15}
+        MRS R3, CPSR
+        STMFD SP!, {R3}
+        SUB SP, SP, #12
+        STR R0, [SP]
+        STR R1, [SP, #4]
+        STR R2, [SP, #8]
+    )"
+    :
+    :[val]"r"(val), [deviceCount]"r"(deviceCount), [deviceList]"r"(deviceList)
+    :"r0", "r1", "r2"
+    );
+
     asm("SWI " TOSTRING(AWAITMULTIPLE_CODE) ::: "r0");
     int ret;
     asm("MOV %0, R0" : "=r" (ret));

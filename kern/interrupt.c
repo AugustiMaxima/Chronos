@@ -16,25 +16,44 @@ extern DeviceRegistry* registry;
 void interruptProcessor(){
     int statusMask1 = *((unsigned*)VIC1ADDR);
     int statusMask2 = *((unsigned*)VIC2ADDR);
+    
+    int interruptProcessed = 0;
 
     if (statusMask1 & (1 << TC1UI_DEV_ID)) {
         disableDevice((1 << TC1UI_DEV_ID), 0x0);
         WakeForDevice(registry, TC1UI_DEV_ID, *(volatile unsigned*)(TIMER1_BASE + VAL_OFFSET));
         // clear the timer
         *(volatile unsigned*)(TIMER1_BASE + CLR_OFFSET) = 0;
-    } else if (statusMask1 & (1 << UART1TX_DEV_ID)) {
+        interruptProcessed++;
+    }
+    if (statusMask1 & (1 << TC2UI_DEV_ID)) {
+        disableDevice((1 << TC2UI_DEV_ID), 0x0);
+        WakeForDevice(registry, TC2UI_DEV_ID, *(volatile unsigned*)(TIMER2_BASE + VAL_OFFSET));
+        // clear the timer
+        *(volatile unsigned*)(TIMER2_BASE + CLR_OFFSET) = 0;
+        interruptProcessed++;
+    }
+    if (statusMask1 & (1 << UART1TX_DEV_ID)) {
         disableDevice((1 << UART1TX_DEV_ID), 0x0);
         WakeForDevice(registry, UART1TX_DEV_ID, /*unused*/0);
-    } else if (statusMask1 & (1 << UART1RX_DEV_ID)) {
+        interruptProcessed++;
+    }
+    if (statusMask1 & (1 << UART1RX_DEV_ID)) {
         disableDevice((1 << UART1RX_DEV_ID), 0x0);
         WakeForDevice(registry, UART1RX_DEV_ID, /*unused*/0);
-    } else if (statusMask1 & (1 << UART2RX_DEV_ID)) {
+        interruptProcessed++;
+    }
+    if (statusMask1 & (1 << UART2RX_DEV_ID)) {
         disableDevice((1 << UART2RX_DEV_ID), 0x0);
         WakeForDevice(registry, UART2RX_DEV_ID, /*unused*/0);
-    }  else if (statusMask1 & (1 << UART2TX_DEV_ID)) {
+        interruptProcessed++;
+    }
+    if (statusMask1 & (1 << UART2TX_DEV_ID)) {
         disableDevice((1 << UART2TX_DEV_ID), 0x0);
         WakeForDevice(registry, UART2TX_DEV_ID, /*unused*/0);
-    }  else {
+        interruptProcessed++;
+    }
+    if(!interruptProcessed){
         bwprintf(COM2, "PANIC: Unexpected Interrupt\r\n");
         bwprintf(COM2, "Triggered Interrupts:\t%x\t%x\r\n", statusMask1, statusMask2);
         for (;;) {}

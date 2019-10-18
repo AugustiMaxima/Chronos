@@ -223,19 +223,21 @@ void sysAwaitEvent(){
 }
 
 void sysAwaitMultiple(){
-    int* sp;
-    enter_sys_mode();
-    asm("ADD SP, SP, #12");
-    asm("MOV R0, SP");
-    exit_sys_mode();
-
-    asm("MOV %0, R0" : "=r"(sp));
+    register int* sp asm("r0");
+    
+    asm(R"(
+        MSR CPSR_c, #0x9F
+        ADD SP, SP, #12
+	    MOV %0, SP
+        MSR CPSR_c, #0x93
+    )": "=r"(sp));
 
     int* val = sp[-3];
     int deviceCount = sp[-2];
     int* deviceList = sp[-1];
+
     WaitMultipleDevice(registry, scheduler->currentTask, val, deviceCount, deviceList);
-    task->status = BLOCKED;
+    scheduler->currentTask->status = BLOCKED;
 }
 
 void setUpSWIHandler(void* handle_swi) {

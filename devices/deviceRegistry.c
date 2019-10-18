@@ -1,12 +1,12 @@
+#include <stdlib.h>
 #include <deviceRegistry.h>
-#include <interrupt.h>
 #include <bwio.h>
 
 extern Scheduler* scheduler;
 
 void enableDeviceInterrupt(int deviceId){
     long deviceMask = 1 << deviceId;
-    enableDevice(deviceMask/0x100000000L, deviceMask%0x100000000L);
+    enableDevice(deviceMask%0x100000000L, deviceMask/0x100000000L);
 }
 
 void initializeDeviceRegistry(DeviceRegistry* registry) {
@@ -39,7 +39,7 @@ int createDeviceWaitEntry(DeviceRegistry* registry, Task* task, int device, Task
 
 int WaitForDevice(DeviceRegistry* registry, Task* task, int device){
     TaskNode* node = pop(&(registry->freeQueue));
-    //bwprintf(COM2, "Retrieved node %x for task %x & device %d\r\n", node, task, device);
+    // bwprintf(COM2, "Retrieved node %x for task %x & device %d\r\n", node, task, device);
     if(!node){
         return -1;
     }
@@ -99,9 +99,9 @@ int WaitMultipleDevice(DeviceRegistry* registry, Task* task, int* retainer, int 
     wait->returnArg = retainer;
     for(int i=0;i<deviceCount;i++){
     	wait->registry[i] = pop(&(registry->freeQueue));
-	createDeviceWaitEntry(registry, task, devices[i], wait->registry[i]);
-	wait->key[i] = device[i];
+	    createDeviceWaitEntry(registry, task, devices[i], wait->registry[i]);
+	    wait->key[i] = devices[i];
     }
-    insertMap(&(registry->taskWaitMap), tId, wait);
+    insertMap(&(registry->taskWaitMap), task->tId, wait);
     return 0;
 }

@@ -1,8 +1,6 @@
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 
-
-
 //Refer to the section "6.2: Registers" in the EP93xx user guide page 170
 #define VIC1ADDR 0x800B0000
 #define VIC2ADDR 0x800C0000
@@ -11,6 +9,7 @@
 #define VIC_ENABLE_CLEAR 0x14 // VICxIntEnClear
 
 #define TC1UI_DEV_ID 4
+#define TC2UI_DEV_ID 5
 #define UART1RX_DEV_ID 23
 #define UART1TX_DEV_ID 24
 #define UART2RX_DEV_ID 25

@@ -4,24 +4,26 @@
 
 #include <ts7200.h>
 #include <ARM.h>
+#include <kern.h>
 #include <syscall.h>
 #include <scheduler.h>
 #include <sendReceiveReply.h>
+#include <interrupt.h>
+#include <deviceRegistry.h>
+#include <idle.h>
+#include <clock.h>
+#include <timer.h>
+
 #include <userprogram.h>
-#include <nameServer.h>
 #include <bwio.h>
 #include <ssrTest.h>
 #include <k1.h>
 #include <k2.h>
 #include <k3.h>
 #include <k4.h>
-#include <clock.h>
-#include <timer.h>
 #include <maptest.h>
-#include <interrupt.h>
-#include <idle.h>
-#include <deviceRegistry.h>
 #include <dump.h>
+#include <deviceTests.h>
 
 Scheduler* scheduler;
 COMM* com;
@@ -51,9 +53,7 @@ int main( int argc, char* argv[] ) {
     int* uart2_ctrl = (int *)( UART2_BASE + UART_CTLR_OFFSET );
     *uart2_ctrl |= (TIEN_MASK | RIEN_MASK);
 
-    setEnabledDevices(
-        (1 << TC1UI_DEV_ID),
-    0x0);
+    setEnabledDevices((1 << TC1UI_DEV_ID), 0x0);
 
     hypeTrain();
     Scheduler base_scheduler;
@@ -74,7 +74,8 @@ int main( int argc, char* argv[] ) {
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
 
     initializeTimer(1, 2000, 20, 1); // 10ms
-    scheduleTask(scheduler, 0, 0, k4_main);
+    // scheduleTask(scheduler, 0, 0, k4_main);
+    scheduleTask(scheduler, 0, 0, windows);
 
     unsigned long last = 0;
     unsigned long utilTime = 0;
@@ -92,7 +93,6 @@ int main( int argc, char* argv[] ) {
             break;
         }
         while (-1 != runFirstAvailableTask(scheduler));
-        
         timeElapsed(&clock);
         end = getOscilation(&clock);
         utilTime+=end - begin;
@@ -100,7 +100,7 @@ int main( int argc, char* argv[] ) {
             rate = (end - last - utilTime)*1000/((unsigned)end - (unsigned)last);
             utilTime = 0;
             last = end;
-            //do your display here
+            //do display here
         }
 	    scheduler->currentTask = &idler;
 	    exitKernel(idler.stackEntry);
