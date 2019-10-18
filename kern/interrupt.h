@@ -18,4 +18,6 @@ void enableDevice(unsigned deviceList1, unsigned deviceList2);
 
 void disableDevice(unsigned deviceList1, unsigned deviceList2);
 
+void enableDeviceInterrupt(int deviceId);
+
 #endif

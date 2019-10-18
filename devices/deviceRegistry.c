@@ -1,13 +1,9 @@
 #include <stdlib.h>
+#include <interrupt.h>
 #include <deviceRegistry.h>
 #include <bwio.h>
 
 extern Scheduler* scheduler;
-
-void enableDeviceInterrupt(int deviceId){
-    long deviceMask = 1 << deviceId;
-    enableDevice(deviceMask%0x100000000L, deviceMask/0x100000000L);
-}
 
 void initializeDeviceRegistry(DeviceRegistry* registry) {
     initializeQueue(&(registry->freeQueue));
@@ -27,13 +23,10 @@ int createDeviceWaitEntry(DeviceRegistry* registry, Task* task, int device, Task
     node->task = task;
     node->next = getMap(&(registry->deviceMap), device);
     if(node->next){
-	node->next->prev = node;
-	bwprintf(COM2, "Warning: Multiple tasks awaits the same device signal at device %d\r\n", device);
+	    node->next->prev = node;
+	    bwprintf(COM2, "Warning: Multiple tasks awaits the same device signal at device %d\r\n", device);
     }
     node->prev = NULL;
-    
-    enableDeviceInterrupt(device);
-
     return putMap(&(registry->deviceMap), device, node);
 }
 
@@ -55,12 +48,12 @@ int removeNullEntries(DeviceRegistry* registry, TaskAwait* wait, int device, int
 	if(wait->key[i] != device){
 	    //A thorough clean up and removal of the entry, as if it never was registered
 	    if(node->prev){
-		node->prev->next = node->next;
+		    node->prev->next = node->next;
 	    } else {
-		putMap(&(registry->deviceMap), wait->key[i], node->next);
+		    putMap(&(registry->deviceMap), wait->key[i], node->next);
 	    }
 	    if(node->next){
-		node->next->prev = node->prev;
+		    node->next->prev = node->prev;
 	    }
 	    push(&(registry->freeQueue), node);
 	} else {
@@ -78,8 +71,8 @@ int WakeForDevice(DeviceRegistry* registry, int device, int value){
     while(node){
 	int multiple = removeNullEntries(registry, getMap(&(registry->taskWaitMap), node->task->tId), device, value);
         if(!multiple){
-	    node->task->stackEntry[1] = value;
-	}
+	        node->task->stackEntry[1] = value;
+	    }
         status = insertTaskToQueue(scheduler, node->task);
         push(&(registry->freeQueue), node);
         node = node->next;
@@ -93,7 +86,7 @@ int WaitMultipleDevice(DeviceRegistry* registry, Task* task, int* retainer, int 
 	return -1;
     TaskAwait* wait = pop(&(registry->waitQueue));
     if(!wait){
-	return -1;
+	    return -1;
     }
     wait->count = deviceCount;
     wait->returnArg = retainer;

@@ -21,14 +21,12 @@ void interruptProcessor(){
     int interruptProcessed = 0;
 
     if (statusMask1 & (1 << TC1UI_DEV_ID)) {
-        disableDevice((1 << TC1UI_DEV_ID), 0x0);
         WakeForDevice(registry, TC1UI_DEV_ID, *(volatile unsigned*)(TIMER1_BASE + VAL_OFFSET));
         // clear the timer
         *(volatile unsigned*)(TIMER1_BASE + CLR_OFFSET) = 0;
         interruptProcessed++;
     }
     if (statusMask1 & (1 << TC2UI_DEV_ID)) {
-        disableDevice((1 << TC2UI_DEV_ID), 0x0);
         WakeForDevice(registry, TC2UI_DEV_ID, *(volatile unsigned*)(TIMER2_BASE + VAL_OFFSET));
         // clear the timer
         *(volatile unsigned*)(TIMER2_BASE + CLR_OFFSET) = 0;
@@ -44,9 +42,9 @@ void interruptProcessor(){
         WakeForDevice(registry, UART1RX_DEV_ID, /*unused*/0);
         interruptProcessed++;
     }
-    if (statusMask2 & (1 << INT_UART1 - 32)) {
-        disableDevice(0x0, 1<<INT_UART1 - 32);
+    if (statusMask2 & (1 << (INT_UART1 - 32))) {
         WakeForDevice(registry, INT_UART1, *(volatile unsigned*)(UART1_BASE + UART_INTR_OFFSET));
+        *(volatile unsigned*)(UART1_BASE + UART_INTR_OFFSET) = 0;
     }
     if (statusMask1 & (1 << UART2RX_DEV_ID)) {
         disableDevice((1 << UART2RX_DEV_ID), 0x0);
@@ -58,9 +56,9 @@ void interruptProcessor(){
         WakeForDevice(registry, UART2TX_DEV_ID, /*unused*/0);
         interruptProcessed++;
     }
-    if (statusMask2 & (1 << INT_UART2 - 32)) {
-        disableDevice(0x0, 1<<INT_UART2 - 32);
+    if (statusMask2 & (1 << (INT_UART2 - 32))) {
         WakeForDevice(registry, INT_UART2, *(volatile unsigned*)(UART2_BASE + UART_INTR_OFFSET));
+        *(volatile unsigned*)(UART2_BASE + UART_INTR_OFFSET) = 0;
     }
     if(!interruptProcessed){
         bwprintf(COM2, "PANIC: Unexpected Interrupt\r\n");
@@ -139,4 +137,9 @@ void disableDevice(unsigned deviceList1, unsigned deviceList2) {
 void enableDevice(unsigned deviceList1, unsigned deviceList2) {
     *(volatile unsigned*)(VIC1ADDR + VIC_ENABLE) |= deviceList1;
     *(volatile unsigned*)(VIC2ADDR + VIC_ENABLE) |= deviceList2;
+}
+
+void enableDeviceInterrupt(int deviceId){
+    long deviceMask = 1 << deviceId;
+    enableDevice(deviceMask%0x100000000L, deviceMask/0x100000000L);
 }

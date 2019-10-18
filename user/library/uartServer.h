@@ -6,6 +6,7 @@ typedef struct uartServerRequest{
     enum UARTMethod{
         POST,
         GET,
+        OPT,
         NOTIFY
     } method;
     int length;
