@@ -66,7 +66,7 @@ void trace_Receive(const char* taskName, int* tid, char* msg) {
 }
 
 void wrap_Reply(int who, const char* msg) {
-    Reply(who, msg, chos_strlen(msg));
+    Reply(who, msg, chos_strlen(msg) + 1);
 }
 
 int whoWon(char p1Move, char p2Move) {
@@ -82,7 +82,6 @@ int whoWon(char p1Move, char p2Move) {
 }
 
 void rpsServer() {
-    bwprintf(COM2, "Entering the RPS server\r\n");
     // Queue<int>
     Queue signups;
     char buf[100];
@@ -92,25 +91,16 @@ void rpsServer() {
     char p1Move = 'x';
     char p2Move = 'x';
 
-    bwprintf(COM2, "surely this isnt where it crashed to the ground");
-
     char yourOpponentHasQuit[64];
 
     int i;
     for (i=0; i<64; i++) {
-	//bwprintf(COM2 , "Seriouisly? %d\r\n", i);
         yourOpponentHasQuit[i] = 0;
     }
 
-    bwprintf(COM2, "Did my task crash here?\r\n");
-
     initializeQueue(&signups);
 
-    bwprintf(COM2, "Did my queue crash here?\r\n");
-
     RegisterAs("server");
-
-    bwprintf(COM2, "Did the registration crash everything?\r\n");
 
     while (1) {
         trace_Receive("rpsServer", &who, buf);
@@ -209,7 +199,6 @@ void rpsClient() {
 void killServer() {
     char buf[100];
     trace_Send("killer", WhoIs("server"), KYS_MSG, buf);
-    trace_Send("killer", getNsTid(), KYS_MSG, buf);
 }
 
 void k2_rps_main() {

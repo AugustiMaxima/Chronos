@@ -85,7 +85,9 @@ int main( int argc, char* argv[] ) {
 
     initializeTimer(1, 2000, 20, 1); // 10ms
     
-    scheduleTask(scheduler, 0, 0, windows);
+    // scheduleTask(scheduler, 0, 0, uartServerTest);
+    
+    scheduleTask(scheduler, 0, 0, k2_rps_main);
 
     unsigned long last = 0;
     unsigned long utilTime = 0;
@@ -110,6 +112,7 @@ int main( int argc, char* argv[] ) {
             rate = (end - last - utilTime)*1000/((unsigned)end - (unsigned)last);
             utilTime = 0;
             last = end;
+	    // bwprintf(COM2, "%d\r\n", rate);
             //do display here
         }
 	    scheduler->currentTask = &idler;

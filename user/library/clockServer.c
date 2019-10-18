@@ -15,7 +15,7 @@ void clockNotifier() {
 
     for (;;) {
         AwaitEvent(TC1UI_DEV_ID);
-        Send(tId, "TICK", strlen("TICK"), buf, 2);
+        Send(tId, "TICK", strlen("TICK") + 1, buf, 2);
     }
 }
 
@@ -88,7 +88,7 @@ int DelayUntil(int csTid, int deadline){
 
 int Time(int csTid){
     char receiveBuffer[8];
-    int status = Send(csTid, "T", strlen("T"), receiveBuffer, 8);
+    int status = Send(csTid, "T", strlen("T") + 1, receiveBuffer, 8);
     if(status==-1)
         return status;
     return *(int*)receiveBuffer;

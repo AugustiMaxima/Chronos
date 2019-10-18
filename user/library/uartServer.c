@@ -25,6 +25,9 @@ void uartNotifier(){
     int in;
     
     Receive(&uartServer, &reply, sizeof(reply));
+    bwprintf(COM2, "Configuration received for %d, from server %d\r\n", reply, uartServer);
+    Reply(uartServer, &reply, sizeof(reply));
+
 
     if(reply == 1){
         uartbase = UART1_BASE;
@@ -64,13 +67,17 @@ void uartNotifier(){
 void uartServer(){
     uartRequest request;
 
+    bwprintf(COM2, "UART server, commencing set up\r\n");
+
     //creates and configures the notifier for uart1 and uart2
     int config = 1;
     int uart1 = Create(-2, uartNotifier);
     int uart2 = Create(-2, uartNotifier);
     Send(uart1, &config, sizeof(config), request, 1);
+    bwprintf(COM2, "Received reply from uart notifier 1\r\n");
     config++;
     Send(uart2, &config, sizeof(config), request, 1);
+    bwprintf(COM2, "Received reply from uart notifier 2\r\n");
 
     //buffer configuration
     bool receiveReady1 = true;

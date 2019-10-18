@@ -2,5 +2,6 @@
 #define DEVICE_TEST
 
 void windows();
+void uartServerTest();
 
 #endif

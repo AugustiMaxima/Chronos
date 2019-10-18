@@ -49,14 +49,6 @@ void nameServer(){
 
     nsTid = MyTid();
     while(Receive(&caller, requestBuf, MAX_REQUEST)){
-        if (0 == strcmp(requestBuf, "kys")) {
-            /*
-            although strlen is not an available symbol when linking,
-            gcc computes the value of strlen("ok") at compile time
-            */
-            Reply(caller, "ok", strlen("ok"));
-            Exit();
-        }
         command = requestBuf[0];
         symbol = requestBuf;
         symbol += 2;
@@ -83,7 +75,7 @@ int RegisterAs(const char *name){
     char buffer[100];
     char receiveBuffer[100];
     formatStrn(buffer, 100, "R %s", name);
-    int result = Send(getNsTid(), buffer, strlen(buffer), receiveBuffer, 100);
+    int result = Send(getNsTid(), buffer, strlen(buffer) + 1, receiveBuffer, 100);
     if(result>0){
         return 0;
     } else {
@@ -95,7 +87,7 @@ int WhoIs(const char *name){
     char buffer[100];
     char receiveBuffer[100];
     formatStrn(buffer, 100, "W %s", name);
-    int result = Send(getNsTid(), buffer, strlen(buffer), receiveBuffer, 100);
+    int result = Send(getNsTid(), buffer, strlen(buffer) + 1, receiveBuffer, 100);
     if(result>0){
         if(strcmp("Not found", receiveBuffer)) {
             return *(int*)receiveBuffer;
