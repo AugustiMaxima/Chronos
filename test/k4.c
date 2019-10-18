@@ -1,5 +1,6 @@
 #include <bwio.h>
 #include <ts7200.h>
+#include <uart.h>
 #include <sendReceiveReply.h>
 #include <interrupt.h>
 #include <nameServer.h>

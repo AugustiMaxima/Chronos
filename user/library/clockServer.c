@@ -1,9 +1,9 @@
+#include <syslib.h>
+#include <timer.h>
+#include <nameServer.h>
 #include <minHeap.h>
 #include <clockServer.h>
-#include <nameServer.h>
-#include <syslib.h>
 #include <bwio.h>
-#include <interrupt.h>
 
 #define CLOCK_MAX 24
 
