@@ -31,4 +31,8 @@ int getBufferCapacity(TransmitBuffer* buffer);
 //Fetches all the way up to the latest from a given offset, does not modify the READ/consumed cursor
 int glean(TransmitBuffer* buffer, char* dest, int offset, int maxlen);
 
+// -2: Reached max length but found no delimiter
+
+int readUntilDelimiter(TransmitBuffer* buffer, char* dest, int maxlen, char delimiter);
+
 #endif

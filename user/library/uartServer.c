@@ -207,25 +207,36 @@ void uartServer(){
         } else {
             receive = &rBuffer2;
             transmit = &tBuffer2;
-	    receiveRequest = &rRequest2;
-	    transmitRequest = &tRequest2;
+	        receiveRequest = &rRequest2;
+	        transmitRequest = &tRequest2;
         }
         if(request.method == POST){
             status = fillBuffer(transmit, request.payload, request.length);
             if(status<0 && request.opt){
-		deferred = true;
+		        deferred = true;
                 pushAsyncUartRequests(transmitRequest, &request, config);
             }
         } else if(request.method == GET){
-	    status = -1;
+	        status = -3;
             if(!peekAsyncUartRequests(receiveRequest))
-		status = fetchBuffer(receive, request.payload, request.length);
-            if(status<0){
-		deferred = true;
-		pushAsyncUartRequests(receiveRequest, &request, config);
+		        status = fetchBuffer(receive, request.payload, request.length);
+            if(status==-3 || (status==-1&&request.opt)){
+		        deferred = true;
+		        pushAsyncUartRequests(receiveRequest, &request, config);
             }
         } else if(request.method == OPT){
             status = glean(receive, request.payload, request.opt, request.length);
+        } else if(request.method == GETLN){
+            status = -3;
+            if(!peekAsyncUartRequests(receiveRequest))
+                status = readUntilDelimiter(receive, request.payload, request.length, *request.payload);
+            if(status==-3){
+                deferred = true;
+                pushAsyncUartRequests(receiveRequest, &request, config);
+            } else if (status==-1&&request.opt)){
+                deferred = true;
+                pushAsyncUartRequests();
+            }
         } else if(request.method == NOTIFY) {
             if(request.endpoint == 1){
                 if(request.length%2){
@@ -353,4 +364,8 @@ int GleanUART(int tid, int channel, int offset, char* buffer, int length){
     int response;
     Send(tid, &request, sizeof(request), &response, sizeof(response));
     return response;
+}
+
+int GetLN(int tid, int channel, char* buffer, int length, char delimiter){
+
 }

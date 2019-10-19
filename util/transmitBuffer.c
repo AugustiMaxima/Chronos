@@ -63,3 +63,28 @@ int glean(TransmitBuffer* buffer, char* dest, int offset, int maxlen){
     }
     return i;
 }
+
+//don't set maxlen greater than TRANSMIT_BUFFER_SIZE
+//if you do you won't ever get the chance to realize that your delimiter isn't in the buffer
+int readUntilDelimiter(TransmitBuffer* buffer, char* dest, int maxlen, char delimiter){
+    int signalen = getBufferFill(buffer);
+    int length = signalen < maxlen? signalen : maxlen;
+    int delimiterFound = 0;
+    int i;
+    for(i=0;i<length;i++){
+        dest[i] = buffer->buffer[getPhysicalBufferIndex(buffer->cursor+i)];
+        if(dest[i] == delimiter){
+            delimiterFound++;
+            break;
+        }
+    }
+    if(delimiterFound){
+        buffer->cursor+=i;
+        return i;
+    } else if(i==maxlen){
+        //exhausted maxlen, this request wont ever succeed ever
+        return -2;
+    }
+    //no delimter (yet) found
+    return -1;
+}
