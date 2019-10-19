@@ -22,5 +22,5 @@ void windows(){
 void uartServerTest(){
     Create(-1, nameServer);
     int server = Create(-1, uartServer);
-    PutCN(server, 2, "Basic test!\r\n", strlen("Basic test!\r\n"));
+    PutCN(server, 2, "Basic test!\r\n", strlen("Basic test!\r\n"), true);
 }

@@ -1,5 +1,4 @@
 #include <ts7200.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <uart.h>
 #include <interrupt.h>
@@ -9,40 +8,46 @@
 
 #define ASYNC_POOL_SIZE 32
 
-typedef struct async_UartRequestTable{
+typedef struct async_UartRequest{
+    uartRequest request;
+    int requester;
+}asyncUartRequest;
+
+typedef struct async_UartRequestQueue{
     int cursor;
     int length;
-    uartRequest requests[ASYNC_POOL_SIZE];
-} AsyncUARTRequests;
+    asyncUartRequest requests[ASYNC_POOL_SIZE];
+} AsyncUartRequests;
 
 int getPhysicalUartRequestIndex(int index){
     return index%ASYNC_POOL_SIZE;
 }
 
-void initializeAsyncUARTRequests(AsyncUARTRequests* requests){
+void initializeAsyncUartRequests(AsyncUartRequests* requests){
     requests->cursor = 0;
     requests->length = 0;
 }
 
-uartRequest* peekAsyncUARTRequests(AsyncUARTRequests* requests){
+asyncUartRequest* peekAsyncUartRequests(AsyncUartRequests* requests){
     if(requests->length - requests->cursor > 0)
         return requests->requests + getPhysicalUartRequestIndex(requests->cursor);
     return NULL;
 }
 
-uartRequest* popAsyncUARTRequests(AsyncUARTRequests* requests){
+asyncUartRequest* popAsyncUartRequests(AsyncUartRequests* requests){
     if(requests->length - requests->cursor > 0)
         return requests->requests + getPhysicalUartRequestIndex(requests->cursor++);
     return NULL;
 }
 
-int pushAsyncUARTRequests(AsyncUARTRequests* requests, uartRequest* request){
+int pushAsyncUartRequests(AsyncUartRequests* requests, uartRequest* request, int requester){
     int index = getPhysicalUartRequestIndex(requests->length++);
-    requests->requests[index].endpoint = request->endpoint;
-    requests->requests[index].length = request->length;
-    requests->requests[index].method = request->method;    
-    requests->requests[index].opt = request->opt;
-    requests->requests[index].payload = request->payload;
+    requests->requests[index].request.endpoint = request->endpoint;
+    requests->requests[index].request.length = request->length;
+    requests->requests[index].request.method = request->method;    
+    requests->requests[index].request.opt = request->opt;
+    requests->requests[index].request.payload = request->payload;
+    requests->requests[index].requester = requester;
 }
 
 void uartRequestLogger(uartRequest request){	
@@ -121,8 +126,26 @@ void uartNotifier(){
     }
 }
 
-void ProcessAsyncRequest(){
-
+void ProcessAsyncUartRequest(AsyncUartRequests* requests, TransmitBuffer* receive, TransmitBuffer* transmit){
+    asyncUartRequest* asyncReq = peekAsyncUartRequests(requests);
+    if(!asyncReq)
+	return;
+    uartRequest request = asyncReq->request;
+    int requester = asyncReq->requester;
+    int status;
+    if(request.method == POST){
+        status = fillBuffer(transmit, request.payload, request.length);
+        if(status>=0){
+	    popAsyncUartRequests(requests);
+        }
+    } else if(request.method == GET){
+	status = fetchBuffer(receive, request.payload, request.length);
+        if(status>=0){
+	    popAsyncUartRequests(requests);
+	}
+    }
+    if(status>=0)
+	Reply(asyncReq, &status, sizeof(status));
 }
 
 void uartServer(){
@@ -155,42 +178,51 @@ void uartServer(){
 
     TransmitBuffer *receive, *transmit;
 
-    AsyncUARTRequests rRequest1;
-    AsyncUARTRequests tRequest1;
-    AsyncUARTRequests rRequest2;
-    AsyncUARTRequests tRequest2;
+    AsyncUartRequests rRequest1;
+    AsyncUartRequests tRequest1;
+    AsyncUartRequests rRequest2;
+    AsyncUartRequests tRequest2;
 
-    initializeAsyncUARTRequests(&rRequest1);
-    initializeAsyncUARTRequests(&tRequest1);
-    initializeAsyncUARTRequests(&rRequest2);
-    initializeAsyncUARTRequests(&tRequest2);
+    initializeAsyncUartRequests(&rRequest1);
+    initializeAsyncUartRequests(&tRequest1);
+    initializeAsyncUartRequests(&rRequest2);
+    initializeAsyncUartRequests(&tRequest2);
 
-    AsyncUARTRequests *receiveRequest, *transmitRequest;
+    AsyncUartRequests *receiveRequest, *transmitRequest;
 
     // Leaves registration for the last, once this is registered its hot and primed to go
     RegisterAs("UART");
 
+    bool indicator;
+
     while(1){
         Receive(&config, &request, sizeof(request));
-
+	bool deferred = false;
 	// uartRequestLogger(request);
         if(request.endpoint == 1){
             receive = &rBuffer1;
             transmit = &tBuffer1;
+	    receiveRequest = &rRequest1;
+	    transmitRequest = &tRequest1;
         } else {
             receive = &rBuffer2;
             transmit = &tBuffer2;
+	    receiveRequest = &rRequest2;
+	    transmitRequest = &tRequest2;
         }
         if(request.method == POST){
             status = fillBuffer(transmit, request.payload, request.length);
             if(status<0 && request.opt){
-                pushAsyncUARTRequests(transmitRequest, &request);
+		deferred = true;
+                pushAsyncUartRequests(transmitRequest, &request, config);
             }
         } else if(request.method == GET){
-            if(peekAsyncUARTRequests(receiveRequest))
-            status = fetchBuffer(receive, request.payload, request.length);
-            if(status<0 && request.opt){
-                pushAsyncUARTRequests(receiveRequest, &request);
+	    status = -1;
+            if(!peekAsyncUartRequests(receiveRequest))
+		status = fetchBuffer(receive, request.payload, request.length);
+            if(status<0){
+		deferred = true;
+		pushAsyncUartRequests(receiveRequest, &request, config);
             }
         } else if(request.method == OPT){
             status = glean(receive, request.payload, request.opt, request.length);
@@ -209,7 +241,8 @@ void uartServer(){
                 }
             }
         }
-        Reply(config, &status, sizeof(status));
+	if(!deferred)
+	    Reply(config, &status, sizeof(status));
         
         //Some light processing
         status = 0;
@@ -225,6 +258,7 @@ void uartServer(){
                     rBuffer1.buffer[rBuffer1.cursor++] = retainer;
                 }
             }
+	    ProcessAsyncUartRequest(&rRequest1, &rBuffer1, &tBuffer1);
         }
         if(transmitReady1){
             while(tBuffer1.cursor < tBuffer1.length){
@@ -237,6 +271,7 @@ void uartServer(){
                     tBuffer1.cursor++;
                 }
             }
+	    ProcessAsyncUartRequest(&tRequest1, &rBuffer1, &tBuffer1);
         }
         if(receiveReady2){
             while(rBuffer2.cursor < rBuffer2.length){
@@ -248,8 +283,9 @@ void uartServer(){
                 } else {
                     rBuffer2.buffer[rBuffer2.cursor++] = retainer;
                 }
-            }
-        }
+            } 
+	    ProcessAsyncUartRequest(&rRequest2, &rBuffer2, &tBuffer2);
+	}
         if(transmitReady2){
             while(tBuffer2.cursor < tBuffer2.length){
                 status = put(2, tBuffer2.buffer[tBuffer2.cursor]);
@@ -261,6 +297,7 @@ void uartServer(){
                     tBuffer2.cursor++;
                 }
             }
+	    ProcessAsyncUartRequest(&tRequest2, &rBuffer2, &tBuffer2);
         }
     }
 }
