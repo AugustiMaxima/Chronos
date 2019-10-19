@@ -2,6 +2,7 @@
 #include <timer.h>
 #include <string.h>
 #include <interrupt.h>
+#include <nameServer.h>
 #include <uartServer.h>
 #include <deviceTests.h>
 #include <bwio.h>
@@ -19,6 +20,7 @@ void windows(){
 
 
 void uartServerTest(){
+    Create(-1, nameServer);
     int server = Create(-1, uartServer);
     PutCN(server, 2, "Basic test!\r\n", strlen("Basic test!\r\n"));
 }

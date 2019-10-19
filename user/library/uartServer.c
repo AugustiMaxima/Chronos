@@ -1,11 +1,69 @@
 #include <ts7200.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <uart.h>
 #include <interrupt.h>
 #include <nameServer.h>
 #include <transmitBuffer.h>
 #include <uartServer.h>
 
+#define ASYNC_POOL_SIZE 32
+
+typedef struct async_UartRequestTable{
+    int cursor;
+    int length;
+    uartRequest requests[ASYNC_POOL_SIZE];
+} AsyncUARTRequests;
+
+int getPhysicalUartRequestIndex(int index){
+    return index%ASYNC_POOL_SIZE;
+}
+
+void initializeAsyncUARTRequests(AsyncUARTRequests* requests){
+    requests->cursor = 0;
+    requests->length = 0;
+}
+
+uartRequest* peekAsyncUARTRequests(AsyncUARTRequests* requests){
+    if(requests->length - requests->cursor > 0)
+        return requests->requests + getPhysicalUartRequestIndex(requests->cursor);
+    return NULL;
+}
+
+uartRequest* popAsyncUARTRequests(AsyncUARTRequests* requests){
+    if(requests->length - requests->cursor > 0)
+        return requests->requests + getPhysicalUartRequestIndex(requests->cursor++);
+    return NULL;
+}
+
+int pushAsyncUARTRequests(AsyncUARTRequests* requests, uartRequest* request){
+    int index = getPhysicalUartRequestIndex(requests->length++);
+    requests->requests[index].endpoint = request->endpoint;
+    requests->requests[index].length = request->length;
+    requests->requests[index].method = request->method;    
+    requests->requests[index].opt = request->opt;
+    requests->requests[index].payload = request->payload;
+}
+
+void uartRequestLogger(uartRequest request){	
+    if(request.method==POST){
+	    bwprintf(COM2, "POST ->");
+    } else if(request.method==GET){
+	    bwprintf(COM2, "GET ->");
+    } else if(request.method==OPT){
+	    bwprintf(COM2, "OPT ->");
+    } else if(request.method==NOTIFY){
+	    bwprintf(COM2, "NOTIFY ->");
+    }	
+    bwprintf(COM2, "chos://%d:%d\r\n", request.endpoint, request.length);
+    if(request.method==POST){
+	    bwprintf(COM2, "\tWith attached payload:\r\n\t\t");
+	    for(int i=0;i<request.length;i++){
+	        bwprintf(COM2, "%c", request.payload[i]);
+	    }
+	    bwprintf(COM2, "\r\n");
+    } 
+}
 
 void uartNotifier(){
     int uartServer = -1;
@@ -25,9 +83,7 @@ void uartNotifier(){
     int in;
     
     Receive(&uartServer, &reply, sizeof(reply));
-    bwprintf(COM2, "Configuration received for %d, from server %d\r\n", reply, uartServer);
     Reply(uartServer, &reply, sizeof(reply));
-
 
     if(reply == 1){
         uartbase = UART1_BASE;
@@ -41,6 +97,7 @@ void uartNotifier(){
         in = INT_UART2;
     }
 
+    request.method = NOTIFY;
     request.endpoint = reply;
 
     while(1){
@@ -64,20 +121,20 @@ void uartNotifier(){
     }
 }
 
+void ProcessAsyncRequest(){
+
+}
+
 void uartServer(){
     uartRequest request;
-
-    bwprintf(COM2, "UART server, commencing set up\r\n");
 
     //creates and configures the notifier for uart1 and uart2
     int config = 1;
     int uart1 = Create(-2, uartNotifier);
     int uart2 = Create(-2, uartNotifier);
     Send(uart1, &config, sizeof(config), request, 1);
-    bwprintf(COM2, "Received reply from uart notifier 1\r\n");
     config++;
     Send(uart2, &config, sizeof(config), request, 1);
-    bwprintf(COM2, "Received reply from uart notifier 2\r\n");
 
     //buffer configuration
     bool receiveReady1 = true;
@@ -98,12 +155,26 @@ void uartServer(){
 
     TransmitBuffer *receive, *transmit;
 
+    AsyncUARTRequests rRequest1;
+    AsyncUARTRequests tRequest1;
+    AsyncUARTRequests rRequest2;
+    AsyncUARTRequests tRequest2;
+
+    initializeAsyncUARTRequests(&rRequest1);
+    initializeAsyncUARTRequests(&tRequest1);
+    initializeAsyncUARTRequests(&rRequest2);
+    initializeAsyncUARTRequests(&tRequest2);
+
+    AsyncUARTRequests *receiveRequest, *transmitRequest;
+
     // Leaves registration for the last, once this is registered its hot and primed to go
     RegisterAs("UART");
 
     while(1){
         Receive(&config, &request, sizeof(request));
-        if(request.endpoint == 1 && request.method != OPT){
+
+	// uartRequestLogger(request);
+        if(request.endpoint == 1){
             receive = &rBuffer1;
             transmit = &tBuffer1;
         } else {
@@ -112,10 +183,17 @@ void uartServer(){
         }
         if(request.method == POST){
             status = fillBuffer(transmit, request.payload, request.length);
+            if(status<0 && request.opt){
+                pushAsyncUARTRequests(transmitRequest, &request);
+            }
         } else if(request.method == GET){
+            if(peekAsyncUARTRequests(receiveRequest))
             status = fetchBuffer(receive, request.payload, request.length);
+            if(status<0 && request.opt){
+                pushAsyncUARTRequests(receiveRequest, &request);
+            }
         } else if(request.method == OPT){
-            status = glean(receive, request.payload, request.endpoint, request.length);
+            status = glean(receive, request.payload, request.opt, request.length);
         } else if(request.method == NOTIFY) {
             if(request.endpoint == 1){
                 if(request.length%2){
@@ -189,7 +267,7 @@ void uartServer(){
 
 int Getc(int tid, int channel){
     char locale;
-    int status = GetCN(tid, channel, &locale, 1);
+    int status = GetCN(tid, channel, &locale, 1, false);
     if(status==1){
         return locale;
     }
@@ -197,40 +275,43 @@ int Getc(int tid, int channel){
 }
 
 int Putc(int tid, int channel, char ch){
-    int status = PutCN(tid, channel, &ch, 1);
+    int status = PutCN(tid, channel, &ch, 1, false);
     if(status == 1){
         return ch;
     }
     return status;
 }
 
-int GetCN(int tid, int channel, char* buffer, int length){
+int GetCN(int tid, int channel, char* buffer, int length, bool async){
     uartRequest request;
     request.endpoint = channel;
     request.method = GET;
     request.length = length;
     request.payload = buffer;
+    request.opt = async;
     int response;
     Send(tid, &request, sizeof(request), &response, sizeof(response));
     return response;
 }
 
-int PutCN(int tid, int channel, char* buffer, int length){
+int PutCN(int tid, int channel, char* buffer, int length, bool async){
     uartRequest request;
     request.endpoint = channel;
     request.method = POST;
     request.length = length;
     request.payload = buffer;
+    request.opt = async;
     int response;
     Send(tid, &request, sizeof(request), &response, sizeof(response));
     return response;
 }
 
-int GleanUART(int tid, int offset, char* buffer, int length){
+int GleanUART(int tid, int channel, int offset, char* buffer, int length){
     uartRequest request;
-    request.endpoint = offset;
+    request.endpoint = channel;
     request.method = OPT;
     request.length = length;
+    request.opt = offset;
     request.payload = buffer;
     int response;
     Send(tid, &request, sizeof(request), &response, sizeof(response));

@@ -85,11 +85,11 @@ void initializeUART(int channel, int bitRate, bool fifo, bool RTIE, bool TIE, bo
 
 int put(int channel, char byte) {
     int BASE = getUARTBase(channel);
-    if (!(*(int*)(BASE + UART_FLAG_OFFSET) & TXFF_MASK)){
-        *(int*)(BASE + UART_DATA_OFFSET) = byte;
-        return 0;
-    }
-    return 1;
+    if (*(int*)(BASE + UART_FLAG_OFFSET) & TXFF_MASK){
+	return 1;
+    }       
+    *(int*)(BASE + UART_DATA_OFFSET) = byte;
+    return 0;
 }
 
 int get(int channel, char* byte) {

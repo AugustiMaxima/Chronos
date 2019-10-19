@@ -85,10 +85,8 @@ int main( int argc, char* argv[] ) {
 
     initializeTimer(1, 2000, 20, 1); // 10ms
     
-    // scheduleTask(scheduler, 0, 0, uartServerTest);
+    scheduleTask(scheduler, 0, 0, uartServerTest);
     
-    scheduleTask(scheduler, 0, 0, k2_rps_main);
-
     unsigned long last = 0;
     unsigned long utilTime = 0;
     unsigned long begin;

@@ -10,6 +10,7 @@ typedef struct uartServerRequest{
         NOTIFY
     } method;
     int length;
+    int opt;
     char* payload;
 } uartRequest;
 

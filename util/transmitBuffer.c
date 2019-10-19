@@ -1,4 +1,10 @@
 #include <transmitBuffer.h>
+#include <bwio.h>
+
+
+int getPhysicalBufferIndex(int index){
+    return index % TRANSMIT_BUFFER_SIZE;
+}
 
 void initializeTransmitBuffer(TransmitBuffer* transmitBuffer){
     transmitBuffer->cursor = 0;
@@ -15,9 +21,9 @@ int fillBuffer(TransmitBuffer* buffer, char* source, int length){
     }
     int i=0;
     for(i=0; i<length; i++){
-        buffer->buffer[buffer->length + i];
+        buffer->buffer[getPhysicalBufferIndex(buffer->length + i)] = source[i];
     }
-    buffer->length += length;
+    buffer->length += i;
     return i;
 }
 
@@ -27,9 +33,9 @@ int fetchBuffer(TransmitBuffer* buffer, char* dest, int length){
     }
     int i;
     for(i=0;i<length;i++){
-        dest[i] = buffer->buffer[buffer->cursor + i];
+        dest[i] = buffer->buffer[getPhysicalBufferIndex(buffer->cursor + i)];
     }
-    buffer->cursor += length;
+    buffer->cursor += i;
     return i;
 }
 
@@ -49,10 +55,11 @@ int glean(TransmitBuffer* buffer, char* dest, int offset, int maxlen){
         //indicates character loss
         return -1;
     }
+    bwprintf(COM2, "%d %d %d\r\n", signalen, buffer->length, offset);
     int i;
-    int length = maxlen > signalen ? maxlen : signalen; 
+    int length = maxlen < signalen ? maxlen : signalen; 
     for(i=0; i<length; i++){
-        dest[i] = buffer->buffer[offset+i];
+        dest[i] = buffer->buffer[getPhysicalBufferIndex(offset+i)];
     }
     return i;
 }
