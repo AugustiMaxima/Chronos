@@ -2,6 +2,7 @@
 #include <timer.h>
 #include <nameServer.h>
 #include <minHeap.h>
+#include <charay.h>
 #include <clockServer.h>
 #include <bwio.h>
 

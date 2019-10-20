@@ -12,7 +12,7 @@ int getTimerBase(int timer){
 }
 
 void setMode(int timer, int mode) {
-    int* CRTL = getTimerBase(timer) + CRTL_OFFSET;
+    int* CRTL = (int*)(getTimerBase(timer) + CRTL_OFFSET);
     switch (mode){
     case 1:
         *CRTL |= MODE_MASK;
@@ -35,7 +35,7 @@ unsigned int sanitizeLength(int timer, unsigned int length) {
 }
 
 void setFrequency(int timer, int frequency) {
-    int* CRTL = getTimerBase(timer) + CRTL_OFFSET;
+    int* CRTL = (int*)(getTimerBase(timer) + CRTL_OFFSET);
     switch (frequency){
     case 508000:
         *CRTL |= CLKSEL_MASK;
@@ -46,8 +46,7 @@ void setFrequency(int timer, int frequency) {
 }
 
 unsigned int getValue(int timer) {
-    void* BASE = getTimerBase(timer);
-    unsigned int value = *(int*)(BASE + VAL_OFFSET);
+    unsigned int value = *(int*)(getTimerBase(timer) + VAL_OFFSET);
     if(timer!=3)
         value &= LOWER_MASK;
     return value;
@@ -65,7 +64,7 @@ unsigned int getWrap(int timer) {
 // length = initial value
 // mode: 1 for pre-load (wrap-to-loaded), 0 for free-running (wrap-to-maximum)
 void initializeTimer(int timer, int frequency, unsigned int length, int mode){
-    void* BASE = getTimerBase(timer);
+    int BASE = getTimerBase(timer);
     *(int*)(BASE + CRTL_OFFSET) &= ~ENABLE_MASK;
     unsigned int sanitizedLength = sanitizeLength(timer, length);
     *(int*)(BASE + LDR_OFFSET) = sanitizedLength;
@@ -75,7 +74,5 @@ void initializeTimer(int timer, int frequency, unsigned int length, int mode){
 }
 
 void disableTimer(int timer) {
-    void* BASE = getTimerBase(timer);
-    *(int*)(BASE + CRTL_OFFSET) &= ENABLE_MASK;
-
+    *(int*)(getTimerBase(timer) + CRTL_OFFSET) &= ENABLE_MASK;
 }

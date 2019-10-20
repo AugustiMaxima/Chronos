@@ -1,9 +1,11 @@
 #include <bwio.h>
 #include <ts7200.h>
 #include <uart.h>
+#include <syslib.h>
 #include <sendReceiveReply.h>
 #include <interrupt.h>
 #include <nameServer.h>
+#include <charay.h>
 #include <clockServer.h>
 #include <queue.h>
 

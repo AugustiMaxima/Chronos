@@ -34,6 +34,8 @@ int stringToNum(char* strint, int base){
             digit = dig - '0';
         } else if (dig<='f' && dig>='a'){
             digit = dig - 'a' + 10;
+        } else{
+            return result;
         }
         result *= base;
         result += digit;

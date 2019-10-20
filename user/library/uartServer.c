@@ -1,11 +1,13 @@
 #include <ts7200.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <syslib.h>
 #include <uart.h>
 #include <interrupt.h>
 #include <nameServer.h>
 #include <transmitBuffer.h>
 #include <uartServer.h>
+#include <bwio.h>
 
 #define ASYNC_POOL_SIZE 32
 
@@ -42,6 +44,8 @@ asyncUartRequest* popAsyncUartRequests(AsyncUartRequests* requests){
 }
 
 int pushAsyncUartRequests(AsyncUartRequests* requests, uartRequest* request, int requester){
+    if(ASYNC_POOL_SIZE - requests->length + requests->cursor <= 0)
+        return 0;
     int index = getPhysicalUartRequestIndex(requests->length++);
     requests->requests[index].request.endpoint = request->endpoint;
     requests->requests[index].request.length = request->length;
@@ -49,6 +53,7 @@ int pushAsyncUartRequests(AsyncUartRequests* requests, uartRequest* request, int
     requests->requests[index].request.opt = request->opt;
     requests->requests[index].request.payload = request->payload;
     requests->requests[index].requester = requester;
+    return index;
 }
 
 typedef struct delimiterTracker{
@@ -97,21 +102,21 @@ void uartNotifier(){
     int reply;
     
     //UART configs
-    int uartbase;
+    // int uartbase;
     int tx;
     int rx;
     int in;
     
-    Receive(&uartServer, &reply, sizeof(reply));
-    Reply(uartServer, &reply, sizeof(reply));
+    Receive(&uartServer, (char*)&reply, sizeof(reply));
+    Reply(uartServer, (char*)&reply, sizeof(reply));
 
     if(reply == 1){
-        uartbase = UART1_BASE;
+        // uartbase = UART1_BASE;
         tx = UART1TX_DEV_ID;
         rx = UART1RX_DEV_ID;
         in = INT_UART1;
-    } else if (reply == 2) {
-        uartbase = UART2_BASE;
+    } else {
+        // uartbase = UART2_BASE;
         tx = UART2TX_DEV_ID;
         rx = UART2RX_DEV_ID;
         in = INT_UART2;
@@ -144,9 +149,8 @@ void uartNotifier(){
 int ProcessAsyncUartRequest(AsyncUartRequests* requests, TransmitBuffer* receive, TransmitBuffer* transmit){
     asyncUartRequest* asyncReq = peekAsyncUartRequests(requests);
     if(!asyncReq)
-	return;
+	    return 0;
     uartRequest request = asyncReq->request;
-    int requester = asyncReq->requester;
     int status;
     if(request.method == POST){
         status = fillBuffer(transmit, request.payload, request.length);
@@ -161,7 +165,7 @@ int ProcessAsyncUartRequest(AsyncUartRequests* requests, TransmitBuffer* receive
     }
     if(status>=0){
 	    popAsyncUartRequests(requests);
-        Reply(asyncReq, &status, sizeof(status));
+        Reply(asyncReq->requester, (char*)&status, sizeof(status));
     }
     return status;
 }
@@ -173,9 +177,9 @@ void uartServer(){
     int config = 1;
     int uart1 = Create(-2, uartNotifier);
     int uart2 = Create(-2, uartNotifier);
-    Send(uart1, &config, sizeof(config), request, 1);
+    Send(uart1, (const char*)&config, sizeof(config), (char*)&request, 1);
     config++;
-    Send(uart2, &config, sizeof(config), request, 1);
+    Send(uart2, (const char*)&config, sizeof(config), (char*)&request, 1);
 
     //buffer configuration
     UartStatus uState1, uState2, *uState;
@@ -212,13 +216,13 @@ void uartServer(){
 
     AsyncUartRequests *receiveRequest, *transmitRequest;
 
-    // Leaves registration for the last, once this is registered its hot and primed to go
+    // Leaves registration for the last, once this is registered its hotdelimiter and primed to go
     RegisterAs("UART");
 
     DelimiterTracker delimit1, delimit2, *delimit;
 
     while(1){
-        Receive(&config, &request, sizeof(request));
+        Receive(&config, (char*)&request, sizeof(request));
 	    bool deferred = false;
 	    // uartRequestLogger(request);
         //Configuration
@@ -228,12 +232,14 @@ void uartServer(){
 	        receiveRequest = &rRequest1;
 	        transmitRequest = &tRequest1;
             delimit = &delimit1;
+            uState = &uState1;
         } else {
             receive = &rBuffer2;
             transmit = &tBuffer2;
 	        receiveRequest = &rRequest2;
 	        transmitRequest = &tRequest2;
             delimit = &delimit2;
+            uState = &uState2;
         }
         if(request.method == POST){
             status = fillBuffer(transmit, request.payload, request.length);
@@ -270,23 +276,16 @@ void uartServer(){
                 *request.payload = delimiter;
             }
         } else if(request.method == NOTIFY) {
-            if(request.endpoint == 1){
-                if(request.length%2){
-                    receiveReady1 = true;
-                } else {
-                    transmitReady1 = true;
-                }
-            } else if (request.endpoint == 2){
-                if(request.length%2){
-                    receiveReady2 = true;
-                } else {
-                    //TODO: refactor this to implement CTS
-                    transmitReady2 = true;
-                }
+            if(request.length%2){
+                uState->rx = true;
+            } else if (request.length == 3){
+                uState->tx = true;
+            } else {
+                uState->cts = true;
             }
         }
 	    if(!deferred)
-	        Reply(config, &status, sizeof(status));
+	        Reply(config, (char*)&status, sizeof(status));
         
         //Some light processing
         status = 0;
@@ -344,7 +343,7 @@ void uartServer(){
                         delimit->unknown = false;
                     } else if(delimit->maxSize <= getBufferFill(receive)){
                         asyncRequest = popAsyncUartRequests(receiveRequest);
-                        Reply(asyncRequest->requester, &status, sizeof(status));
+                        Reply(asyncRequest->requester, (char*)&status, sizeof(status));
                         delimit->enabled = false;
                     }
                 } else {
@@ -406,7 +405,7 @@ int GetCN(int tid, int channel, char* buffer, int length, bool async){
     request.payload = buffer;
     request.opt = async;
     int response;
-    Send(tid, &request, sizeof(request), &response, sizeof(response));
+    Send(tid, (const char*)&request, sizeof(request), (char*)&response, sizeof(response));
     return response;
 }
 
@@ -418,7 +417,7 @@ int PutCN(int tid, int channel, char* buffer, int length, bool async){
     request.payload = buffer;
     request.opt = async;
     int response;
-    Send(tid, &request, sizeof(request), &response, sizeof(response));
+    Send(tid, (const char*)&request, sizeof(request), (char*)&response, sizeof(response));
     return response;
 }
 
@@ -430,7 +429,7 @@ int GleanUART(int tid, int channel, int offset, char* buffer, int length){
     request.opt = offset;
     request.payload = buffer;
     int response;
-    Send(tid, &request, sizeof(request), &response, sizeof(response));
+    Send(tid, (const char*)&request, sizeof(request), (char*)&response, sizeof(response));
     return response;
 }
 
@@ -440,8 +439,10 @@ int GetLN(int tid, int channel, char* buffer, int length, char delimiter, bool a
     request.method = GETLN;
     request.length = length;
     request.opt = async;
+    request.payload = buffer;
     *request.payload = delimiter;
     int response;
-    Send(tid, &request, sizeof(request), &response, sizeof(response));
+    Send(tid, (const char*)&request, sizeof(request), (char*)&response, sizeof(response));
     return response;
 }
+

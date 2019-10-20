@@ -232,7 +232,7 @@ Node* iterateNode(Node* node){
 	    up = up->left;
 	return up;
     }
-    while(up=node->up){
+    while((up=node->up)){
 	if(up->left == node){
 	    bwprintf(COM2, "Left\r\n");
 	    return up;

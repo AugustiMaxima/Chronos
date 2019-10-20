@@ -20,17 +20,15 @@ void initializeQueue(Queue* queue) {
 
 void* pop(Queue* queue) {
     if (ringFill(queue)) {
-        int ret = queue->queue[ring(queue->cursor++)];
-        return ret;
+        return queue->queue[ring(queue->cursor++)];
     } else {
         return 0;
     }
 };
 
-int peep(Queue* queue) {
+void* peep(Queue* queue) {
     if (ringFill(queue)) {
-        int ret = queue->queue[ring(queue->cursor)];
-        return ret;
+        return queue->queue[ring(queue->cursor)];
     } else {
         return 0;
     }

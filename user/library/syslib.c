@@ -75,6 +75,9 @@ int Send(int tid, const char *msg, int msglen, char *reply, int replylen) {
     asm("SUB SP, SP, #4");
     asm("STR %0, [SP]"::"r"(argument.args));
     asm("SWI " TOSTRING(SEND_CODE));
+    int ret;
+    asm("MOV %0, R0" : "=r" (ret));
+    return ret;
 }
 
 int Receive(int *tid, char *msg, int msglen) {
@@ -89,6 +92,9 @@ int Receive(int *tid, char *msg, int msglen) {
     //Pro gamer move:
     //pushes the sender into tid, stored at R2
     asm("STR R1, [R2]");
+    int ret;
+    asm("MOV %0, R0" : "=r" (ret));
+    return ret;
 }
 
 int Reply( int tid, const char *reply, int replylen ) {
@@ -98,6 +104,9 @@ int Reply( int tid, const char *reply, int replylen ) {
     asm("SUB SP, SP, #4");
     asm("STR %0, [SP]"::"r"(argument.args));
     asm("SWI " TOSTRING(REPLY_CODE));
+    int ret;
+    asm("MOV %0, R0" : "=r" (ret));
+    return ret;
 }
 
 int AwaitEvent(int eventId) {

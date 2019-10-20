@@ -17,12 +17,12 @@ void * memset ( void * ptr, int value, size_t num ){
     for(;(int)start%4 && start<end;start++){
         *start = value_downcast;
     }
-    int* block = start;
-    for(;block + 1<=end;block++){
+    int* block = (int*)start;
+    for(;block + 1 <= (int*)end;block++){
         *block = value;
     }
-    start = block;
-    for(;start<block;start++){
+    start = (char*)block;
+    for(;start<end;start++){
         *start = value_downcast;
     }
     return ptr;

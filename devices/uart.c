@@ -3,15 +3,17 @@
 
 int getUARTBase(int channel) {
     switch (channel) {
-	case 1:
-	    return UART1_BASE;
-	case 2:
-	    return UART2_BASE;
+        case 1:
+            return UART1_BASE;
+        case 2:
+            return UART2_BASE;
+        default:
+            return 0;
     }
 }
 
 void setFifo(int channel, bool fifo){
-    int* CTL = getUARTBase(channel) + UART_LCRH_OFFSET;
+    int* CTL = (int*)(getUARTBase(channel) + UART_LCRH_OFFSET);
     if (fifo){
 	*CTL |= FEN_MASK;
     } else {
@@ -97,6 +99,6 @@ int get(int channel, char* byte) {
     if (*(int*)(BASE + UART_FLAG_OFFSET) & RXFE_MASK) {
         return 1;
     }
-	byte = *(char*)(BASE + UART_DATA_OFFSET);
+	*byte = *(char*)(BASE + UART_DATA_OFFSET);
     return 0;
 }

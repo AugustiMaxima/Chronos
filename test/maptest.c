@@ -77,7 +77,7 @@ void DynamoTest(){
     putMap(m, 63, NULL);
     putMap(m, 15, NULL);
     putMap(m, 12, NULL);
-    volatile Node* node = NULL;
+    Node* node = NULL;
     printTree(m);
     do {
 	bwprintf(COM2, "Looping\r\n");

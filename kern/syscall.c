@@ -116,7 +116,7 @@ void sysCreateTask(){
     asm("MOV %0, R0": "=r"(sp));
 
     priority = sp[-2];
-    funcPtr = sp[-1];
+    funcPtr = (void*)sp[-1];
     // bwprintf(COM2, "CreateTask priority:%d fptr:%x\r\n",priority,funcPtr);
     int pId = scheduler->currentTask->tId;
     int result = scheduleTask(scheduler, priority, pId, funcPtr);
@@ -143,12 +143,12 @@ void sysSend(){
     asm("MOV %0, R0" : "=r"(sp));
     scheduler->currentTask->stackEntry = sp;
 
-    int* args = sp[-1];
+    int* args = (int*)sp[-1];
 
     int tid = args[0];
-    char* msg = args[1];
+    char* msg = (char*)args[1];
     int msglen = args[2];
-    char* rep = args[3];
+    char* rep = (char*)args[3];
     int replylen = args[4];
 
     // bwprintf(COM2, "Send %d %x %d %x %d", tid, msg, msglen, rep, replylen);
@@ -171,11 +171,11 @@ void sysReceive(){
 
     asm("MOV %0, R0" : "=r"(sp));
     scheduler->currentTask->stackEntry = sp;
-    int* args = sp[-1];
-    char* msg = args[1];
+    int* args = (int*)sp[-1];
+    char* msg = (char*)args[1];
     int msglen = args[2];
     // bwprintf(COM2, "Receiving %x, %d\r\n", msg, msglen);
-    int status = insertReceiver(com, scheduler->currentTask->tId, msg, msglen);
+    insertReceiver(com, scheduler->currentTask->tId, msg, msglen);
     sp[3] = args[0];
 }
 
@@ -190,9 +190,9 @@ void sysReply(){
 
     asm("MOV %0, R0" : "=r"(sp));
 
-    int* args = sp[-1];
+    int* args = (int*)sp[-1];
     int tid = args[0];
-    char* msg = args[1];
+    char* msg = (char*)args[1];
     int msglen = args[2];
     // bwprintf(COM2, "Replying %d, %x, %d", tid, msg, msglen);
     int result = reply(com, msg, msglen, tid);
@@ -232,9 +232,9 @@ void sysAwaitMultiple(){
         MSR CPSR_c, #0x93
     )": "=r"(sp));
 
-    int* val = sp[-3];
+    int* val = (int*)sp[-3];
     int deviceCount = sp[-2];
-    int* deviceList = sp[-1];
+    int* deviceList = (int*)sp[-1];
 
     WaitMultipleDevice(registry, scheduler->currentTask, val, deviceCount, deviceList);
     scheduler->currentTask->status = BLOCKED;
@@ -255,5 +255,5 @@ void setUpSWIHandler(void* handle_swi) {
     interrupt, instruction 0x08 executes with pc=0x10.
     */
     *((unsigned*)0x8) = 0xe59ff018;
-    *((unsigned*)0x28) = handle_swi;
+    *((void**)0x28) = handle_swi;
 }

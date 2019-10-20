@@ -96,10 +96,11 @@ void handleSuspendedTasks(void* lr){
         MOV %[stack], R3
     )" : [stack]"=r"(stack)::"r3");
 
-    stack[15] = lr;
+    stack[15] = (int)lr;
     scheduler->currentTask->stackEntry = stack;
     if(scheduler->currentTask->status == RUNNING){
-        int code = insertTaskToQueue(scheduler, scheduler->currentTask);
+        //TODO: Check the code on this and trigger kernel panic if we run out of queue
+	insertTaskToQueue(scheduler, scheduler->currentTask);
     }
     // printTask(scheduler->currentTask);
     scheduler->currentTask = NULL;

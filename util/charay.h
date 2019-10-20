@@ -16,7 +16,7 @@ int alphaNumericHash(char* name);
 
 void split(char** tokens, int length, char* base, char divider);
 
-int strcpy(const char* source, char* dest, int length);
+int strncpy(const char* source, char* dest, int length);
 
 int strlen(const char* str);
 

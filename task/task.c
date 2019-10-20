@@ -17,17 +17,16 @@ void initializeStack(Task* task, void* functionPtr){
     char* stack_base = task->STACK;
     // debug only; separate user and kernel stack by large offsets
 
-    int* stack = stack_base + STACK_SIZE;
-    int* stack_view = stack;
+    int* stack = (int*)(stack_base + STACK_SIZE);
 
     stack --;
     //PC
-    *stack = functionPtr;
+    *stack = (int)functionPtr;
     
     stack--;
 
     //TODO: Set up exit handler
-    *stack = Exit;
+    *stack = (int)Exit;
 
     //stack--;
 
