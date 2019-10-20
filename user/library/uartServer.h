@@ -29,6 +29,7 @@ int PutCN(int tid, int channel, char* buffer, int length, bool async);
 
 int GleanCN(int tid, int channel, int offset, char* buffer, int length);
 
-int GetLN(int tid, int channel, char* buffer, int length, char delimiter);
+//Make sure your buffer has at least one character
+int GetLN(int tid, int channel, char* buffer, int length, char delimiter, bool async);
 
 #endif

@@ -1,5 +1,6 @@
 #include <ts7200.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <uart.h>
 #include <interrupt.h>
 #include <nameServer.h>
@@ -49,6 +50,20 @@ int pushAsyncUartRequests(AsyncUartRequests* requests, uartRequest* request, int
     requests->requests[index].request.payload = request->payload;
     requests->requests[index].requester = requester;
 }
+
+typedef struct delimiterTracker{
+    bool enabled;
+    bool found;
+    bool unknown;
+    char delimiter;
+    int maxSize;
+} DelimiterTracker;
+
+typedef struct uartStatus{
+    bool rx;
+    bool tx;
+    bool cts;
+} UartStatus;
 
 void uartRequestLogger(uartRequest request){	
     if(request.method==POST){
@@ -126,7 +141,7 @@ void uartNotifier(){
     }
 }
 
-void ProcessAsyncUartRequest(AsyncUartRequests* requests, TransmitBuffer* receive, TransmitBuffer* transmit){
+int ProcessAsyncUartRequest(AsyncUartRequests* requests, TransmitBuffer* receive, TransmitBuffer* transmit){
     asyncUartRequest* asyncReq = peekAsyncUartRequests(requests);
     if(!asyncReq)
 	return;
@@ -135,17 +150,20 @@ void ProcessAsyncUartRequest(AsyncUartRequests* requests, TransmitBuffer* receiv
     int status;
     if(request.method == POST){
         status = fillBuffer(transmit, request.payload, request.length);
-        if(status>=0){
-	    popAsyncUartRequests(requests);
-        }
     } else if(request.method == GET){
-	status = fetchBuffer(receive, request.payload, request.length);
-        if(status>=0){
-	    popAsyncUartRequests(requests);
-	}
+	    status = fetchBuffer(receive, request.payload, request.length);
+    } else if (request.method == GETLN){
+        char delimiter = *request.payload;
+        status = readUntilDelimiter(receive, request.payload, request.length, delimiter);
+        if(status<0){
+            *request.payload = delimiter;
+        }
     }
-    if(status>=0)
-	Reply(asyncReq, &status, sizeof(status));
+    if(status>=0){
+	    popAsyncUartRequests(requests);
+        Reply(asyncReq, &status, sizeof(status));
+    }
+    return status;
 }
 
 void uartServer(){
@@ -160,10 +178,14 @@ void uartServer(){
     Send(uart2, &config, sizeof(config), request, 1);
 
     //buffer configuration
-    bool receiveReady1 = true;
-    bool transmitReady1 = true;
-    bool receiveReady2 = true;
-    bool transmitReady2 = true;
+    UartStatus uState1, uState2, *uState;
+    uState1.cts = true;
+    uState1.rx = true;
+    uState1.tx = true;
+    uState2.cts = true;
+    uState2.rx = true;
+    uState2.tx = true;
+
     int status;
 
     TransmitBuffer rBuffer1;
@@ -193,22 +215,25 @@ void uartServer(){
     // Leaves registration for the last, once this is registered its hot and primed to go
     RegisterAs("UART");
 
-    bool indicator;
+    DelimiterTracker delimit1, delimit2, *delimit;
 
     while(1){
         Receive(&config, &request, sizeof(request));
-	bool deferred = false;
-	// uartRequestLogger(request);
+	    bool deferred = false;
+	    // uartRequestLogger(request);
+        //Configuration
         if(request.endpoint == 1){
             receive = &rBuffer1;
             transmit = &tBuffer1;
-	    receiveRequest = &rRequest1;
-	    transmitRequest = &tRequest1;
+	        receiveRequest = &rRequest1;
+	        transmitRequest = &tRequest1;
+            delimit = &delimit1;
         } else {
             receive = &rBuffer2;
             transmit = &tBuffer2;
 	        receiveRequest = &rRequest2;
 	        transmitRequest = &tRequest2;
+            delimit = &delimit2;
         }
         if(request.method == POST){
             status = fillBuffer(transmit, request.payload, request.length);
@@ -228,14 +253,21 @@ void uartServer(){
             status = glean(receive, request.payload, request.opt, request.length);
         } else if(request.method == GETLN){
             status = -3;
+            char delimiter = *request.payload;
             if(!peekAsyncUartRequests(receiveRequest))
-                status = readUntilDelimiter(receive, request.payload, request.length, *request.payload);
+                status = readUntilDelimiter(receive, request.payload, request.length, delimiter);
             if(status==-3){
                 deferred = true;
                 pushAsyncUartRequests(receiveRequest, &request, config);
-            } else if (status==-1&&request.opt)){
+            } else if (status==-1 && request.opt){
                 deferred = true;
-                pushAsyncUartRequests();
+                pushAsyncUartRequests(receiveRequest, &request, config);
+                delimit->enabled = true;
+                delimit->found = false;
+                delimit->unknown = false;
+                delimit->delimiter = delimiter;
+                delimit->maxSize = request.length;
+                *request.payload = delimiter;
             }
         } else if(request.method == NOTIFY) {
             if(request.endpoint == 1){
@@ -248,67 +280,103 @@ void uartServer(){
                 if(request.length%2){
                     receiveReady2 = true;
                 } else {
+                    //TODO: refactor this to implement CTS
                     transmitReady2 = true;
                 }
             }
         }
-	if(!deferred)
-	    Reply(config, &status, sizeof(status));
+	    if(!deferred)
+	        Reply(config, &status, sizeof(status));
         
         //Some light processing
         status = 0;
         char retainer;
-        if(receiveReady1){
-            while(rBuffer1.cursor < rBuffer1.length){
-                status = get(1, &retainer);
-                if (status) {
-                    receiveReady1 = false;
-                    enableDeviceInterrupt(UART1RX_DEV_ID);
-                    break;
+
+        int rxInterrupt;
+        int txInterrupt;
+
+        asyncUartRequest* asyncRequest;
+
+        for(int j=1;j<3;j++){
+            //Configuration
+            if(j==1){
+                receive = &rBuffer1;
+                transmit = &tBuffer1;
+                uState = &uState1;
+                delimit = &delimit1;
+                receiveRequest = &rRequest1;
+                transmitRequest = &tRequest1;
+                rxInterrupt = UART1RX_DEV_ID;
+                txInterrupt = UART1TX_DEV_ID;
+            } else {
+                receive = &rBuffer2;
+                transmit = &tBuffer2;
+                uState = &uState2;
+                delimit = &delimit2;
+                receiveRequest = &rRequest2;
+                transmitRequest = &tRequest2;
+                rxInterrupt = UART2RX_DEV_ID;
+                txInterrupt = UART2TX_DEV_ID;
+            }
+
+            //Processing loop
+            if(uState->rx){
+                while(receive->cursor < receive->length){
+                    status = get(j, &retainer);
+                    if(status) {
+                        uState->rx = false;
+                        enableDeviceInterrupt(rxInterrupt);
+                        break;
+                    } else {
+                        receive->buffer[receive->cursor++] = retainer;
+                        if(delimit->enabled && delimit->delimiter == retainer){
+                            delimit->found = true;
+                        }
+                    }
+                }
+
+                // Logic to facilitate efficient look up of getByDelimiter operation
+                // may seem excessive, but the majority of read request to uart server can be done this way efficiently
+                status = -2;
+                if(delimit->enabled && !delimit->found){
+                    if(delimit->unknown){
+                        status = ProcessAsyncUartRequest(receiveRequest, receive, NULL);
+                        delimit->unknown = false;
+                    } else if(delimit->maxSize <= getBufferFill(receive)){
+                        asyncRequest = popAsyncUartRequests(receiveRequest);
+                        Reply(asyncRequest->requester, &status, sizeof(status));
+                        delimit->enabled = false;
+                    }
                 } else {
-                    rBuffer1.buffer[rBuffer1.cursor++] = retainer;
+                    status = ProcessAsyncUartRequest(receiveRequest, receive, NULL);
+                }   
+                if(status >= 0){
+                    delimit->enabled = false;
+                    asyncRequest = peekAsyncUartRequests(receiveRequest);
+                    if(asyncRequest && asyncRequest->request.method == GETLN){
+                        //prepare the delimit check for the next gen
+                        delimit->enabled = true;
+                        delimit->delimiter = *asyncRequest->request.payload;
+                        delimit->maxSize = asyncRequest->request.length;
+                        delimit->found = false;
+                        delimit->unknown = true;
+                    }
                 }
             }
-	    ProcessAsyncUartRequest(&rRequest1, &rBuffer1, &tBuffer1);
-        }
-        if(transmitReady1){
-            while(tBuffer1.cursor < tBuffer1.length){
-                status = put(1, tBuffer1.buffer[tBuffer1.cursor]);
-                if (status) {
-                    transmitReady1 = false;
-                    enableDeviceInterrupt(UART1TX_DEV_ID);
-                    break;
-                } else {
-                    tBuffer1.cursor++;
+            if(uState->tx){
+                while(transmit->cursor < transmit->length){
+                    status = put(j, transmit->buffer[transmit->cursor]);
+                    if(status){
+                        //this needs better refactoring
+                        uState->tx = false;
+                        enableDeviceInterrupt(txInterrupt);
+                        break;
+                    } else {
+                        transmit->cursor++;
+                    }
                 }
+                ProcessAsyncUartRequest(transmitRequest, NULL, transmit);
             }
-	    ProcessAsyncUartRequest(&tRequest1, &rBuffer1, &tBuffer1);
-        }
-        if(receiveReady2){
-            while(rBuffer2.cursor < rBuffer2.length){
-                status = get(2, &retainer);
-                if (status) {
-                    receiveReady2 = false;
-                    enableDeviceInterrupt(UART2RX_DEV_ID);
-                    break;
-                } else {
-                    rBuffer2.buffer[rBuffer2.cursor++] = retainer;
-                }
-            } 
-	    ProcessAsyncUartRequest(&rRequest2, &rBuffer2, &tBuffer2);
-	}
-        if(transmitReady2){
-            while(tBuffer2.cursor < tBuffer2.length){
-                status = put(2, tBuffer2.buffer[tBuffer2.cursor]);
-                if (status) {
-                    transmitReady2 = false;
-                    enableDeviceInterrupt(UART2TX_DEV_ID);
-                    break;
-                } else {
-                    tBuffer2.cursor++;
-                }
-            }
-	    ProcessAsyncUartRequest(&tRequest2, &rBuffer2, &tBuffer2);
         }
     }
 }
@@ -366,6 +434,14 @@ int GleanUART(int tid, int channel, int offset, char* buffer, int length){
     return response;
 }
 
-int GetLN(int tid, int channel, char* buffer, int length, char delimiter){
-
+int GetLN(int tid, int channel, char* buffer, int length, char delimiter, bool async){
+    uartRequest request;
+    request.endpoint = channel;
+    request.method = GETLN;
+    request.length = length;
+    request.opt = async;
+    *request.payload = delimiter;
+    int response;
+    Send(tid, &request, sizeof(request), &response, sizeof(response));
+    return response;
 }
