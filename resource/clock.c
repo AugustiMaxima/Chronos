@@ -19,7 +19,7 @@ void updateTime(Clock* clock, int delta){
 
 int timeElapsed(Clock* clock){
     int elapsed;
-    unsigned int newValue = getValue(clock->timer);
+    unsigned int newValue = readTimerValue(clock->timer);
     if(newValue > clock->lastRead) {
         elapsed = getWrap(clock->timer) - newValue + clock->lastRead;
     } else {

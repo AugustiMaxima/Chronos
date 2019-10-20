@@ -14,12 +14,18 @@
 
 void initializeUART(int channel, int bitRate, bool fifo, bool RTIE, bool TIE, bool RIE, bool MSIE);
 
-int put(int channel, char Byte);
+int putUart(int channel, char Byte);
 
-int get(int channel, char* Byte);
+int getUart(int channel, char* Byte);
 
 void setTransmitInterrupt(int channel, bool enable);
 
 void setReceiveInterrupt(int channel, bool enable);
+
+void setReceiveTimeout(int channel, bool enable);
+
+unsigned processUartInterrupt(int channel);
+
+unsigned getUartFlag(int channel);
 
 #endif

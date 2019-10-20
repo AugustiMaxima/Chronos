@@ -22,18 +22,6 @@ void setMode(int timer, int mode) {
     }
 }
 
-unsigned int sanitizeLength(int timer, unsigned int length) {
-    unsigned ret = length;
-    if (timer!=3){
-        ret &= LOWER_MASK;
-        if (ret != length) {
-            bwprintf(COM2, "PANIC: initial timer load will overflow\r\n");
-            for (;;) {}
-        }
-    }
-    return ret;
-}
-
 void setFrequency(int timer, int frequency) {
     int* CRTL = (int*)(getTimerBase(timer) + CRTL_OFFSET);
     switch (frequency){
@@ -45,19 +33,21 @@ void setFrequency(int timer, int frequency) {
     }
 }
 
-unsigned int getValue(int timer) {
-    unsigned int value = *(int*)(getTimerBase(timer) + VAL_OFFSET);
-    if(timer!=3)
-        value &= LOWER_MASK;
+unsigned int readTimerValue(int timer) {
+    unsigned int value = *(unsigned int*)(getTimerBase(timer) + VAL_OFFSET);
     return value;
+}
+
+void clearTimerInterrupt(int timer) {
+    *(unsigned volatile int*)(getTimerBase(timer) + CLR_OFFSET) = 0;
 }
 
 unsigned int getWrap(int timer) {
     switch (timer){
     case 3:
-        return WRAP_32;
+        return 0xFFFFFFFF;
     default:
-        return WRAP_16;
+        return 0xFFFF;
     }
 }
 

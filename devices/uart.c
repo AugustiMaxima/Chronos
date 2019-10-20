@@ -85,20 +85,52 @@ void initializeUART(int channel, int bitRate, bool fifo, bool RTIE, bool TIE, bo
     enableUart(channel, true);
 }
 
-int put(int channel, char byte) {
+int putUart(int channel, char byte) {
     int BASE = getUARTBase(channel);
-    if (*(int*)(BASE + UART_FLAG_OFFSET) & TXFF_MASK){
-	return 1;
-    }       
+    unsigned flag = getUartFlag(channel);
+    if (!flag & CTS_MASK){
+        //inverts the CTS signal for easier error processing
+        flag |= CTS_MASK;
+        return flag;
+    } else {
+        flag &= ~CTS_MASK;
+    }
+    if(flag & TXFF_MASK){
+        return flag;
+    }
     *(int*)(BASE + UART_DATA_OFFSET) = byte;
     return 0;
 }
 
-int get(int channel, char* byte) {
+int getUart(int channel, char* byte) {
     int BASE = getUARTBase(channel);
-    if (*(int*)(BASE + UART_FLAG_OFFSET) & RXFE_MASK) {
-        return 1;
+    unsigned flag = getUartFlag(channel);
+    if (flag & RXFE_MASK) {
+        return flag;
     }
     *byte = *(char*)(BASE + UART_DATA_OFFSET);
     return 0;
+}
+
+unsigned processGeneralInterrupt(int channel){
+    unsigned flag = *(volatile unsigned*)(getUARTBase(channel) + UART_INTR_OFFSET);
+    // refer to the docs on UART1IntIDIntClr for how this is done
+    if(flag & 0x1){
+        //MIS cleared by writing to the register
+        *(volatile unsigned*)(getUARTBase(channel) + UART_INTR_OFFSET) &= ~0x1;
+    }
+    if(flag & 0x2){
+        setReceiveInterrupt(channel, false);
+    }
+    if(flag & 0x3){
+        setTransmitInterrupt(channel, false);
+    }
+    if(flag & 0x4){
+        setReceiveTimeout(channel, false);
+    }
+    return flag;
+}
+
+unsigned getUartFlag(int channel){
+    return *(volatile unsigned)(getUARTBase(channel) + UART_FLAG_OFFSET);
 }

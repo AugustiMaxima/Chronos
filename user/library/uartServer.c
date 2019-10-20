@@ -134,20 +134,14 @@ void uartNotifier(){
 
     while(1){
         deviceId = AwaitMultipleEvent(&val, 3, rx, tx, in);
+        //NOTIFY payloads uses length as a status flag
+        //Resembles the general interrupt flag
         if(deviceId == rx){
-            request.length = 1;
-        } else if(deviceId == tx){
             request.length = 2;
+        } else if(deviceId == tx){
+            request.length = 3;
         } else if(deviceId == in) {
-            if(val && 0x8){
-                request.length = 3;
-            } else if(val && 0x4){
-                request.length = 2;
-            } else if(val && 0x2){
-                request.length = 1;
-            } else if (val && 0x1){
-                request.length = 0;
-            }
+            request.length = val;
         }
         Send(uartServer, (const char*)&request, sizeof(request), (char*)&reply, sizeof(reply));
     }
@@ -238,31 +232,31 @@ void uartServer(){
         if(request.endpoint == 1){
             receive = &rBuffer1;
             transmit = &tBuffer1;
-	    receiveRequest = &rRequest1;
-	    transmitRequest = &tRequest1;
+            receiveRequest = &rRequest1;
+            transmitRequest = &tRequest1;
             delimit = &delimit1;
             uState = &uState1;
         } else {
             receive = &rBuffer2;
             transmit = &tBuffer2;
-	    receiveRequest = &rRequest2;
-	    transmitRequest = &tRequest2;
+            receiveRequest = &rRequest2;
+            transmitRequest = &tRequest2;
             delimit = &delimit2;
             uState = &uState2;
         }
         if(request.method == POST){
             status = fillBuffer(transmit, request.payload, request.length);
             if(status<0 && request.opt){
-		deferred = true;
+		        deferred = true;
                 pushAsyncUartRequests(transmitRequest, &request, config);
             }
         } else if(request.method == GET){
-	    status = -3;
+	        status = -3;
             if(!peekAsyncUartRequests(receiveRequest))
-		status = fetchBuffer(receive, request.payload, request.length);
+		        status = fetchBuffer(receive, request.payload, request.length);
             if(status==-3 || (status==-1 && request.opt)){
-		deferred = true;
-		pushAsyncUartRequests(receiveRequest, &request, config);
+		        deferred = true;
+		        pushAsyncUartRequests(receiveRequest, &request, config);
             }
         } else if(request.method == OPT){
             status = glean(receive, request.payload, request.opt, request.length);
@@ -285,12 +279,16 @@ void uartServer(){
                 *request.payload = delimiter;
             }
         } else if(request.method == NOTIFY) {
-            if(request.length%2){
+            //TODO: Overhaul this section
+            if(request.length & 0x2 || request.length & 0x8){
                 uState->rx = true;
-            } else if (request.length == 3){
+            }            
+            if (request.length && 0x4){
                 uState->tx = true;
-            } else {
-                uState->cts = true;
+            }
+            if (request.length && 0x1){
+                unsigned flag = getUartFlag(request.endpoint);
+                uState->cts = flag & UART_CTS_MASK;
             }
         }
 	if(!deferred)
@@ -330,10 +328,11 @@ void uartServer(){
             //Processing loop
             if(uState->rx){
                 while(getBufferCapacity(receive) > 0){
-                    status = get(j, &retainer);
+                    status = getUart(j, &retainer);
                     if(status) {
                         uState->rx = false;
                         setReceiveInterrupt(j, true);
+                        setReceiveTimeout(j, true);
                         break;
                     } else {
                         receive->buffer[receive->length++] = retainer;
@@ -371,13 +370,18 @@ void uartServer(){
                     }
                 }
             }
-            if(uState->tx){
+            if(uState->tx && uState->cts){
                 while(transmit->cursor < transmit->length){
-                    status = put(j, transmit->buffer[transmit->cursor]);
+                    status = putUart(j, transmit->buffer[transmit->cursor]);
                     if(status){
                         //this needs better refactoring
-                        uState->tx = false;
-                        setTransmitInterrupt(j, true);
+                        if(status && CTS_MASK){
+                            uState->cts = false;
+                        }
+                        if(status && TXFF_MASK){
+                            uState->tx = false;
+                            setTransmitInterrupt(j, true);
+                        }
                         break;
                     } else {
                         transmit->cursor++;
