@@ -1,119 +1,179 @@
+#include <stdlib.h>
 #include <syslib.h>
 #include <timer.h>
 #include <nameServer.h>
 #include <minHeap.h>
+#include <queue.h>
 #include <charay.h>
 #include <clockServer.h>
 #include <bwio.h>
 
-#define CLOCK_MAX 24
+#define MAX_ASYNC_POOL 32
 
 void clockNotifier() {
     int tId = 0;
-    while(!tId) tId = WhoIs("cs");
 
-    char buf[2];
+    clockRequest request;
+    request.method = TICK;
+
+    Receive(&tId, NULL, 0);
+    Reply(tId, NULL, 0);
 
     for (;;) {
         AwaitEvent(TC1UI_DEV_ID);
-        Send(tId, "TICK", strlen("TICK") + 1, buf, 2);
+        Send(tId, (const char*)&request, sizeof(request), NULL, 0);
     }
 }
 
-void clockServer() {
+void clockServer() {    
+
     int ticks = 0;
     MinHeap waitList;
+    MinHeap workList;
+
+    initializeMinHeap(&waitList);
+    initializeMinHeap(&workList);
+
+    AsyncWork asyncRequests[MAX_ASYNC_POOL];
+    Queue asyncResourceQueue;
+
+    initializeQueue(&asyncResourceQueue);
+    for(int i=0;i<MAX_ASYNC_POOL;i++){
+        push(&asyncResourceQueue, asyncRequests + i);
+    }
+
+    clockRequest request;
+    int caller;
+    int reply;
 
     RegisterAs("cs");
 
     //For the sake of standardization, all events waiting for device interrupts gets -2
     //If one event is particular sensitive, bump it up to -3
-    Create(-3, clockNotifier);
-
-    initializeMinHeap(&waitList);
-    char requestBuf[CLOCK_MAX];
-    char reply[8];
-    char command;
-    int caller;
-    int requestTicks;
+    int notifier = Create(-3, clockNotifier);
+    Send(notifier, NULL, 0, NULL, 0);
 
     while(1) {
-        Receive(&caller, requestBuf, CLOCK_MAX);
-        if (0 == strcmp(requestBuf, "TICK")) {
+        Receive(&caller, (char*)&request, sizeof(request));
+        if (request.method == TICK) {
             ticks++;
-            Reply(caller, "ok", strlen("ok"));
+            Reply(caller, NULL, 0);
+
             KV* taskWait = peek(&waitList);
 
             while(taskWait && taskWait->key <= ticks){
                 //A little dangerous, copies a literal into the char array and attempt to dereference it on the other end
-                *(int*)reply = ticks;
-                Reply((int)(taskWait->value), reply, 4);
+                reply = ticks;
+                Reply((int)(taskWait->value), (char*)&reply, sizeof(reply));
                 removeMinHeap(&waitList);
                 taskWait = peek(&waitList);
             }
-        } else if (0 == strcmp(requestBuf, "T")) {
-            *(int*)reply = ticks;
-            Reply(caller, reply,  4);
-        } else {
-            command = requestBuf[0];
-            requestTicks = *(int*)(requestBuf+4);
-            if(command == 'D') {
-                requestTicks+=ticks;
-            } else if (command == 'U'){}
-            else {
-                bwprintf(COM2, "unknown\r\n");
+
+            taskWait = peek(&workList);
+
+            while(taskWait && taskWait->key <= ticks){
+                AsyncWork* work = taskWait->value;
+                Reply(work->tId, work->workDescriptor, work->length);
+                removeMinHeap(&workList);
+                push(&asyncResourceQueue, work);
+                taskWait = peek(&workList);
             }
-	    //bwprintf(COM2, "ClockServer: delay %d requested by %d\r\n", requestTicks, caller);
+
+        } else if (request.method == TIME) {
+            reply = ticks;
+            Reply(caller, (char*)&reply,  sizeof(reply));
+        } else {            
+            int requestTicks = request.tick;
+            if(request.method == DELAY || request.method == REPLY){
+                requestTicks += ticks;
+            }
             if(requestTicks<ticks){
-                *(int*)reply = -2;
-                Reply(caller, reply, 4);
+                reply = -2;
+                Reply(caller, (char*)&reply, sizeof(reply));
             }
             else {
-                insertMinHeap(&waitList, requestTicks, (void*)caller);
+                if(request.method == DELAY || request.method == DELAY_UNTIL){
+                    insertMinHeap(&waitList, requestTicks, (void*)caller);
+                } else {
+                    //acks and stores the details
+                    AsyncWork* work = pop(&asyncResourceQueue);
+                    if(!work){
+                        reply = -1;
+                    } else {
+                        insertMinHeap(&workList, requestTicks, (void*)work);
+                        work->tId = request.payload->tId;
+                        work->length = request.payload->length > 32? 32 : request.payload->length;
+                        for(int i=0; i<32 && i<request.payload->length; i++){
+                            work->workDescriptor[i] = request.payload->payload[i];
+                        }
+                    }
+                    Reply(caller, (char*)&reply, sizeof(reply));
+                }
             }
         }
     }
 }
 
 int DelayUntil(int csTid, int deadline){
-    char buffer[12];
-    char receiveBuffer[8];
-    buffer[0] = 'U';
-    *(int*)(buffer + 4) = deadline;
-    buffer[9] = 0;
-    int status = Send(csTid, buffer, 12, receiveBuffer, CLOCK_MAX);
+    clockRequest request;
+    request.method = DELAY_UNTIL;
+    request.tick = deadline;
+    int result;
+    int status = Send(csTid, (const char*)&request, sizeof(request), (char*)&result, sizeof(result));
     if(status==-1)
         return status;
-    return *(int*)receiveBuffer;
+    return result;
 }
 
 int Time(int csTid){
-    char receiveBuffer[8];
-    int status = Send(csTid, "T", strlen("T") + 1, receiveBuffer, 8);
+    clockRequest request;
+    request.method = TIME;
+    int result;
+    int status = Send(csTid, (const char*)&request, sizeof(request), (char*)&result, sizeof(result));
     if(status==-1)
         return status;
-    return *(int*)receiveBuffer;
+    return result;
 }
 
 int Delay(int csTid, int ticks) {
-    char buffer[12];
-    char receiveBuffer[8];
-    buffer[0] = 'D';
-    *(int*)(buffer + 4) = ticks;
-    int status = Send(csTid, buffer, 8, receiveBuffer, CLOCK_MAX);
+    clockRequest request;
+    request.method = DELAY;
+    request.tick = ticks;
+    int result;
+    int status = Send(csTid, (const char*)&request, sizeof(request), (char*)&result, sizeof(result));
     if(status==-1)
         return status;
-    return *(int*)receiveBuffer;
+    return result;
 }
 
+int AsyncDelay(int csTid, int ticks, int tId, int length, void* payload){
+    clockWork work;
+    work.length = length;
+    work.tId = tId;
+    work.payload = payload;
+    clockRequest request;
+    request.method = REPLY;
+    request.tick = ticks;
+    request.payload = &work;
+    int result;
+    int status = Send(csTid, (const char*)&request, sizeof(request), (char*)&result, sizeof(result));
+    if(status==-1)
+        return status;
+    return result;
+}
 
-/*
-Simulates a notifier task by calling `AwaitEvent`; however, instead of sending a
-tick to the clock server, prints the tick to COM2
-*/
-void testNotifier() {
-    for (int i=0;;i++) {
-        AwaitEvent(TC1UI_DEV_ID);
-        bwprintf(COM2, "tick %d\r\n", i);
-    }
+int AsyncDelayUntil(int csTid, int deadline, int tId, int length, void* payload){
+    clockWork work;
+    work.length = length;
+    work.tId = tId;
+    work.payload = payload;
+    clockRequest request;
+    request.method = REPLY_UNTIL;
+    request.tick = deadline;
+    request.payload = &work;
+    int result;
+    int status = Send(csTid, (const char*)&request, sizeof(request), (char*)&result, sizeof(result));
+    if(status==-1)
+        return status;
+    return result;
 }
