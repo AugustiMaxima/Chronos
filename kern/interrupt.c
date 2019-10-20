@@ -20,8 +20,6 @@ void interruptProcessor(){
     
     int interruptProcessed = 0;
 
-    bwprintf(COM2, "%x %x\r\n", statusMask1, statusMask2);
-
     if (statusMask1 & (1 << TC1UI_DEV_ID)) {
         WakeForDevice(registry, TC1UI_DEV_ID, readTimerValue(1));
         clearTimerInterrupt(1);

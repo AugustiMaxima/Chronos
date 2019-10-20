@@ -176,6 +176,8 @@ int ProcessAsyncUartRequest(AsyncUartRequests* requests, TransmitBuffer* receive
 void uartServer(){
     uartRequest request;
 
+    unsigned flag = getUartFlag(2);
+
     //creates and configures the notifier for uart1 and uart2
     int config = 1;
     int uart1 = Create(-2, uartNotifier);
@@ -226,8 +228,8 @@ void uartServer(){
 
     while(1){
         Receive(&config, (char*)&request, sizeof(request));
-	bool deferred = false;
-	uartRequestLogger(request);
+	    bool deferred = false;
+	    uartRequestLogger(request);
         //Configuration
         if(request.endpoint == 1){
             receive = &rBuffer1;
@@ -289,6 +291,7 @@ void uartServer(){
             if (request.length && 0x1){
                 unsigned flag = getUartFlag(request.endpoint);
                 uState->cts = flag & CTS_MASK;
+                bwprintf(COM2, "CTS: %d for COM %d\r\n", flag, request.endpoint);
             }
         }
 	if(!deferred)
@@ -370,6 +373,7 @@ void uartServer(){
                         //this needs better refactoring
                         if(status && CTS_MASK){
                             uState->cts = false;
+                            bwprintf(COM2, "Turning off cts flag\r\n");
                         }
                         if(status && TXFF_MASK){
                             uState->tx = false;
