@@ -55,7 +55,6 @@ int glean(TransmitBuffer* buffer, char* dest, int offset, int maxlen){
         //indicates character loss
         return -1;
     }
-    bwprintf(COM2, "%d %d %d\r\n", signalen, buffer->length, offset);
     int i;
     int length = maxlen < signalen ? maxlen : signalen; 
     for(i=0; i<length; i++){

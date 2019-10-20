@@ -18,4 +18,8 @@ int put(int channel, char Byte);
 
 int get(int channel, char* Byte);
 
+void setTransmitInterrupt(int channel, bool enable);
+
+void setReceiveInterrupt(int channel, bool enable);
+
 #endif

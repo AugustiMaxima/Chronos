@@ -39,7 +39,7 @@ void setReceiveTimeout(int channel, bool enable){
     }
 }
 
-void setTransmittInterrupt(int channel, bool enable){
+void setTransmitInterrupt(int channel, bool enable){
     int BASE = getUARTBase(channel);
     if(enable){
         *(volatile int *)(BASE + UART_CTLR_OFFSET) |= TIEN_MASK;
@@ -79,7 +79,7 @@ void initializeUART(int channel, int bitRate, bool fifo, bool RTIE, bool TIE, bo
     setBitRate(channel, bitRate);
     setFifo(channel, fifo);
     setReceiveTimeout(channel, RTIE);
-    setTransmittInterrupt(channel, TIE);
+    setTransmitInterrupt(channel, TIE);
     setReceiveInterrupt(channel, RIE);
     setModemStatusInterrupt(channel, MSIE);
     enableUart(channel, true);
@@ -99,6 +99,6 @@ int get(int channel, char* byte) {
     if (*(int*)(BASE + UART_FLAG_OFFSET) & RXFE_MASK) {
         return 1;
     }
-	*byte = *(char*)(BASE + UART_DATA_OFFSET);
+    *byte = *(char*)(BASE + UART_DATA_OFFSET);
     return 0;
 }

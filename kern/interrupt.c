@@ -1,9 +1,9 @@
 #include <ARM.h>
-#include <syscode.h>
 #include <ts7200.h>
+#include <syscode.h>
+#include <deviceRegistry.h>
 #include <timer.h>
 #include <uart.h>
-#include <deviceRegistry.h>
 #include <interrupt.h>
 #include <dump.h>
 #include <bwio.h>
@@ -20,6 +20,8 @@ void interruptProcessor(){
     
     int interruptProcessed = 0;
 
+    bwprintf(COM2, "%x %x\r\n", statusMask1, statusMask2);
+
     if (statusMask1 & (1 << TC1UI_DEV_ID)) {
         WakeForDevice(registry, TC1UI_DEV_ID, *(volatile unsigned*)(TIMER1_BASE + VAL_OFFSET));
         // clear the timer
@@ -33,32 +35,34 @@ void interruptProcessor(){
         interruptProcessed++;
     }
     if (statusMask1 & (1 << UART1TX_DEV_ID)) {
-        disableDevice((1 << UART1TX_DEV_ID), 0x0);
+        setTransmitInterrupt(1, false);
         WakeForDevice(registry, UART1TX_DEV_ID, /*unused*/0);
         interruptProcessed++;
     }
     if (statusMask1 & (1 << UART1RX_DEV_ID)) {
-        disableDevice((1 << UART1RX_DEV_ID), 0x0);
+        setReceiveInterrupt(1, false);
         WakeForDevice(registry, UART1RX_DEV_ID, /*unused*/0);
         interruptProcessed++;
     }
     if (statusMask2 & (1 << (INT_UART1 - 32))) {
         WakeForDevice(registry, INT_UART1, *(volatile unsigned*)(UART1_BASE + UART_INTR_OFFSET));
         *(volatile unsigned*)(UART1_BASE + UART_INTR_OFFSET) = 0;
+	interruptProcessed++;
     }
     if (statusMask1 & (1 << UART2RX_DEV_ID)) {
-        disableDevice((1 << UART2RX_DEV_ID), 0x0);
+        setReceiveInterrupt(2, false);
         WakeForDevice(registry, UART2RX_DEV_ID, /*unused*/0);
         interruptProcessed++;
     }
     if (statusMask1 & (1 << UART2TX_DEV_ID)) {
-        disableDevice((1 << UART2TX_DEV_ID), 0x0);
+        setTransmitInterrupt(2, false);
         WakeForDevice(registry, UART2TX_DEV_ID, /*unused*/0);
         interruptProcessed++;
     }
     if (statusMask2 & (1 << (INT_UART2 - 32))) {
         WakeForDevice(registry, INT_UART2, *(volatile unsigned*)(UART2_BASE + UART_INTR_OFFSET));
         *(volatile unsigned*)(UART2_BASE + UART_INTR_OFFSET) = 0;
+	interruptProcessed++;
     }
     if(!interruptProcessed){
         bwprintf(COM2, "PANIC: Unexpected Interrupt\r\n");
@@ -140,6 +144,14 @@ void enableDevice(unsigned deviceList1, unsigned deviceList2) {
 }
 
 void enableDeviceInterrupt(int deviceId){
-    long deviceMask = 1 << deviceId;
-    enableDevice(deviceMask%0x100000000L, deviceMask/0x100000000L);
+    int deviceMask1 = 0;
+    int deviceMask2 = 0;
+    
+    if(deviceId <= 31) {
+	deviceMask1 = 1 << deviceId;
+    } else {
+	deviceMask2 = 1 << (deviceId - 32);
+    }
+    
+    enableDevice(deviceMask1, deviceMask2);
 }

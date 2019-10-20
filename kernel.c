@@ -83,7 +83,7 @@ int main( int argc, char* argv[] ) {
 
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
 
-    initializeTimer(1, 2000, 20, 1); // 10ms
+    //initializeTimer(1, 2000, 20, 1); // 10ms
     
     scheduleTask(scheduler, 0, 0, uartServerTest);
     
