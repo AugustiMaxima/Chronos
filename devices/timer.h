@@ -18,4 +18,6 @@ unsigned int getWrap(int timer);
 
 int getTimerBase(int timer);
 
+void clearTimerInterrupt(int timer);
+
 #endif

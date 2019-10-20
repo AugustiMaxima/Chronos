@@ -112,7 +112,7 @@ int getUart(int channel, char* byte) {
     return 0;
 }
 
-unsigned processGeneralInterrupt(int channel){
+unsigned processUartInterrupt(int channel){
     unsigned flag = *(volatile unsigned*)(getUARTBase(channel) + UART_INTR_OFFSET);
     // refer to the docs on UART1IntIDIntClr for how this is done
     if(flag & 0x1){
@@ -132,5 +132,5 @@ unsigned processGeneralInterrupt(int channel){
 }
 
 unsigned getUartFlag(int channel){
-    return *(volatile unsigned)(getUARTBase(channel) + UART_FLAG_OFFSET);
+    return *(volatile unsigned*)(getUARTBase(channel) + UART_FLAG_OFFSET);
 }

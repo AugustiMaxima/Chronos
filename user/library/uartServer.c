@@ -288,7 +288,7 @@ void uartServer(){
             }
             if (request.length && 0x1){
                 unsigned flag = getUartFlag(request.endpoint);
-                uState->cts = flag & UART_CTS_MASK;
+                uState->cts = flag & CTS_MASK;
             }
         }
 	if(!deferred)
@@ -297,9 +297,6 @@ void uartServer(){
         //Some light processing
         status = 0;
         char retainer;
-
-        int rxInterrupt;
-        int txInterrupt;
 
         asyncUartRequest* asyncRequest;
 
@@ -312,8 +309,6 @@ void uartServer(){
                 delimit = &delimit1;
                 receiveRequest = &rRequest1;
                 transmitRequest = &tRequest1;
-                rxInterrupt = UART1RX_DEV_ID;
-                txInterrupt = UART1TX_DEV_ID;
             } else {
                 receive = &rBuffer2;
                 transmit = &tBuffer2;
@@ -321,8 +316,6 @@ void uartServer(){
                 delimit = &delimit2;
                 receiveRequest = &rRequest2;
                 transmitRequest = &tRequest2;
-                rxInterrupt = UART2RX_DEV_ID;
-                txInterrupt = UART2TX_DEV_ID;
             }
 
             //Processing loop
