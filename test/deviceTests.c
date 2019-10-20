@@ -24,10 +24,10 @@ void uartServerTest(){
     char buffer[32];
     Create(-1, nameServer);
     int server = Create(-1, uartServer);
-    PutCN(server, 1, "Basic test!\r\n", strlen("Basic test!\r\n"), true);
+    PutCN(server, 2, "Basic test!\r\n", strlen("Basic test!\r\n"), true);
     GetCN(server, 2, buffer, 5, true);
-    buffer[6] = 0;
+    buffer[5] = 0;
     bwprintf(COM2, "GetCN succeeded\r\n");
-    PutCN(server, 1, buffer, 6, true);
+    PutCN(server, 2, buffer, 6, true);
     bwprintf(COM2, "Did it print?\r\n");
 }

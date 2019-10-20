@@ -100,7 +100,7 @@ int putUart(int channel, char byte) {
     if(flag & TXFF_MASK){
         return flag;
     }
-    *(int*)(BASE + UART_DATA_OFFSET) = byte;
+    *(volatile int*)(BASE + UART_DATA_OFFSET) = byte;
     return 0;
 }
 
