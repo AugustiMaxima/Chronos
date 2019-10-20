@@ -27,8 +27,8 @@ void uartServerTest(){
     int server = Create(-1, uartServer);
     bwprintf(COM2, "Both creates were successfull\r\n");
     //PutCN(server, 2, "Basic test!\r\n", strlen("Basic test!\r\n"), true);
-    GetCN(server, 2, buffer, 8, true);
-    buffer[9] = 0;
+    GetCN(server, 2, buffer, 5, true);
+    buffer[6] = 0;
     bwprintf(COM2, "Received buffer: %s\r\n", buffer);
     //PutCN(server, 2, buffer, 9, true);
 }

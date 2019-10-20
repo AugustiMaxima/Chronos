@@ -1,6 +1,8 @@
 #include <ts7200.h>
 #include <uart.h>
 
+#include <bwio.h>
+
 int getUARTBase(int channel) {
     switch (channel) {
         case 1:
@@ -114,18 +116,24 @@ int getUart(int channel, char* byte) {
 
 unsigned processUartInterrupt(int channel){
     unsigned flag = *(volatile unsigned*)(getUARTBase(channel) + UART_INTR_OFFSET);
+
+    bwprintf(COM2, "Trying (and failing) to process the general UART interrupt with flag status %x\r\n", flag);
     // refer to the docs on UART1IntIDIntClr for how this is done
     if(flag & 0x1){
         //MIS cleared by writing to the register
+        bwprintf(COM2, "Triggered MIS\r\n");
         *(volatile unsigned*)(getUARTBase(channel) + UART_INTR_OFFSET) &= ~0x1;
     }
     if(flag & 0x2){
+        bwprintf(COM2, "Triggered RX\r\n");
         setReceiveInterrupt(channel, false);
     }
-    if(flag & 0x3){
+    if(flag & 0x4){
+        bwprintf(COM2, "Triggered TX\r\n");
         setTransmitInterrupt(channel, false);
     }
-    if(flag & 0x4){
+    if(flag & 0x8){
+        bwprintf(COM2, "Triggered timeout\r\n");
         setReceiveTimeout(channel, false);
     }
     return flag;
