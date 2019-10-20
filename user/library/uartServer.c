@@ -176,8 +176,6 @@ int ProcessAsyncUartRequest(AsyncUartRequests* requests, TransmitBuffer* receive
 void uartServer(){
     uartRequest request;
 
-    unsigned flag = getUartFlag(2);
-
     //creates and configures the notifier for uart1 and uart2
     int config = 1;
     int uart1 = Create(-2, uartNotifier);

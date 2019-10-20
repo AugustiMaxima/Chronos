@@ -7,7 +7,6 @@
 
 #define TRANSMIT_BUFFER_SIZE 256
 
-
 typedef struct transmit_Queue{
     int cursor;
     int length;

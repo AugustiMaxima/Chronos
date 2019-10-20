@@ -32,6 +32,9 @@
 #include <dump.h>
 #include <deviceTests.h>
 
+//Application
+#include <control.h>
+
 Scheduler* scheduler;
 COMM* com;
 DeviceRegistry* registry;
@@ -72,7 +75,7 @@ int main( int argc, char* argv[] ) {
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
 
     
-    scheduleTask(scheduler, 0, 0, k3_main);
+    scheduleTask(scheduler, 0, 0, control);
     
     unsigned long last = 0;
     unsigned long utilTime = 0;

@@ -1,5 +1,6 @@
 #include <uartServer.h>
 #include <track.h>
+#include <chlib.h>
 
 #define MAXSPEED 15
 #define SMOKELIGHTS 16
@@ -51,14 +52,14 @@ void turnOut(int uart){
     PutCN(uart, 1, command, 1, true);
 }
 
-void getSensorReading(int uart, bool* sensorBank){
-    char command[1];
-    command[0] = '0x85';
-    PutCN(uart, 1, command, 1, true);
-    char buffer[10];
-    GetCN(uart, 1, command, 10, true);
-    char* sensorCast = sensorBank;
-    for(int i=0;i<10;i++){
-        sensorCast[i] = buffer[i];
-    }
-}
+// void getSensorReading(int uart, bool* sensorBank){
+//     char command[1];
+//     command[0] = 0x85;
+//     PutCN(uart, 1, command, 1, true);
+//     char buffer[10];
+//     GetCN(uart, 1, command, 10, true);
+//     char* sensorCast = (char*)sensorBank;
+//     for(int i=0;i<10;i++){
+//         sensorCast[i] = buffer[i];
+//     }
+// }
