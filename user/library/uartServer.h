@@ -29,7 +29,7 @@ int GetCN(int tid, int channel, char* buffer, int length, bool async);
 
 int PutCN(int tid, int channel, char* buffer, int length, bool async);
 
-int GleanCN(int tid, int channel, int offset, char* buffer, int length);
+int GleanUART(int tid, int channel, int offset, char* buffer, int length);
 
 //Make sure your buffer has at least one character
 int GetLN(int tid, int channel, char* buffer, int length, char delimiter, bool async);

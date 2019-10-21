@@ -9,6 +9,12 @@
 #include <clockServer.h>
 #include <queue.h>
 
+#include <uartServer.h>
+#include <track.h>
+#include <stdlib.h>
+#include <terminal.h>
+
+
 #define MSG_MAX 24
 
 void printCharToCom2(char c) {
@@ -292,3 +298,4 @@ void k4_main() {
     Create(2, com2TxServer);
     Create(3, com2TxNotifier);
 }
+

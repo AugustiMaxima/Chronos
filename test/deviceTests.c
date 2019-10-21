@@ -8,6 +8,8 @@
 #include <track.h>
 #include <deviceTests.h>
 #include <bwio.h>
+#include <stdlib.h>
+#include <terminal.h>
 
 void windows(){
     int val;
@@ -20,19 +22,6 @@ void windows(){
     }
 }
 
-
-// //let's try to root out all of the issues potentailly in the uart server
-// void uartServerTest(){
-//     char buffer[32];
-//     Create(-1, nameServer);
-//     int server = Create(-1, uartServer);
-//     PutCN(server, 2, "Basic test!\r\n", strlen("Basic test!\r\n"), true);
-//     GetCN(server, 2, buffer, 5, true);
-//     buffer[5] = 0;
-//     bwprintf(COM2, "GetCN succeeded\r\n");
-//     PutCN(server, 2, buffer, 6, true);
-//     bwprintf(COM2, "Did it print?\r\n");
-// }
 
 void uartServerTest(){
     int buf = 1;
@@ -85,3 +74,101 @@ void control(){
         Delay(clock, 100);
     }
 }
+
+
+#include <nameServer.h>
+#include <clockServer.h>
+#include <uartServer.h>
+#include <track.h>
+#include <deviceTests.h>
+#include <bwio.h>
+#include <stdlib.h>
+#include <terminal.h>
+
+
+
+void k4_v2(){
+
+    Create(-1, nameServer);
+    int RX1 = Create(-1, rxServer);
+    int RX2 = Create(-1, rxServer);
+    int TX1 = Create(-1, txServer);
+    int TX2 = Create(-1, txServer);
+
+    int config = 1;
+    Send(RX1, (const char*)&config, sizeof(config), NULL, 0);
+    Send(TX1, (const char*)&config, sizeof(config), NULL, 0);
+    config++;
+    Send(RX2, (const char*)&config, sizeof(config), NULL, 0);
+    Send(TX2, (const char*)&config, sizeof(config), NULL, 0);
+
+    int clock = Create(-1, clockServer);
+
+    int ui_index = 0;
+
+    char cmdBuffer[10];
+
+    char displayBuffer[64];
+
+    TerminalOutput output;
+
+    while(1){
+        int addition = GleanUART(RX2, 2, ui_index, displayBuffer, 64);
+        flush(&output);
+        saveCursor(&output);
+        PutCN(TX2, 2, output.compositePayload, output.length, true);
+        PutCN(TX2, 2, displayBuffer, addition, true);
+        ui_index += addition;
+        flush(&output);
+        restoreCursor(&output);
+        PutCN(TX2, 2, output.compositePayload, output.length, true);
+        GetLN(RX2, 2, cmdBuffer, 10, '\r', true);
+        
+        char* cmd = cmdBuffer;
+        char* op1;
+        int operand1;
+        char* op2;
+        int operand2;
+
+        int op = 0;
+
+        for(int i=0;cmdBuffer[i] && i<10;i++){
+            if (cmdBuffer[i] == ' ' || cmdBuffer[i] == '\r'){
+                cmdBuffer[i] = 0;
+                if(op++ == 1){
+                    op1 = cmdBuffer + i + 1;
+                } else {
+                    op2 = cmdBuffer + i + 1;
+                    break;
+                }
+            }
+        }
+
+        if(!strcmp("rv", cmd)){
+            operand1 = stringToNum(op1, 10);
+            operand2 = stringToNum(op2, 10);
+            engineSpeed(TX1, operand1, operand2);
+        } else if(!strcmp("sw", cmd)){
+            operand1 = stringToNum(op1, 10);
+            branch(TX1, operand1, *op2);
+            Delay(clock, 20);
+            turnOut(TX1);
+        } else if(!strcmp("rv", cmd)){
+            operand1 = stringToNum(op1, 10);
+            engineSpeed(TX1, operand1, 0);
+            Delay(clock, 40);
+            engineSpeed(TX1, operand1, 15);
+            Delay(clock, 10);
+            engineSpeed(TX1, operand1, 5);
+        } else if(!strcmp("q", cmd)){
+
+        }
+
+
+    }
+
+
+}
+
+
+

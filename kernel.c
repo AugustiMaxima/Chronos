@@ -75,7 +75,7 @@ int main( int argc, char* argv[] ) {
 
     
     //scheduleTask(scheduler, 0, 0, uartServerTest);
-    scheduleTask(scheduler, 0, 0, control);
+    scheduleTask(scheduler, 0, 0, k4_v2);
 
     unsigned long last = 0;
     unsigned long utilTime = 0;
