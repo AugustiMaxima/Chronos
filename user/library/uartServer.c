@@ -274,7 +274,6 @@ void rxWorker(){
     delimit.maxSize = 0;
     bool serverWaiting = false;
     while(1){
-	bwprintf(COM2, "Survive!\r\n");
         Receive(&caller, (char*)&delimit, sizeof(delimit));
 	if(caller == tId){
 	    serverWaiting = true;
@@ -287,7 +286,6 @@ void rxWorker(){
         while(getBufferCapacity(buffer) > 0){
             status = getUart(config, &retainer);
             if(status){
-		bwprintf(COM2, "Status: %d\r\n", status);
                 setReceiveInterrupt(config, true);
                 setReceiveTimeout(config, true);
                 break;
@@ -298,7 +296,6 @@ void rxWorker(){
                 }
             }
         }
-	bwprintf(COM2, "%d\r\n", getBufferFill(buffer));
         if (!serverWaiting) {
 	} else if (delimit.enabled && !delimit.found && delimit.maxSize < getBufferFill(buffer)) {
         } else if(delimit.maxSize > getBufferFill(buffer)){
@@ -367,7 +364,6 @@ void rxServer(){
                 delimit.enabled = false;
                 delimit.maxSize = request.length;
                 Send(worker, (const char*)&delimit, sizeof(delimit), NULL, 0);
-                bwprintf(COM2, "Retrying with buffer fill %d\r\n", getBufferFill(&buffer));
                 status = fetchBuffer(&buffer, request.payload, request.length);
             }
         } else if(request.method == OPT){
