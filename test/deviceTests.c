@@ -122,7 +122,7 @@ void k4_v2(){
         flush(&output);
         restoreCursor(&output);
         PutCN(TX2, 2, output.compositePayload, output.length, true);
-        GetLN(RX2, 2, cmdBuffer, 10, '\r', true);
+        GetLN(RX2, 2, cmdBuffer, 10, 13, true);
         
         char* cmd = cmdBuffer;
         char* op1;
