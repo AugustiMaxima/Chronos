@@ -24,7 +24,7 @@ int createDeviceWaitEntry(DeviceRegistry* registry, Task* task, int device, Task
     node->next = getMap(&(registry->deviceMap), device);
     if(node->next){
 	    node->next->prev = node;
-	    bwprintf(COM2, "Warning: Multiple tasks awaits the same device signal at device %d\r\n", device);
+	    // bwprintf(COM2, "Warning: Multiple tasks awaits the same device signal at device %d\r\n", device);
     }
     node->prev = NULL;
     return putMap(&(registry->deviceMap), device, node);

@@ -3,5 +3,6 @@
 
 void windows();
 void uartServerTest();
+void control();
 
 #endif

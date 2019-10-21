@@ -33,7 +33,7 @@ ASFLAGS = -mfloat-abi=soft
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource -I application
+CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource
 
 # -static: force static linking
 # -e: set entry point
@@ -42,7 +42,7 @@ CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I incl
 #LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lcontrol -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lgcc
 
 all: kernel.elf
 
@@ -52,7 +52,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a deviceTests.a uart.a transmitBuffer.a uartServer.a track.a control.a
+kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a deviceTests.a uart.a transmitBuffer.a uartServer.a track.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 a0.s: a0.c
@@ -378,15 +378,6 @@ ssrTest.o: ssrTest.s
 
 ssrTest.a: ssrTest.o
 	$(AR) $(ARFLAGS) $@ ssrTest.o
-
-control.s: application/control.c
-	$(CC) -S $(CFLAGS) application/control.c
-
-control.o: control.s
-	$(AS) $(ASFLAGS) -o control.o control.s
-
-control.a: control.o
-	$(AR) $(ARFLAGS) $@ control.o
 
 .PHONY: install clean
 

@@ -3,7 +3,9 @@
 #include <string.h>
 #include <interrupt.h>
 #include <nameServer.h>
+#include <clockServer.h>
 #include <uartServer.h>
+#include <track.h>
 #include <deviceTests.h>
 #include <bwio.h>
 
@@ -30,4 +32,29 @@ void uartServerTest(){
     bwprintf(COM2, "GetCN succeeded\r\n");
     PutCN(server, 2, buffer, 6, true);
     bwprintf(COM2, "Did it print?\r\n");
+}
+
+void control(){
+    Create(-1, nameServer);
+    int uart = Create(-1, uartServer);
+    int clock = Create(-1, clockServer);
+    Conductor conductor;
+    conductor.uartServer = uart;
+
+    while(1){
+        getSensorReading(uart, conductor.sensorStat);
+        char sensorCount[82];
+        for(int i=0;i<80;i++){
+            if(conductor.sensorStat[i]){
+                sensorCount[i] = 'X';
+            }else{
+                sensorCount[i] = '_';
+            }
+        }
+        sensorCount[80] = '\r';
+        sensorCount[81] = '\n';
+        PutCN(uart, 2, "Printing sensors:\r\n", strlen("Printing sensors:\r\n"), true);
+        PutCN(uart, 2, sensorCount, 82, true);
+        Delay(clock, 100);
+    }
 }
