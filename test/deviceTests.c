@@ -34,6 +34,20 @@ void windows(){
 //     bwprintf(COM2, "Did it print?\r\n");
 // }
 
+void uartServerTest(){
+    int buf = 1;
+    Create(-1, nameServer);
+    int RX1 = Create(-1, rxServer);
+    Send(RX1, (const char*)&buf, sizeof(buf), NULL, 0);
+    int TX1 = Create(-1, txServer);
+    char buf2[5];
+    buf2[4] = 0;
+    while(1){
+	GetCN(RX1, 1, buf2, 10, true);
+	bwprintf(COM2, "%s\r\n", buf2);
+    }
+    
+}
 void control(){
     Create(-1, nameServer);
     int RX1 = Create(-1, rxServer);

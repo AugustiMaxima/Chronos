@@ -2,7 +2,7 @@
 #define DEVICE_TEST
 
 void windows();
-// void uartServerTest();
+void uartServerTest();
 void control();
 
 #endif

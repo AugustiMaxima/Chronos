@@ -195,12 +195,17 @@ void rxNotifier(){
         GeneralInterrupt = INT_UART2;
     }
 
+    enableDeviceInterrupt(RXInterrupt);
+    enableDeviceInterrupt(GeneralInterrupt);
+
     int val;
     int device;
 
     while(1){
         device = AwaitMultipleEvent(&val, 2, RXInterrupt, GeneralInterrupt);
+        // bwprintf(COM2, "Triggered RX notif\r\n");
         if(device == GeneralInterrupt){
+            // bwprintf(COM2, "General flag: %x\r\n", val);
             if(val & 0x8){
                 //Receive Timeout
                 Send(tId, NULL, 0 ,NULL, 0);
@@ -230,21 +235,24 @@ void txNotifier(){
         GeneralInterrupt = INT_UART2;
     }
 
+    enableDeviceInterrupt(TXInterrupt);
+    enableDeviceInterrupt(GeneralInterrupt);
+
     int val;
     int device;
 
     while(1){
         device = AwaitMultipleEvent(&val, 2, TXInterrupt, GeneralInterrupt);
         if(device == GeneralInterrupt){
-            if(val & 0x3){
+            if(val & 0x4){
                 //TX
-                Send(tId, NULL, 0 ,NULL, 0);
+                Send(tId, NULL, 0, NULL, 0);
             } else if(val & 0x1){
                 //MODEM
-                Send(tId, NULL, 0 ,NULL, 0);
+                Send(tId, NULL, 0, NULL, 0);
             }
         } else {
-            Send(tId, NULL, 0 ,NULL, 0);
+            Send(tId, NULL, 0, NULL, 0);
         }
     }
 }
@@ -263,14 +271,23 @@ void rxWorker(){
     Send(notifier, (const char*)&config, sizeof(config), NULL, 0);
     DelimiterTracker delimit;
     delimit.enabled = false;
+    delimit.maxSize = 0;
+    bool serverWaiting = false;
     while(1){
-        Receive(&caller, (char*)&delimit, sizeof(delimit));            
+	bwprintf(COM2, "Survive!\r\n");
+        Receive(&caller, (char*)&delimit, sizeof(delimit));
+	if(caller == tId){
+	    serverWaiting = true;
+	} else {
+	    Reply(caller, NULL, 0);
+	}
         char retainer;
         int status;
         //Processing
         while(getBufferCapacity(buffer) > 0){
             status = getUart(config, &retainer);
             if(status){
+		bwprintf(COM2, "Status: %d\r\n", status);
                 setReceiveInterrupt(config, true);
                 setReceiveTimeout(config, true);
                 break;
@@ -281,11 +298,12 @@ void rxWorker(){
                 }
             }
         }
-        if(caller == notifier){
-            Reply(caller, NULL, 0);    
-        }
-        if (delimit.enabled && !delimit.found && delimit.maxSize < getBufferFill(buffer)) {
-        } else {
+	bwprintf(COM2, "%d\r\n", getBufferFill(buffer));
+        if (!serverWaiting) {
+	} else if (delimit.enabled && !delimit.found && delimit.maxSize < getBufferFill(buffer)) {
+        } else if(delimit.maxSize > getBufferFill(buffer)){
+	} else {
+	    serverWaiting = false;
             Reply(tId, NULL, 0);
         }
     }
@@ -304,6 +322,8 @@ void txWorker(){
     Send(notifier, (char*)&config, sizeof(config), NULL, 0);
     while(1){
         Receive(&caller, NULL, 0);
+	if(caller == notifier)
+	    Reply(notifier, NULL, 0);
         while(buffer->cursor < buffer->length){
             int status = putUart(config, buffer->buffer[buffer->cursor]);
             if(status & TXFF_MASK){
@@ -315,7 +335,8 @@ void txWorker(){
                 buffer->cursor++;
             }
         }
-        Reply(caller, NULL, 0);
+	if(caller == tId)
+	    Reply(caller, NULL, 0);
     }
 }
 
@@ -344,7 +365,9 @@ void rxServer(){
 		    status = fetchBuffer(&buffer, request.payload, request.length);
             while(status==-1 && request.opt){
                 delimit.enabled = false;
+                delimit.maxSize = request.length;
                 Send(worker, (const char*)&delimit, sizeof(delimit), NULL, 0);
+                bwprintf(COM2, "Retrying with buffer fill %d\r\n", getBufferFill(&buffer));
                 status = fetchBuffer(&buffer, request.payload, request.length);
             }
         } else if(request.method == OPT){
@@ -388,9 +411,10 @@ void txServer(){
         Receive(&tId, (char*)&request, sizeof(request));
         if(request.method == POST){
             status = fillBuffer(&buffer, request.payload, request.length);
+	    Send(worker, NULL, 0, NULL, 0);
             while (status<0 && request.opt){
-                Send(worker, NULL, 0, NULL, 0);
                 status = fillBuffer(&buffer, request.payload, request.length);
+                Send(worker, NULL, 0, NULL, 0);
             }
             Reply(tId, (const char*)&status, sizeof(status));
         }

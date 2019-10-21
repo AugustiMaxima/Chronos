@@ -52,7 +52,7 @@ int SendMsg(COMM* com, Sender* sender, Receiver* receiver){
 
 int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
     int mlen = min(length, sender->receiveLength);
-    //bwprintf(COM2, "Commencing reply: length: %d %d %d, for sender: %d from replier %d \r\n", mlen, length, sender->receiveLength, sender->tId, scheduler->currentTask->tId);
+    // bwprintf(COM2, "Commencing reply: length: %d %d %d, for sender: %d from replier %d \r\n", mlen, length, sender->receiveLength, sender->tId, scheduler->currentTask->tId);
     int i;
     for(i=0;i<mlen;i++){
         sender->receiveBuffer[i] = reply[i];
@@ -65,7 +65,7 @@ int replyMsg(COMM* com, const char* reply, int length, Sender* sender){
     task->stackEntry[1] = i;
     insertTaskToQueue(scheduler, task);
     
-    //bwprintf(COM2, "Reaches the end\r\n");
+    // bwprintf(COM2, "Reaches the end\r\n");
 
     return i;
 }

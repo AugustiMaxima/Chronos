@@ -18,6 +18,9 @@ void interruptProcessor(){
     int statusMask1 = *((unsigned*)VIC1ADDR);
     int statusMask2 = *((unsigned*)VIC2ADDR);
     
+    //if(statusMask1 != 0x10)
+	//bwprintf(COM2, "%x %x\r\n", statusMask1, statusMask2);
+    
     int interruptProcessed = 0;
 
     if (statusMask1 & (1 << TC1UI_DEV_ID)) {
@@ -30,11 +33,9 @@ void interruptProcessor(){
         clearTimerInterrupt(2);
         interruptProcessed++;
     }
-    char buffer;
     if (statusMask1 & (1 << UART1RX_DEV_ID)) {
         setReceiveInterrupt(1, false);
-        getUart(1, &buffer);
-        WakeForDevice(registry, UART1RX_DEV_ID, buffer);
+        WakeForDevice(registry, UART1RX_DEV_ID, /*unused*/0);
         interruptProcessed++;
     }
     if (statusMask1 & (1 << UART1TX_DEV_ID)) {
@@ -44,7 +45,7 @@ void interruptProcessor(){
     }
     if (statusMask2 & (1 << (INT_UART1 - 32))) {
         WakeForDevice(registry, INT_UART1, processUartInterrupt(1));
-	    interruptProcessed++;
+	interruptProcessed++;
     }
     if (statusMask1 & (1 << UART2RX_DEV_ID)) {
         setReceiveInterrupt(2, false);
@@ -53,13 +54,12 @@ void interruptProcessor(){
     }
     if (statusMask1 & (1 << UART2TX_DEV_ID)) {
         setTransmitInterrupt(2, false);        
-        getUart(2, &buffer);
-        WakeForDevice(registry, UART2TX_DEV_ID, buffer);
+        WakeForDevice(registry, UART2TX_DEV_ID, /*unused*/0);
         interruptProcessed++;
     }
     if (statusMask2 & (1 << (INT_UART2 - 32))) {
         WakeForDevice(registry, INT_UART2, processUartInterrupt(2));
-	    interruptProcessed++;
+	interruptProcessed++;
     }
     if(!interruptProcessed){
         bwprintf(COM2, "PANIC: Unexpected Interrupt\r\n");
