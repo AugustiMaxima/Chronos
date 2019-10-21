@@ -12,9 +12,9 @@ void control(){
     conductor.uartServer = uart;
 
     while(1){
-    //     getSensorReading(uart, conductor.sensorStat);
-    //     char* sensor = (char*)conductor.sensorStat;
-    //     PutCN(uart, 2, sensor, 10, true);
+        getSensorReading(uart, conductor.sensorStat);
+        char* sensor = (char*)conductor.sensorStat;
+        PutCN(uart, 2, sensor, 10, true);
     }
 
 }
