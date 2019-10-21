@@ -61,8 +61,7 @@ void sendSensorRequest(int uart){
 
 void getSensorReading(int uart, bool* sensorBank){
     char buffer[10];
-    int status = GetCN(uart, 1, buffer, 10, false);
-    bwprintf(COM2, "%d chars actually returned\r\n", status);
+    int status = GetCN(uart, 1, buffer, 10, true);
     char* sensorCast = (char*)sensorBank;
     for(int i=0;i<10;i++){
         sensorCast[i] = buffer[i];

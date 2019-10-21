@@ -69,10 +69,10 @@ int WakeForDevice(DeviceRegistry* registry, int device, int value){
     TaskNode* node = removeMap(&(registry->deviceMap), device);
     // bwprintf(COM2, "Retrieved node %x for device %d\r\n", node, device);
     while(node){
-	int multiple = removeNullEntries(registry, getMap(&(registry->taskWaitMap), node->task->tId), device, value);
+	int multiple = removeNullEntries(registry, removeMap(&(registry->taskWaitMap), node->task->tId), device, value);
         if(!multiple){
-	        node->task->stackEntry[1] = value;
-	    }
+	    node->task->stackEntry[1] = value;
+	}
         status = insertTaskToQueue(scheduler, node->task);
         push(&(registry->freeQueue), node);
         node = node->next;
