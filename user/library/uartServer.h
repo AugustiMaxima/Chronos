@@ -9,15 +9,17 @@ typedef struct uartServerRequest{
         POST,
         GET,
         OPT,
-        GETLN,
-        NOTIFY
+        GETLN
     } method;
     int length;
     int opt;
     char* payload;
 } uartRequest;
 
-void uartServer();
+void rxServer();
+void txServer();
+
+// void uartServer();
 
 int Getc(int tid, int channel);
 

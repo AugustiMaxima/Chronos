@@ -9,6 +9,7 @@
 #include <uartServer.h>
 #include <bwio.h>
 
+/*
 #define ASYNC_POOL_SIZE 32
 
 typedef struct async_UartRequest{
@@ -55,15 +56,14 @@ int pushAsyncUartRequests(AsyncUartRequests* requests, uartRequest* request, int
     requests->requests[index].requester = requester;
     return index;
 }
-
+*/
 typedef struct delimiterTracker{
     bool enabled;
     bool found;
-    bool unknown;
     char delimiter;
     int maxSize;
 } DelimiterTracker;
-
+/*
 typedef struct uartStatus{
     bool rx;
     bool tx;
@@ -77,8 +77,6 @@ void uartRequestLogger(uartRequest request){
 	    bwprintf(COM2, "GET ->");
     } else if(request.method==OPT){
 	    bwprintf(COM2, "OPT ->");
-    } else if(request.method==NOTIFY){
-	    bwprintf(COM2, "NOTIFY ->");
     } else if(request.method==GETLN){
 	    bwprintf(COM2, "GETLN ->");
     }
@@ -138,10 +136,17 @@ void uartNotifier(){
         //Resembles the general interrupt flag
         if(deviceId == rx){
             request.length = 2;
+            request.opt = val;
         } else if(deviceId == tx){
             request.length = 4;
         } else if(deviceId == in) {
             request.length = val;
+            if(request.length & 0x2){
+                char bite;
+                getUart(request.endpoint, &bite);
+                request.opt = bite;
+                // bwprintf(COM2, "Get char: %c\r\n", bite);
+            }
         }
         Send(uartServer, (const char*)&request, sizeof(request), (char*)&reply, sizeof(reply));
     }
@@ -171,8 +176,232 @@ int ProcessAsyncUartRequest(AsyncUartRequests* requests, TransmitBuffer* receive
         Reply(asyncReq->requester, (char*)&status, sizeof(status));
     }
     return status;
+}*/
+
+
+void rxNotifier(){
+    int config;
+    int RXInterrupt;
+    int GeneralInterrupt;
+    int tId;
+    Receive(&tId, (char*)&config, sizeof(config));
+    Reply(tId, NULL, 0);
+
+    if(config==1){
+        RXInterrupt = UART1RX_DEV_ID;
+        GeneralInterrupt = INT_UART1;
+    } else {
+        RXInterrupt = UART2RX_DEV_ID;
+        GeneralInterrupt = INT_UART2;
+    }
+
+    int val;
+    int device;
+
+    while(1){
+        device = AwaitMultipleEvent(&val, 2, RXInterrupt, GeneralInterrupt);
+        if(device == GeneralInterrupt){
+            if(val & 0x8){
+                //Receive Timeout
+                Send(tId, NULL, 0 ,NULL, 0);
+            } else if(val & 0x2){
+                //RX
+                Send(tId, NULL, 0 ,NULL, 0);
+            }
+        } else {
+            Send(tId, NULL, 0 ,NULL, 0);
+        }
+    }
 }
 
+void txNotifier(){
+    int config;
+    int TXInterrupt;
+    int GeneralInterrupt;
+    int tId;
+    Receive(&tId, (char*)&config, sizeof(config));
+    Reply(tId, NULL, 0);
+
+    if(config==1){
+        TXInterrupt = UART1TX_DEV_ID;
+        GeneralInterrupt = INT_UART1;
+    } else {
+        TXInterrupt = UART2TX_DEV_ID;
+        GeneralInterrupt = INT_UART2;
+    }
+
+    int val;
+    int device;
+
+    while(1){
+        device = AwaitMultipleEvent(&val, 2, TXInterrupt, GeneralInterrupt);
+        if(device == GeneralInterrupt){
+            if(val & 0x3){
+                //TX
+                Send(tId, NULL, 0 ,NULL, 0);
+            } else if(val & 0x1){
+                //MODEM
+                Send(tId, NULL, 0 ,NULL, 0);
+            }
+        } else {
+            Send(tId, NULL, 0 ,NULL, 0);
+        }
+    }
+}
+
+
+void rxWorker(){
+    TransmitBuffer* buffer;
+    int config;
+    int tId;
+    int caller;
+    Receive(&tId, (char*)&config, sizeof(config));
+    Reply(tId, NULL, 0);
+    Receive(&tId, (char*)&buffer, sizeof(buffer));
+    Reply(tId, NULL, 0);
+    int notifier = Create(-3, rxNotifier);
+    Send(notifier, (const char*)&config, sizeof(config), NULL, 0);
+    DelimiterTracker delimit;
+    delimit.enabled = false;
+    while(1){
+        Receive(&caller, (char*)&delimit, sizeof(delimit));            
+        char retainer;
+        int status;
+        //Processing
+        while(getBufferCapacity(buffer) > 0){
+            status = getUart(config, &retainer);
+            if(status){
+                setReceiveInterrupt(config, true);
+                setReceiveTimeout(config, true);
+                break;
+            } else {
+                buffer->buffer[buffer->length++] = retainer;
+                if(delimit.enabled && delimit.delimiter == retainer){
+                    delimit.found = true;
+                }
+            }
+        }
+        if(caller == notifier){
+            Reply(caller, NULL, 0);    
+        }
+        if (delimit.enabled && !delimit.found && delimit.maxSize < getBufferFill(buffer)) {
+        } else {
+            Reply(tId, NULL, 0);
+        }
+    }
+}
+
+void txWorker(){
+    TransmitBuffer* buffer;
+    int config;
+    int tId;
+    int caller;
+    Receive(&tId, (char*)&config, sizeof(config));
+    Reply(tId, NULL, 0);
+    Receive(&tId, (char*)&buffer, sizeof(buffer));
+    Reply(tId, NULL, 0);
+    int notifier = Create(-3, txNotifier);
+    Send(notifier, (char*)&config, sizeof(config), NULL, 0);
+    while(1){
+        Receive(&caller, NULL, 0);
+        while(buffer->cursor < buffer->length){
+            int status = putUart(config, buffer->buffer[buffer->cursor]);
+            if(status & TXFF_MASK){
+                setTransmitInterrupt(config, true);
+            }
+            if(status){
+                break;
+            } else {
+                buffer->cursor++;
+            }
+        }
+        Reply(caller, NULL, 0);
+    }
+}
+
+void rxServer(){
+    int tId;
+    int config;
+    TransmitBuffer buffer;
+    initializeTransmitBuffer(&buffer);
+    Receive(&tId, (char*)&config, sizeof(config));
+    Reply(tId, NULL, 0);
+    if(config == 1){
+        RegisterAs("RX1");
+    } else {
+        RegisterAs("RX2");
+    }
+    int worker = Create(-2, rxWorker);
+    TransmitBuffer* ptr = &buffer;
+    Send(worker, (const char*)&(config), sizeof(config), NULL, 0);
+    Send(worker, (const char*)&(ptr), sizeof(ptr), NULL, 0);
+    uartRequest request;
+    DelimiterTracker delimit;
+    int status;
+    while(1){
+        Receive(&tId, (char*)&request, sizeof(request));
+        if(request.method == GET){
+		    status = fetchBuffer(&buffer, request.payload, request.length);
+            while(status==-1 && request.opt){
+                delimit.enabled = false;
+                Send(worker, (const char*)&delimit, sizeof(delimit), NULL, 0);
+                status = fetchBuffer(&buffer, request.payload, request.length);
+            }
+        } else if(request.method == OPT){
+            status = glean(&buffer, request.payload, request.opt, request.length);
+        } else if(request.method == GETLN){
+            char delimiter = *request.payload;
+            status = readUntilDelimiter(&buffer, request.payload, request.length, delimiter);
+            while (status==-1 && request.opt){
+                delimit.enabled = true;
+                delimit.found = false;
+                delimit.delimiter = delimiter;
+                delimit.maxSize = request.length;
+                *request.payload = delimiter;
+                Send(worker, (const char*)&delimit, sizeof(delimit), NULL, 0);
+                status = readUntilDelimiter(&buffer, request.payload, request.length, delimiter);
+            }
+        }
+        Reply(tId, (const char*)&status, sizeof(status));
+    }
+}
+
+void txServer(){
+    int tId;
+    int config;
+    TransmitBuffer buffer;
+    initializeTransmitBuffer(&buffer);
+    Receive(&tId, (char*)&config, sizeof(config));
+    Reply(tId, NULL, 0);
+    if(config == 1){
+        RegisterAs("TX1");
+    } else {
+        RegisterAs("TX2");
+    }
+    int worker = Create(-2, txWorker);
+    TransmitBuffer* ptr = &buffer;
+    Send(worker, (const char*)&(config), sizeof(config), NULL, 0);
+    Send(worker, (const char*)&(ptr), sizeof(ptr), NULL, 0);
+    uartRequest request;
+    int status;
+    while(1){
+        Receive(&tId, (char*)&request, sizeof(request));
+        if(request.method == POST){
+            status = fillBuffer(&buffer, request.payload, request.length);
+            while (status<0 && request.opt){
+                Send(worker, NULL, 0, NULL, 0);
+                status = fillBuffer(&buffer, request.payload, request.length);
+            }
+            Reply(tId, (const char*)&status, sizeof(status));
+        }
+    }
+
+}
+
+/*
+* Something something from monolithic to micro services
+* Separate the worker from the user request to improve latency
+*
 void uartServer(){
     uartRequest request;
 
@@ -224,6 +453,9 @@ void uartServer(){
 
     DelimiterTracker delimit1, delimit2, *delimit;
 
+    delimit1.enabled = false;
+    delimit2.enabled = false;
+
     while(1){
         Receive(&config, (char*)&request, sizeof(request));
 	    bool deferred = false;
@@ -250,46 +482,7 @@ void uartServer(){
 		        deferred = true;
                 pushAsyncUartRequests(transmitRequest, &request, config);
             }
-        } else if(request.method == GET){
-	        status = -3;
-            if(!peekAsyncUartRequests(receiveRequest))
-		        status = fetchBuffer(receive, request.payload, request.length);
-            if(status==-3 || (status==-1 && request.opt)){
-		        deferred = true;
-		        pushAsyncUartRequests(receiveRequest, &request, config);
-            }
-        } else if(request.method == OPT){
-            status = glean(receive, request.payload, request.opt, request.length);
-        } else if(request.method == GETLN){
-            status = -3;
-            char delimiter = *request.payload;
-            if(!peekAsyncUartRequests(receiveRequest))
-                status = readUntilDelimiter(receive, request.payload, request.length, delimiter);
-            if(status==-3){
-                deferred = true;
-                pushAsyncUartRequests(receiveRequest, &request, config);
-            } else if (status==-1 && request.opt){
-                deferred = true;
-                pushAsyncUartRequests(receiveRequest, &request, config);
-                delimit->enabled = true;
-                delimit->found = false;
-                delimit->unknown = false;
-                delimit->delimiter = delimiter;
-                delimit->maxSize = request.length;
-                *request.payload = delimiter;
-            }
-        } else if(request.method == NOTIFY) {
-            if(request.length & 0x2 || request.length & 0x8){
-                uState->rx = true;
-            }            
-            if (request.length & 0x4){
-                uState->tx = true;
-            }
-            if (request.length & 0x1){
-                unsigned flag = getUartFlag(request.endpoint);
-                uState->cts = flag & CTS_MASK;
-            }
-        }
+        } else 
 	if(!deferred)
 	    Reply(config, (char*)&status, sizeof(status));
         
@@ -333,6 +526,8 @@ void uartServer(){
                         }
                     }
                 }
+
+                bwprintf(COM2, "%d\n", getBufferFill(receive));
 
                 // Logic to facilitate efficient look up of getByDelimiter operation
                 // may seem excessive, but the majority of read request to uart server can be done this way efficiently
@@ -383,7 +578,7 @@ void uartServer(){
             }
         }
     }
-}
+}*/
 
 int Getc(int tid, int channel){
     char locale;

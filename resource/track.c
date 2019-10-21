@@ -1,6 +1,7 @@
 #include <uartServer.h>
 #include <track.h>
 #include <chlib.h>
+#include <bwio.h>
 
 #define MAXSPEED 15
 #define SMOKELIGHTS 16
@@ -52,12 +53,16 @@ void turnOut(int uart){
     PutCN(uart, 1, command, 1, true);
 }
 
-void getSensorReading(int uart, bool* sensorBank){
+void sendSensorRequest(int uart){
     char command[1];
     command[0] = 0x85;
     PutCN(uart, 1, command, 1, true);
+}
+
+void getSensorReading(int uart, bool* sensorBank){
     char buffer[10];
-    GetCN(uart, 1, command, 10, true);
+    int status = GetCN(uart, 1, buffer, 10, false);
+    bwprintf(COM2, "%d chars actually returned\r\n", status);
     char* sensorCast = (char*)sensorBank;
     for(int i=0;i<10;i++){
         sensorCast[i] = buffer[i];

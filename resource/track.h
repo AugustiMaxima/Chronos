@@ -33,6 +33,8 @@ void branch(int uart, int location, int direction);
 //Solenoid
 void turnOut(int uart);
 
+void sendSensorRequest(int uart);
+
 void getSensorReading(int uart, bool* sensorBank);
 
 #endif

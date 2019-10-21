@@ -21,31 +21,42 @@ void windows(){
 }
 
 
-//let's try to root out all of the issues potentailly in the uart server
-void uartServerTest(){
-    char buffer[32];
-    Create(-1, nameServer);
-    int server = Create(-1, uartServer);
-    PutCN(server, 2, "Basic test!\r\n", strlen("Basic test!\r\n"), true);
-    GetCN(server, 2, buffer, 5, true);
-    buffer[5] = 0;
-    bwprintf(COM2, "GetCN succeeded\r\n");
-    PutCN(server, 2, buffer, 6, true);
-    bwprintf(COM2, "Did it print?\r\n");
-}
+// //let's try to root out all of the issues potentailly in the uart server
+// void uartServerTest(){
+//     char buffer[32];
+//     Create(-1, nameServer);
+//     int server = Create(-1, uartServer);
+//     PutCN(server, 2, "Basic test!\r\n", strlen("Basic test!\r\n"), true);
+//     GetCN(server, 2, buffer, 5, true);
+//     buffer[5] = 0;
+//     bwprintf(COM2, "GetCN succeeded\r\n");
+//     PutCN(server, 2, buffer, 6, true);
+//     bwprintf(COM2, "Did it print?\r\n");
+// }
 
 void control(){
     Create(-1, nameServer);
-    int uart = Create(-1, uartServer);
+    int RX1 = Create(-1, rxServer);
+    int RX2 = Create(-1, rxServer);
+    int TX1 = Create(-1, txServer);
+    int TX2 = Create(-1, txServer);
+    int config = 1;
+    Send(RX1, (const char*)&config, sizeof(config), NULL, 0);
+    Send(TX1, (const char*)&config, sizeof(config), NULL, 0);
+    config++;
+    Send(RX2, (const char*)&config, sizeof(config), NULL, 0);
+    Send(TX2, (const char*)&config, sizeof(config), NULL, 0);
     int clock = Create(-1, clockServer);
-    Conductor conductor;
-    conductor.uartServer = uart;
-
+    
+    bool sensorBanks[80];
+    char sensorCount[83];
+    
     while(1){
-        getSensorReading(uart, conductor.sensorStat);
-        char sensorCount[82];
+        sendSensorRequest(TX1);
+        Delay(clock, 100);
+        getSensorReading(RX1, sensorBanks);
         for(int i=0;i<80;i++){
-            if(conductor.sensorStat[i]){
+            if(sensorBanks[i]){
                 sensorCount[i] = 'X';
             }else{
                 sensorCount[i] = '_';
@@ -53,8 +64,10 @@ void control(){
         }
         sensorCount[80] = '\r';
         sensorCount[81] = '\n';
-        PutCN(uart, 2, "Printing sensors:\r\n", strlen("Printing sensors:\r\n"), true);
-        PutCN(uart, 2, sensorCount, 82, true);
+        sensorCount[82] = 0;
+        // PutCN(uart, 2, "Printing sensors:\r\n", strlen("Printing sensors:\r\n"), true);
+        // PutCN(uart, 2, sensorCount, 82, true);
+        bwprintf(COM2, "Printing sensors:\r\n%s\r\n", sensorCount);
         Delay(clock, 100);
     }
 }

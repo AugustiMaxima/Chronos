@@ -28,6 +28,9 @@ int fillBuffer(TransmitBuffer* buffer, char* source, int length){
 }
 
 int fetchBuffer(TransmitBuffer* buffer, char* dest, int length){
+    if(length > TRANSMIT_BUFFER_SIZE){
+        return -2;
+    }
     if(length > getBufferFill(buffer)){
         return -1;
     }

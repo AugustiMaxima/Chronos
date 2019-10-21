@@ -30,14 +30,16 @@ void interruptProcessor(){
         clearTimerInterrupt(2);
         interruptProcessed++;
     }
+    char buffer;
+    if (statusMask1 & (1 << UART1RX_DEV_ID)) {
+        setReceiveInterrupt(1, false);
+        getUart(1, &buffer);
+        WakeForDevice(registry, UART1RX_DEV_ID, buffer);
+        interruptProcessed++;
+    }
     if (statusMask1 & (1 << UART1TX_DEV_ID)) {
         setTransmitInterrupt(1, false);
         WakeForDevice(registry, UART1TX_DEV_ID, /*unused*/0);
-        interruptProcessed++;
-    }
-    if (statusMask1 & (1 << UART1RX_DEV_ID)) {
-        setReceiveInterrupt(1, false);
-        WakeForDevice(registry, UART1RX_DEV_ID, /*unused*/0);
         interruptProcessed++;
     }
     if (statusMask2 & (1 << (INT_UART1 - 32))) {
@@ -50,8 +52,9 @@ void interruptProcessor(){
         interruptProcessed++;
     }
     if (statusMask1 & (1 << UART2TX_DEV_ID)) {
-        setTransmitInterrupt(2, false);
-        WakeForDevice(registry, UART2TX_DEV_ID, /*unused*/0);
+        setTransmitInterrupt(2, false);        
+        getUart(2, &buffer);
+        WakeForDevice(registry, UART2TX_DEV_ID, buffer);
         interruptProcessed++;
     }
     if (statusMask2 & (1 << (INT_UART2 - 32))) {
