@@ -56,9 +56,9 @@ void control(){
     char sensorCount[83];
     
     while(1){
-        //sendSensorRequest(TX1);
+        sendSensorRequest(TX1);
         Delay(clock, 100);
-        //getSensorReading(RX1, sensorBanks);
+        getSensorReading(RX1, sensorBanks);
         for(int i=0;i<80;i++){
             if(sensorBanks[i]){
                 sensorCount[i] = 'X';
@@ -69,9 +69,9 @@ void control(){
         sensorCount[80] = '\r';
         sensorCount[81] = '\n';
 	sensorCount[82] = 0;
-        PutCN(TX2, 2, "Printing sensors:\r\n", strlen("Printing sensors:\r\n"), true);
-        PutCN(TX2, 2, sensorCount, 81, true);
-        bwprintf(COM2, "Printing sensors:\r\n%s\r\n", sensorCount);
+        //PutCN(TX2, 2, "Printing sensors:\r\n", strlen("Printing sensors:\r\n"), true);
+        PutCN(TX2, 2, sensorCount, 82, true);
+        //bwprintf(COM2, "Printing sensors:\r\n%s\r\n", sensorCount);
         Delay(clock, 100);
     }
 }
