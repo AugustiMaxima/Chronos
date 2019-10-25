@@ -15,6 +15,8 @@ typedef struct transmit_Queue{
 
 void initializeTransmitBuffer(TransmitBuffer* transmitBuffer);
 
+int getPhysicalBufferIndex(int index);
+
 //Returns:
 // >=0: # of characters copied
 // -1: error/unavailable resources

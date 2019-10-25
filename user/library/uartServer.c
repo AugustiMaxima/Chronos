@@ -208,15 +208,15 @@ void rxNotifier(){
             // bwprintf(COM2, "General flag: %x\r\n", val);
             if(val & 0x8){
                 //Receive Timeout
-		bwprintf(COM1, "RX event received\r\n");
+		// bwprintf(COM1, "RX event received\r\n");
                 Send(tId, NULL, 0 ,NULL, 0);
             } else if(val & 0x2){
                 //RX
-		bwprintf(COM1, "RX event received\r\n");
+		// bwprintf(COM1, "RX event received\r\n");
                 Send(tId, NULL, 0 ,NULL, 0);
             }
         } else {
-	    bwprintf(COM1, "RX event received\r\n");
+	    // bwprintf(COM1, "RX event received\r\n");
             Send(tId, NULL, 0 ,NULL, 0);
         }
     }
@@ -289,19 +289,19 @@ void rxWorker(){
         while(getBufferCapacity(buffer) > 0){
             status = getUart(config, &retainer);
             if(status){
-		bwprintf(COM1, "Buffer empty\r\n");
+		// bwprintf(COM1, "Buffer empty\r\n");
                 setReceiveInterrupt(config, true);
                 setReceiveTimeout(config, true);
                 break;
             } else {
-		bwprintf(COM1, "Got value: %d\r\n", retainer);
-                buffer->buffer[buffer->length++] = retainer;
+		// bwprintf(COM1, "Got value: %d\r\n", retainer);
+                buffer->buffer[getPhysicalBufferIndex(buffer->length++)] = retainer;
 		if(delimit.enabled){
-		    bwprintf(COM1, "FYI, delimiter is %d\r\n", delimit.delimiter);
+		    // bwprintf(COM1, "FYI, delimiter is %d\r\n", delimit.delimiter);
 		}
                 if(delimit.enabled && delimit.delimiter == retainer){
                     delimit.found = true;
-		    bwprintf(COM1, "Matched\r\n");
+		    // bwprintf(COM1, "Matched\r\n");
                 }
             }
         }
@@ -331,7 +331,7 @@ void txWorker(){
 	if(caller == notifier)
 	    Reply(notifier, NULL, 0);
         while(buffer->cursor < buffer->length){
-            int status = putUart(config, buffer->buffer[buffer->cursor]);
+            int status = putUart(config, buffer->buffer[getPhysicalBufferIndex(buffer->cursor)]);
             if(status & TXFF_MASK){
                 setTransmitInterrupt(config, true);
             }
@@ -391,7 +391,7 @@ void rxServer(){
             }
 	    delimit.enabled = false;
 	    delimit.found = false;
-	    bwprintf(COM1, "Success read! Index now at %d, with %d\r\n", buffer.cursor, buffer.buffer[buffer.cursor]);
+	    //bwprintf(COM1, "Success read! Index now at %d, with %d\r\n", buffer.cursor, buffer.buffer[buffer.cursor]);
         }
         Reply(tId, (const char*)&status, sizeof(status));
     }
