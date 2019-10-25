@@ -77,6 +77,7 @@ int readUntilDelimiter(TransmitBuffer* buffer, char* dest, int maxlen, char deli
         dest[i] = buffer->buffer[getPhysicalBufferIndex(buffer->cursor+i)];
         if(dest[i] == delimiter){
             delimiterFound++;
+	    i++;
             break;
         }
     }

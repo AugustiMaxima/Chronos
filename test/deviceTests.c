@@ -113,17 +113,27 @@ void k4_v2(){
     TerminalOutput output;
 
     while(1){
+	bwprintf(COM2, "Fuck you shell:.\t");
         int addition = GleanUART(RX2, 2, ui_index, displayBuffer, 64);
-        flush(&output);
-        saveCursor(&output);
-        PutCN(TX2, 2, output.compositePayload, output.length, true);
+        //flush(&output);
+        //saveCursor(&output);
+        //PutCN(TX2, 2, output.compositePayload, output.length, true);
         PutCN(TX2, 2, displayBuffer, addition, true);
         ui_index += addition;
-        flush(&output);
-        restoreCursor(&output);
-        PutCN(TX2, 2, output.compositePayload, output.length, true);
-        GetLN(RX2, 2, cmdBuffer, 10, 13, true);
-        
+        //flush(&output);
+        //restoreCursor(&output);
+        //PutCN(TX2, 2, output.compositePayload, output.length, true);
+        int status = GetLN(RX2, 2, cmdBuffer, 10, 13, true);
+        if(status>0){
+	    for(int i=0;cmdBuffer[i] != 13; i++){
+		bwprintf(COM2, "%c %d\r\n", cmdBuffer[i], cmdBuffer[i]);
+	    }
+	} else {
+	    GetCN(RX2, 2, cmdBuffer, 10, true);
+	    //clean up by draining the bad data
+	    continue;
+	}
+
         char* cmd = cmdBuffer;
         char* op1;
         int operand1;

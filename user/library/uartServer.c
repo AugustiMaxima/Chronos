@@ -208,12 +208,15 @@ void rxNotifier(){
             // bwprintf(COM2, "General flag: %x\r\n", val);
             if(val & 0x8){
                 //Receive Timeout
+		bwprintf(COM1, "RX event received\r\n");
                 Send(tId, NULL, 0 ,NULL, 0);
             } else if(val & 0x2){
                 //RX
+		bwprintf(COM1, "RX event received\r\n");
                 Send(tId, NULL, 0 ,NULL, 0);
             }
         } else {
+	    bwprintf(COM1, "RX event received\r\n");
             Send(tId, NULL, 0 ,NULL, 0);
         }
     }
@@ -286,19 +289,25 @@ void rxWorker(){
         while(getBufferCapacity(buffer) > 0){
             status = getUart(config, &retainer);
             if(status){
+		bwprintf(COM1, "Buffer empty\r\n");
                 setReceiveInterrupt(config, true);
                 setReceiveTimeout(config, true);
                 break;
             } else {
+		bwprintf(COM1, "Got value: %d\r\n", retainer);
                 buffer->buffer[buffer->length++] = retainer;
+		if(delimit.enabled){
+		    bwprintf(COM1, "FYI, delimiter is %d\r\n", delimit.delimiter);
+		}
                 if(delimit.enabled && delimit.delimiter == retainer){
                     delimit.found = true;
+		    bwprintf(COM1, "Matched\r\n");
                 }
             }
         }
         if (!serverWaiting) {
 	} else if (delimit.enabled && !delimit.found && delimit.maxSize < getBufferFill(buffer)) {
-        } else if(delimit.maxSize > getBufferFill(buffer)){
+        } else if(!delimit.enabled && delimit.maxSize > getBufferFill(buffer)){
 	} else {
 	    serverWaiting = false;
             Reply(tId, NULL, 0);
@@ -380,6 +389,9 @@ void rxServer(){
                 Send(worker, (const char*)&delimit, sizeof(delimit), NULL, 0);
                 status = readUntilDelimiter(&buffer, request.payload, request.length, delimiter);
             }
+	    delimit.enabled = false;
+	    delimit.found = false;
+	    bwprintf(COM1, "Success read! Index now at %d, with %d\r\n", buffer.cursor, buffer.buffer[buffer.cursor]);
         }
         Reply(tId, (const char*)&status, sizeof(status));
     }
