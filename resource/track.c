@@ -9,28 +9,29 @@
 #define STRAIGHT 33
 #define CURVE 34
 #define GO 96
+#define STOP 97
 
-void start(int uart){
+void startTrack(int uart){
     char command[1];
     command[0] = GO;
     PutCN(uart, 1, command, 1, true);
 }
 
-void engineSpeed(int uart, int train, int speed){
+void engineSpeedTrack(int uart, int train, int speed){
     char command[2];
     command[0] = speed;
     command[1] = train;
     PutCN(uart, 1, command, 2, true);
 }
 
-void reverse(int uart, int train){
+void reverseTrack(int uart, int train){
     char command[2];
     command[0] = 15;
     command[1] = train;
     PutCN(uart, 1, command, 2, true);
 }
 
-void branch(int uart, int location, int direction){
+void branchTrack(int uart, int location, char direction){
     char command[2];
     switch (direction){
         case 'S':
@@ -47,23 +48,23 @@ void branch(int uart, int location, int direction){
     PutCN(uart, 1, command, 2, true);
 }
 
-void turnOut(int uart){
+void turnOutTrack(int uart){
     char command[1];
     command[0] = TURNOUT;
     PutCN(uart, 1, command, 1, true);
 }
 
-void sendSensorRequest(int uart){
+void sendSensorRequestTrack(int uart){
     char command[1];
     command[0] = 0x85;
     PutCN(uart, 1, command, 1, true);
 }
 
-void getSensorReading(int uart, bool* sensorBank){
-    char buffer[10];
-    int status = GetCN(uart, 1, buffer, 10, true);
-    char* sensorCast = (char*)sensorBank;
-    for(int i=0;i<10;i++){
-        sensorCast[i] = buffer[i];
-    }
+void getSensorReadingTrack(int uart, char* sensorBank){
+    GetCN(uart, 1, sensorBank, 10, true);
+}
+
+
+void stoptrack(int uart){
+    
 }

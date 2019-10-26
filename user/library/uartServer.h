@@ -9,7 +9,9 @@ typedef struct uartServerRequest{
         POST,
         GET,
         OPT,
-        GETLN
+        GETLN,
+        CLEAR,
+        FLUSH
     } method;
     int length;
     int opt;
@@ -33,5 +35,9 @@ int GleanUART(int tid, int channel, int offset, char* buffer, int length);
 
 //Make sure your buffer has at least one character
 int GetLN(int tid, int channel, char* buffer, int length, char delimiter, bool async);
+
+void clearRXBuffer(int tid, int channel);
+
+void flushTXBuffer(int tid, int channel);
 
 #endif

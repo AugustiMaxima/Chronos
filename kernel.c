@@ -23,7 +23,6 @@
 
 //User programs
 #include <userprogram.h>
-#include <bwio.h>
 #include <ssrTest.h>
 #include <k1.h>
 #include <k2.h>
@@ -33,6 +32,7 @@
 #include <dump.h>
 #include <deviceTests.h>
 
+#include <bwio.h>
 
 Scheduler* scheduler;
 COMM* com;
@@ -75,7 +75,8 @@ int main( int argc, char* argv[] ) {
 
     
     //scheduleTask(scheduler, 0, 0, uartServerTest);
-    //scheduleTask(scheduler, 0, 0, k4_v2);
+    // scheduleTask(scheduler, 0, 0, k4_v2);
+    // scheduleTask(scheduler, 0, 0, controlServer);
     scheduleTask(scheduler, 0, 0, control);
 
     unsigned long last = 0;

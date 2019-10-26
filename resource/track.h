@@ -1,10 +1,6 @@
 #ifndef TRACK_H
 #define TRACK_H
 
-#define TRAIN_COUNT 80
-#define SENSOR_COUNT 80
-#define SWITCH_COUNT 24
-
 #include <stdbool.h>
 /*
     Handles UART based operations for the track
@@ -12,29 +8,21 @@
     That is up to the resource level abstraction
 */
 
-typedef struct track_conductor{
-    int trainSpeedStat[TRAIN_COUNT];
-    int trackStat[SWITCH_COUNT];
-    bool sensorStat[SENSOR_COUNT];
-    int uartServer;
-} Conductor;
-
-
 //Not only responsible for sending the sole GO
 //Should set all train speeds to 0 and set all switches one way
-void start(int uart);
+void startTrack(int uart);
 
-void engineSpeed(int uart, int train, int speed);
+void engineSpeedTrack(int uart, int train, int speed);
 
-void reverse(int uart, int train);
+void reverseTrack(int uart, int train);
 
-void branch(int uart, int location, int direction);
+void branchTrack(int uart, int location, char direction);
 
 //Solenoid
-void turnOut(int uart);
+void turnOutTrack(int uart);
 
-void sendSensorRequest(int uart);
+void sendSensorRequestTrack(int uart);
 
-void getSensorReading(int uart, bool* sensorBank);
+void getSensorReadingTrack(int uart, char* sensorBank);
 
 #endif

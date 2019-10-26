@@ -33,7 +33,7 @@ ASFLAGS = -mfloat-abi=soft
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource
+CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource -I application
 
 # -static: force static linking
 # -e: set entry point
@@ -42,7 +42,7 @@ CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I incl
 #LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lterminal -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -lk4_v2 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lterminal -ltui -lconductor -lgcc
 
 all: kernel.elf
 
@@ -52,7 +52,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a deviceTests.a uart.a transmitBuffer.a uartServer.a track.a terminal.a
+kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a deviceTests.a uart.a transmitBuffer.a uartServer.a track.a terminal.a k4_v2.a tui.a conductor.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 a0.s: a0.c
@@ -72,6 +72,15 @@ dump.o: dump.s
 
 dump.a: dump.o
 	$(AR) $(ARFLAGS) $@ dump.o
+
+tui.s: application/tui.c
+	$(CC) -S $(CFLAGS) application/tui.c
+
+tui.o: tui.s
+	$(AS) $(ASFLAGS) -o tui.o tui.s
+
+tui.a: tui.o
+	$(AR) $(ARFLAGS) $@ tui.o
 
 fast_hsv2rgb.s: misc/fast_hsv2rgb.c
 	$(CC) -S $(CFLAGS) misc/fast_hsv2rgb.c
@@ -145,6 +154,14 @@ k4.o: k4.s
 k4.a: k4.o
 	$(AR) $(ARFLAGS) $@ k4.o
 
+k4_v2.s: test/k4_v2.c
+	$(CC) -S $(CFLAGS) test/k4_v2.c -o k4_v2.s
+
+k4_v2.o: k4_v2.s
+	$(AS) $(ASFLAGS) -o k4_v2.o k4_v2.s
+
+k4_v2.a: k4_v2.o
+	$(AR) $(ARFLAGS) $@ k4_v2.o
 bwio.s: misc/bwio.c
 	$(CC) -S $(CFLAGS) misc/bwio.c
 
@@ -360,6 +377,15 @@ clock.o: clock.s
 
 clock.a: clock.o
 	$(AR) $(ARFLAGS) $@ clock.o
+
+conductor.s: resource/conductor.c
+	$(CC) -S $(CFLAGS) resource/conductor.c
+
+conductor.o: conductor.s
+	$(AS) $(ASFLAGS) -o conductor.o conductor.s
+
+conductor.a: conductor.o
+	$(AR) $(ARFLAGS) $@ conductor.o
 
 track.s: resource/track.c
 	$(CC) -S $(CFLAGS) resource/track.c
