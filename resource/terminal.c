@@ -78,6 +78,7 @@ void restoreCursor(TerminalOutput* payload){
 void attachMessage(TerminalOutput* payload, char* message){
     int i;
     for(i=0; payload->length<PAYLOAD_SIZE-1 && message[i]; payload->length++, i++){
+        // bwprintf(COM2, "Attaching the fucking message: %d", payload->length);
 	    payload->compositePayload[payload->length] = message[i];
     }
     payload->compositePayload[payload->length] = 0;

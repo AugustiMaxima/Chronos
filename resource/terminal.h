@@ -34,9 +34,9 @@
 #define COLOR_CYAN 7
 #define COLOR_WHITE 8
 
-#define PAYLOAD_SIZE 50
+#define PAYLOAD_SIZE 64
 
-typedef struct {
+typedef struct terminal_Formatter{
     char compositePayload[PAYLOAD_SIZE];
     int length;
 } TerminalOutput;

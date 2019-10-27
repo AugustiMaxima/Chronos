@@ -154,8 +154,8 @@ void txWorker(){
     Send(notifier, (char*)&config, sizeof(config), NULL, 0);
     while(1){
         Receive(&caller, NULL, 0);
-	if(caller == notifier)
-	    Reply(notifier, NULL, 0);
+	    if(caller == notifier)
+	        Reply(notifier, NULL, 0);
         while(buffer->cursor < buffer->length){
             int status = putUart(config, buffer->buffer[getPhysicalBufferIndex(buffer->cursor)]);
             if(status & TXFF_MASK){
@@ -167,8 +167,8 @@ void txWorker(){
                 buffer->cursor++;
             }
         }
-	if(caller == tId)
-	    Reply(caller, NULL, 0);
+	    if(caller == tId)
+	        Reply(caller, NULL, 0);
     }
 }
 
@@ -246,7 +246,7 @@ void txServer(){
         Receive(&tId, (char*)&request, sizeof(request));
         if(request.method == POST){
             status = fillBuffer(&buffer, request.payload, request.length);
-	        Send(worker, NULL, 0, NULL, 0);
+            Send(worker, NULL, 0, NULL, 0);
             while (status<0 && request.opt){
                 status = fillBuffer(&buffer, request.payload, request.length);
                 Send(worker, NULL, 0, NULL, 0);

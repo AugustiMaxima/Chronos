@@ -33,14 +33,13 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK){
     Delay(CLK, 40);
 
     //get the trains set
-    for(int i=1;i<TRAIN_COUNT;i++){
-        conductor->trainSpeed[i] = 0;
-        engineSpeedTrack(TX, i, 0);
+    /*for(int i=1;i<TRAIN_COUNT;i++){
+        setSpeedConductor(conductor, i, 0);
         Delay(CLK, 40);
-    }
+    }*/
 
-    //Consider doing something here
-    //get the sensor stat
+    // Consider doing something here
+    // get the sensor stat
     getSensorData(conductor);
 }
 

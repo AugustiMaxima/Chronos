@@ -29,17 +29,40 @@ void trackConsole(){
     //Important to reply at the end, otherwise this will never be cleaned up
     Receive(&parent, NULL, 0);
 
-    char cmdBuffer[10];
-
+    char cmdBuffer[16];
+    int bufDex;
+    char command[10];
+    int index;
+    int length;
+    //used to support arrow keys
+    //we will leave this for another day as it introduces significant complexities
+    char postfix[10];
     while(1){
         int status = GetLN(RX, 2, cmdBuffer, 10, 13, true);
         if(status<0){
             clearRXBuffer(RX, 2);
             //Consider showing an error message using TUI
             continue;
+        } else {
+            //processing buffered data with backspace and cursors into correct command
+            index = 0;
+            length = 0;
+            for(bufDex = 0; bufDex < status; bufDex++){
+                //backspace
+                if(cmdBuffer[bufDex] == 8){
+                    if(index>0){
+                        index--;
+                        length--;
+                    }
+                } else {
+                    command[index++] = cmdBuffer[bufDex];
+                    length++;
+                }
+            }
         }
-        bwprintf(COM2, "%s", cmdBuffer);
-        char* cmd = cmdBuffer;
+
+        bwprintf(COM2, "%s", command);
+        char* cmd = command;
         char* op1;
         int operand1;
         char* op2;
@@ -47,13 +70,13 @@ void trackConsole(){
 
         int op = 0;
 
-        for(int i=0;cmdBuffer[i] && i<10;i++){
-            if (cmdBuffer[i] == ' ' || cmdBuffer[i] == '\r'){
-                cmdBuffer[i] = 0;
+        for(int i=0;command[i] && i<10;i++){
+            if (command[i] == ' ' || command[i] == '\r'){
+                command[i] = 0;
                 if(op++ == 1){
-                    op1 = cmdBuffer + i + 1;
+                    op1 = command + i + 1;
                 } else {
-                    op2 = cmdBuffer + i + 1;
+                    op2 = command + i + 1;
                     break;
                 }
             }
@@ -85,6 +108,7 @@ int createTrackConsole(int RX, Conductor* conductor, TUIRenderState* prop){
 
 //sets up and spawns every service related to train control
 void k4_v2(){
+    bwprintf(COM2, "Constructing child threads...\r\n");
     int ns = Create(-1, nameServer);
     int clk = Create(-1, clockServer);
     int rx1 = createRxServer(1);
@@ -92,7 +116,9 @@ void k4_v2(){
     int rx2 = createRxServer(2);
     int tx2 = createTxServer(2);
     Conductor conductor;
+    bwprintf(COM2, "Initializing track\r\n");
     initializeConductor(&conductor, rx1, tx1, clk);
+    bwprintf(COM2, "Track finished, spinning up controller and ui thread\r\n");
     TUIRenderState prop;
     int tui = createTUI(rx2, tx2, clk, &conductor, &prop);
     int console = createTrackConsole(rx2, &conductor, &prop);

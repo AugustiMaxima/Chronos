@@ -6,7 +6,7 @@
 #include <conductor.h>
 #include <terminal.h>
 #include <tui.h>
-
+#include <bwio.h>
 
 void drawInput(int TX2, char* buffer, int length){
     PutCN(TX2, 2, buffer, length, true);
@@ -47,6 +47,17 @@ void tuiThread(){
     char buffer[256];
     int index = 0;
     int event;
+
+    //initialization message
+    TerminalOutput formatter;
+    flush(&formatter);
+    clear(&formatter);
+    setColor(&formatter, COLOR_GREEN);
+    jumpCursor(&formatter, 0, 0);
+    attachMessage(&formatter, "UI thread booted!\r\n");
+    jumpCursor(&formatter, 7, 0);
+    // bwprintf(COM2, "Ready: Formatter props: %d", formatter.length);
+    PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
 
     while(1){
         //Practically any event happening related to the user ui or train track should result in this call

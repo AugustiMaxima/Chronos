@@ -19,7 +19,7 @@ int fillBuffer(TransmitBuffer* buffer, char* source, int length){
     if(length > getBufferCapacity(buffer)){
         return -1;
     }
-    int i=0;
+    int i;
     for(i=0; i<length; i++){
         buffer->buffer[getPhysicalBufferIndex(buffer->length + i)] = source[i];
     }
