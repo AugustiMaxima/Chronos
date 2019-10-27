@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+#define MAX_UART_QUEUE_DEPTH 32
+
 typedef struct uartServerRequest{
     int endpoint;
     enum UARTMethod{
@@ -11,12 +13,31 @@ typedef struct uartServerRequest{
         OPT,
         GETLN,
         CLEAR,
-        FLUSH
+        FLUSH,
+        NOTIFY
     } method;
     int length;
     int opt;
     char* payload;
 } uartRequest;
+
+typedef struct uart_asyncDescriptor{
+    uartRequest request;
+    int requester;
+} AsyncRequestDescriptor;
+
+typedef struct asyncQueue{
+    AsyncRequestDescriptor taskQueue[MAX_UART_QUEUE_DEPTH];
+    int cursor;
+    int length;
+} AsyncTaskQueue;
+
+typedef struct delimiterTracker{
+    bool enabled;
+    bool found;
+    char delimiter;
+    int maxSize;
+} DelimiterTracker;
 
 //TODO: remove this from public reference as everyone should be using the cleaner interface
 void rxServer();
@@ -27,6 +48,12 @@ int createRxServer(int config);
 int createTxServer(int config);
 
 // void uartServer();
+
+//Return types:
+// >=0: Normal operation, # of chars fetched
+// -1: Insufficient resources / failed
+// -2: No delimiter found within max size
+// -3: Current blocked by async request
 
 int Getc(int tid, int channel);
 

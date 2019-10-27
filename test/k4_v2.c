@@ -1,10 +1,12 @@
 #include <stdlib.h>
+#include <syslib.h>
 #include <nameServer.h>
 #include <clockServer.h>
 #include <uartServer.h>
 #include <track.h>
 #include <conductor.h>
 #include <tui.h>
+#include <charay.h>
 #include <bwio.h>
 
 
@@ -123,5 +125,5 @@ void k4_v2(){
     int tui = createTUI(rx2, tx2, clk, &conductor, &prop);
     int console = createTrackConsole(rx2, &conductor, &prop);
     //Lock K4 to the console thread, so that K4 will not prematurely exit and destroy the shared state
-    Send(console, NULL, 0);
+    Send(console, NULL, 0, NULL, 0);
 }

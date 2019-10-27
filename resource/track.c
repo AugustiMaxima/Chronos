@@ -1,4 +1,5 @@
 #include <uartServer.h>
+#include <clockServer.h>
 #include <track.h>
 #include <chlib.h>
 #include <bwio.h>
