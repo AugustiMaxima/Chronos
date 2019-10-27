@@ -259,6 +259,17 @@ void txServer(){
 
 }
 
+int createRxServer(int config){
+    int rx = Create(-1, rxServer);
+    Send(rx, (const char*)&config, sizeof(config), NULL, 0);
+    return rx;
+}
+
+int createTxServer(int config){
+    int tx = Create(-1, txServer);
+    Send(tx, (const char*)&config, sizeof(config), NULL, 0);
+    return tx;
+}
 
 int Getc(int tid, int channel){
     char locale;

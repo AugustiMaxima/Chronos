@@ -244,11 +244,7 @@ void switchTest(){
  
     Delay(clock, 100);
   
-    branchTrack(TX1, 1, 'S');
-
-    Delay(clock, 5);
-    
-    Putc(TX1, 1, 1);
+    branchTrack(TX1, clock, 1, 'S');
 
     Delay(clock, 40);
 
@@ -256,11 +252,7 @@ void switchTest(){
     
     Delay(clock, 40);
     
-    branchTrack(TX1, 1, 'C');
-
-    Delay(clock, 5);
-    
-    Putc(TX1, 1, 1);
+    branchTrack(TX1, clock, 1, 'C');
 
     Delay(clock, 40);
 

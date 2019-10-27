@@ -72,14 +72,8 @@ int main( int argc, char* argv[] ) {
     
     Clock clock;
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
-
     
-    //scheduleTask(scheduler, 0, 0, uartServerTest);
-    // scheduleTask(scheduler, 0, 0, k4_v2);
-    scheduleTask(scheduler, 0, 0, controlServer);
-    // scheduleTask(scheduler, 0, 0, control);
-    // scheduleTask(scheduler, 0, 0, switchTest);
-    //scheduleTask(scheduler, 0, 0, rawSwitch);
+    scheduleTask(scheduler, 0, 0, k4_v2);
 
     unsigned long last = 0;
     unsigned long utilTime = 0;

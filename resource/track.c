@@ -31,7 +31,7 @@ void reverseTrack(int uart, int train){
     PutCN(uart, 1, command, 2, true);
 }
 
-void branchTrack(int uart, int location, char direction){
+void branchTrack(int uart, int clk, int location, char direction){
     char command[2];
     switch (direction){
         case 'S':
@@ -47,11 +47,13 @@ void branchTrack(int uart, int location, char direction){
             break;
     }
     command[1] = location;
-    Putc(uart, 1, command[0]);
+    //PutCN(uart, 1, command, 2, true);
     //apparently if you don't wait long enough between the two the console will ignore the second character
     //here is a temporary solution until we find something permenant
-    
-    //PutCN(uart, 1, command, 2, true);
+    Putc(uart, 1, command[0]);
+    //Modern problems calls for modern solutions
+    Delay(clk, 1);
+    Putc(uart, 1, command[1]);
 }
 
 void turnOutTrack(int uart){

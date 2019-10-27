@@ -26,7 +26,7 @@ void setSpeedConductor(Conductor* conductor, int train, int speed);
 
 void reverseConductor(Conductor* conductor, int train);
 
-void switchConductor(Conductor* conductor, int direction, char state);
+void switchConductor(Conductor* conductor, int location, char state);
 
 void getSensorData(Conductor* conductor);
 

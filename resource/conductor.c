@@ -15,26 +15,20 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK){
     //get the switches set
     for(int i=1;i<=SWITCH_COUNT;i++){
         conductor->switches[i] = 'S';
-        branchTrack(TX, i, 'S');
-	Delay(CLK, 10);
-	Putc(TX, 1, i);
-	Delay(CLK, 30);
+        branchTrack(TX, CLK, i, 'S');
+        Delay(CLK, 30);
     }
     turnOutTrack(TX);
-    bwprintf(COM2, "Switch set once\r\n");
     
     Delay(CLK, 40);
 
     //get the switches set
     for(int i=1;i<=SWITCH_COUNT;i++){
         conductor->switches[i] = 'C';
-        branchTrack(TX, i, 'C');
-	Delay(CLK, 10);
-	Putc(TX, 1, i);
-	Delay(CLK, 30);
+        branchTrack(TX, CLK, i, 'C');
+        Delay(CLK, 30);
     }
     turnOutTrack(TX);
-    bwprintf(COM2, "Switch set twice\r\n");
 
     Delay(CLK, 40);
 
@@ -45,12 +39,9 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK){
         Delay(CLK, 40);
     }
 
-    bwprintf(COM2, "Trains\r\n");
-
     //Consider doing something here
     //get the sensor stat
     getSensorData(conductor);
-    bwprintf(COM2, "Done\r\n");
 }
 
 void setSpeedConductor(Conductor* conductor, int train, int speed){
@@ -69,10 +60,13 @@ void reverseConductor(Conductor* conductor, int train){
 }
 
 void switchConductor(Conductor* conductor, int location, char state){
-    conductor->switches[location] = state;
-    branchTrack(conductor->TX, location, state);
-    Delay(conductor->CLK, 5);
-    Putc(conductor->TX, 1, location);
+    if(state == 'C' || state == 'c')
+        conductor->switches[location] = 'C';
+    else if(state == 'S' || state == 's')
+        conductor->switches[location] = 'S';
+    else
+        return;
+    branchTrack(conductor->TX, conductor->CLK, location, state);
     Delay(conductor->CLK, 20);
     turnOutTrack(conductor->TX);
 }

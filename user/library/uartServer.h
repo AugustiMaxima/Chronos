@@ -18,8 +18,13 @@ typedef struct uartServerRequest{
     char* payload;
 } uartRequest;
 
+//TODO: remove this from public reference as everyone should be using the cleaner interface
 void rxServer();
 void txServer();
+
+int createRxServer(int config);
+
+int createTxServer(int config);
 
 // void uartServer();
 

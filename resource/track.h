@@ -16,7 +16,7 @@ void engineSpeedTrack(int uart, int train, int speed);
 
 void reverseTrack(int uart, int train);
 
-void branchTrack(int uart, int location, char direction);
+void branchTrack(int uart, int clk, int location, char direction);
 
 //Solenoid
 void turnOutTrack(int uart);
