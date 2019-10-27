@@ -1,5 +1,6 @@
 #include <track.h>
 #include <clockServer.h>
+#include <uartServer.h>
 #include <conductor.h>
 #include <bwio.h>
 
@@ -9,13 +10,15 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK){
     conductor->TX = TX;
     conductor->CLK = CLK;
     startTrack(TX);
-    Delay(CLK, 40);
+    Delay(CLK, 100);
 
     //get the switches set
     for(int i=1;i<=SWITCH_COUNT;i++){
         conductor->switches[i] = 'S';
         branchTrack(TX, i, 'S');
-        Delay(CLK, 40);
+	Delay(CLK, 10);
+	Putc(TX, 1, i);
+	Delay(CLK, 30);
     }
     turnOutTrack(TX);
     bwprintf(COM2, "Switch set once\r\n");
@@ -26,7 +29,9 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK){
     for(int i=1;i<=SWITCH_COUNT;i++){
         conductor->switches[i] = 'C';
         branchTrack(TX, i, 'C');
-        Delay(CLK, 40);
+	Delay(CLK, 10);
+	Putc(TX, 1, i);
+	Delay(CLK, 30);
     }
     turnOutTrack(TX);
     bwprintf(COM2, "Switch set twice\r\n");
@@ -57,16 +62,18 @@ void setSpeedConductor(Conductor* conductor, int train, int speed){
 void reverseConductor(Conductor* conductor, int train){
     int speed = conductor->trainSpeed[train];
     engineSpeedTrack(conductor->TX, train, 0);
-    Delay(conductor->CLK, 18*speed*speed);
-    engineSpeedTrack(conductor->TX, train, 18);
-    Delay(conductor->CLK, 18);
+    Delay(conductor->CLK, 20*speed*speed);
+    engineSpeedTrack(conductor->TX, train, 15);
+    Delay(conductor->CLK, 10);
     engineSpeedTrack(conductor->TX, train, speed);
 }
 
 void switchConductor(Conductor* conductor, int location, char state){
     conductor->switches[location] = state;
     branchTrack(conductor->TX, location, state);
-    Delay(conductor->CLK, 18);
+    Delay(conductor->CLK, 5);
+    Putc(conductor->TX, 1, location);
+    Delay(conductor->CLK, 20);
     turnOutTrack(conductor->TX);
 }
 

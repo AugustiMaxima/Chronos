@@ -5,5 +5,7 @@ void windows();
 void uartServerTest();
 void control();
 void controlServer();
+void switchTest();
+void rawSwitch();
 
 #endif

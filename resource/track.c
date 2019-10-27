@@ -35,9 +35,11 @@ void branchTrack(int uart, int location, char direction){
     char command[2];
     switch (direction){
         case 'S':
+	case 's':
             command[0] = STRAIGHT;
             break;
         case 'C':
+	case 'c':
             command[0] = CURVE;
             break;
         default:
@@ -45,7 +47,11 @@ void branchTrack(int uart, int location, char direction){
             break;
     }
     command[1] = location;
-    PutCN(uart, 1, command, 2, true);
+    Putc(uart, 1, command[0]);
+    //apparently if you don't wait long enough between the two the console will ignore the second character
+    //here is a temporary solution until we find something permenant
+    
+    //PutCN(uart, 1, command, 2, true);
 }
 
 void turnOutTrack(int uart){

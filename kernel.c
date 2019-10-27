@@ -67,7 +67,7 @@ int main( int argc, char* argv[] ) {
     initializeUART(1, 2400, false, false, true, true, true);
     initializeUART(2, 115200, true, true, true, true, true);
 
-    initializeTimer(1, 2000, 20, 1); // 10ms
+    initializeTimer(1, 508000, 5080, 1); // 10ms
     setEnabledDevices((1 << TC1UI_DEV_ID), 0x0);
     
     Clock clock;
@@ -76,8 +76,10 @@ int main( int argc, char* argv[] ) {
     
     //scheduleTask(scheduler, 0, 0, uartServerTest);
     // scheduleTask(scheduler, 0, 0, k4_v2);
-    // scheduleTask(scheduler, 0, 0, controlServer);
-    scheduleTask(scheduler, 0, 0, control);
+    scheduleTask(scheduler, 0, 0, controlServer);
+    // scheduleTask(scheduler, 0, 0, control);
+    // scheduleTask(scheduler, 0, 0, switchTest);
+    //scheduleTask(scheduler, 0, 0, rawSwitch);
 
     unsigned long last = 0;
     unsigned long utilTime = 0;

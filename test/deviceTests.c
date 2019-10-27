@@ -66,14 +66,34 @@ void control(){
     //     Delay(clock, 100);
     // }
 
-    startTrack(TX1);
-    Delay(clock, 40);
-    branchTrack(TX1, 4, 'S');
-    Delay(clock, 40);
-    branchTrack(TX1, 4, 'C');
-    Delay(clock, 40);
-    turnOutTrack(TX1);
-    engineSpeedTrack(TX1, 1, 12);
+    // startTrack(TX1);
+    // Delay(clock, 40);
+    // branchTrack(TX1, 4, 'S');
+    // Delay(clock, 40);
+    // branchTrack(TX1, 4, 'C');
+    // Delay(clock, 40);
+    // turnOutTrack(TX1);
+    // engineSpeedTrack(TX1, 1, 12);
+
+
+    char sensorBanks[10];
+    while(1){        
+        sendSensorRequestTrack(TX1);
+        getSensorReadingTrack(RX1, sensorBanks);
+        for(int i=0;i<10;i++)
+            bwprintf(COM2, "%d ", sensorBanks[i]);
+        bwprintf(COM2, "\r\n");
+        for(int i=0; i<10; i++){
+            for(int j=0;j<8;j++){
+                if(sensorBanks[i] & (1<<j)){
+                    bwprintf(COM2, "X");                    
+                } else {
+                    bwprintf(COM2, "_");
+                }
+            }
+        }
+        bwprintf(COM2, "\r\n");
+    }
 
 }
 
@@ -199,4 +219,69 @@ void controlServer(){
 // }
 
 
+void switchTest(){
+    Create(-1, nameServer);
+    int RX1 = Create(-1, rxServer);
+    int RX2 = Create(-1, rxServer);
+    int TX1 = Create(-1, txServer);
+    int TX2 = Create(-1, txServer);
+    int config = 1;
+    Send(RX1, (const char*)&config, sizeof(config), NULL, 0);
+    Send(TX1, (const char*)&config, sizeof(config), NULL, 0);
+    config++;
+    Send(RX2, (const char*)&config, sizeof(config), NULL, 0);
+    Send(TX2, (const char*)&config, sizeof(config), NULL, 0);
+    int clock = Create(-1, clockServer);
 
+    char buffer[10];
+
+    startTrack(TX1);
+
+    Delay(clock, 100);
+    
+    sendSensorRequestTrack(TX1);
+    getSensorReadingTrack(RX1, buffer);
+ 
+    Delay(clock, 100);
+  
+    branchTrack(TX1, 1, 'S');
+
+    Delay(clock, 5);
+    
+    Putc(TX1, 1, 1);
+
+    Delay(clock, 40);
+
+    turnOutTrack(TX1);
+    
+    Delay(clock, 40);
+    
+    branchTrack(TX1, 1, 'C');
+
+    Delay(clock, 5);
+    
+    Putc(TX1, 1, 1);
+
+    Delay(clock, 40);
+
+    turnOutTrack(TX1);
+}
+
+void rawSwitch(){
+    Create(-1, nameServer);
+    int clock = Create(-1, clockServer); 
+    bwputc(COM1, 96);
+    Delay(clock, 40);
+    Delay(clock, 500);
+    bwputc(COM1, 33);
+    Delay(clock, 10);
+    bwputc(COM1, 1);
+    Delay(clock, 40);
+    bwputc(COM1, 32);
+    Delay(clock, 40);
+    bwputc(COM1, 34);
+    Delay(clock, 10);
+    bwputc(COM1, 1);
+    Delay(clock, 40);
+    bwputc(COM1, 32);
+}
