@@ -3,9 +3,9 @@
 
 //Used to avoid rerendering or rechecking components that have not been updated
 typedef struct tui_Props{
-    bool sensorUpdate;
-    bool timeUpdate;
-    bool switchUpdate;
+    volatile bool sensorUpdate;
+    volatile bool timeUpdate;
+    volatile bool switchUpdate;
 } TUIRenderState;
 
 

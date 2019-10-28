@@ -43,7 +43,6 @@ int pushAsyncTaskQueue(AsyncTaskQueue* queue, uartRequest* request, int requeste
     return index;
 }
 
-
 void rxNotifier(){
     int config;
     int RXInterrupt;
@@ -125,6 +124,7 @@ void rxWorker(){
     TransmitBuffer* buffer;
     int config;
     int tId;
+    int messenger;
     DelimiterTracker* delimit;
 
     int caller;
@@ -140,8 +140,10 @@ void rxWorker(){
     bool serverWaiting = false;
     while(1){
         Receive(&caller, NULL, 0);
-        if(caller == tId){
+
+        if(caller != notifier){
             serverWaiting = true;
+            messenger = caller;
         } else {
             Reply(caller, NULL, 0);
         }
@@ -166,7 +168,7 @@ void rxWorker(){
         } else if(!delimit->enabled && delimit->maxSize > getBufferFill(buffer)){
 	    } else {
 	        serverWaiting = false;
-            Reply(caller, NULL, 0);
+            Reply(messenger, NULL, 0);
         }
     }
 }
@@ -175,6 +177,7 @@ void txWorker(){
     TransmitBuffer* buffer;
     int config;
     int tId;
+    int messenger;
     int caller;
     Receive(&tId, (char*)&config, sizeof(config));
     Reply(tId, NULL, 0);
@@ -186,6 +189,8 @@ void txWorker(){
         Receive(&caller, NULL, 0);
 	    if(caller == notifier)
 	        Reply(notifier, NULL, 0);
+        else
+            messenger = caller;
         while(buffer->cursor < buffer->length){
             int status = putUart(config, buffer->buffer[getPhysicalBufferIndex(buffer->cursor)]);
             if(status & TXFF_MASK){
@@ -197,8 +202,8 @@ void txWorker(){
                 buffer->cursor++;
             }
         }
-	    if(caller == tId)
-	        Reply(caller, NULL, 0);
+	    if(caller == messenger)
+	        Reply(messenger, NULL, 0);
     }
 }
 
@@ -287,7 +292,7 @@ void rxServer(){
         Receive(&tId, (char*)&request, sizeof(request));
         if(request.method == GET){
             status = -3;
-            if(peekAsyncTaskQueue(&queue))
+            if(!peekAsyncTaskQueue(&queue))
 		        status = fetchBuffer(&buffer, request.payload, request.length);
             if(status >= 0 || !request.opt){
                 Reply(tId, (const char*)&status, sizeof(status));
@@ -295,6 +300,7 @@ void rxServer(){
                 pushAsyncTaskQueue(&queue, &request, tId);
                 if(status == -1){
                     //File off request, if that is possible
+                    bwprintf(COM2, "Setting delimiter %d\r\n", request.length);
                     delimit.maxSize = request.length;
                     delimit.enabled = false;
                     delimit.found = false;
@@ -308,7 +314,7 @@ void rxServer(){
             Reply(tId, (const char*)&status, sizeof(status));
         } else if(request.method == GETLN){
             char delimiter = *request.payload;
-            if(peekAsyncTaskQueue(&queue))
+            if(!peekAsyncTaskQueue(&queue))
                 status = readUntilDelimiter(&buffer, request.payload, request.length, delimiter);
             if(status>=0 || !request.opt || status == -2){
                 Reply(tId, (const char*)&status, sizeof(status));
@@ -386,7 +392,7 @@ void txServer(){
         Receive(&tId, (char*)&request, sizeof(request));
         if(request.method == POST){
             status = -3;
-            if(peekAsyncTaskQueue(&queue))
+            if(!peekAsyncTaskQueue(&queue))
                 status = fillBuffer(&buffer, request.payload, request.length);
             if(status >= 0 || !request.opt){
                 Reply(tId, (const char*)&status, sizeof(status));
@@ -400,7 +406,7 @@ void txServer(){
             buffer.length = buffer.cursor;
             Reply(tId, NULL, 0);
         } else if(request.method == NOTIFY){
-            workerReady = processAsyncTxRequests(&buffer , &queue);
+            workerReady = processAsyncTxRequests(&buffer, &queue);
             if(!workerReady){
                 Reply(messenger, NULL, 0);
             }

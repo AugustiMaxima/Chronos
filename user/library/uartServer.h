@@ -33,10 +33,10 @@ typedef struct asyncQueue{
 } AsyncTaskQueue;
 
 typedef struct delimiterTracker{
-    bool enabled;
-    bool found;
-    char delimiter;
-    int maxSize;
+    volatile bool enabled;
+    volatile bool found;
+    volatile char delimiter;
+    volatile int maxSize;
 } DelimiterTracker;
 
 //TODO: remove this from public reference as everyone should be using the cleaner interface
