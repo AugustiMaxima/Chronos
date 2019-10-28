@@ -45,17 +45,17 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK){
 
 void setSpeedConductor(Conductor* conductor, int train, int speed){
     conductor->trainSpeed[train] = speed;
-    engineSpeedTrack(conductor->TX, train, speed);
+    engineSpeedTrack(conductor->TX, conductor->CLK, train, speed);
 }
 
 
 void reverseConductor(Conductor* conductor, int train){
     int speed = conductor->trainSpeed[train];
-    engineSpeedTrack(conductor->TX, train, 0);
-    Delay(conductor->CLK, 20*speed*speed);
-    engineSpeedTrack(conductor->TX, train, 15);
+    engineSpeedTrack(conductor->TX, conductor->CLK, train, 0);
+    Delay(conductor->CLK, 2*speed*speed);
+    engineSpeedTrack(conductor->TX, conductor->CLK, train, 15);
     Delay(conductor->CLK, 10);
-    engineSpeedTrack(conductor->TX, train, speed);
+    engineSpeedTrack(conductor->TX, conductor->CLK, train, speed);
 }
 
 void switchConductor(Conductor* conductor, int location, char state){

@@ -12,9 +12,9 @@
 //Should set all train speeds to 0 and set all switches one way
 void startTrack(int uart);
 
-void engineSpeedTrack(int uart, int train, int speed);
+void engineSpeedTrack(int uart, int clk, int train, int speed);
 
-void reverseTrack(int uart, int train);
+void reverseTrack(int uart, int clk, int train);
 
 void branchTrack(int uart, int clk, int location, char direction);
 

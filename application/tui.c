@@ -96,7 +96,7 @@ void tuiThread(){
     while(1){
         //Practically any event happening related to the user ui or train track should result in this call
         event = AwaitMultipleEvent(&value, 2, INT_UART1, INT_UART2);
-        //index = drawInput(RX2, TX2, index);
+        index = drawInput(RX2, TX2, index);
     }
 }
 

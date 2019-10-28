@@ -50,6 +50,8 @@ void trackConsole(){
             index = 0;
             length = 0;
 	    int bufDex = 0;
+	    //TODO: Fix the backspace
+	    //Works for one stroke, but freak out over 2 strokes
             for(; bufDex < status; bufDex++){
                 //backspace
                 if(cmdBuffer[bufDex] == 8){
@@ -64,7 +66,7 @@ void trackConsole(){
             }
 	    
 	    for(int i=0; i<length; i++){
-		bwprintf(COM2, "Char: %c, %d\r\n", command[i], command[i]);
+		//bwprintf(COM2, "Char: %c, %d\r\n", command[i], command[i]);
 	    }
         }
 
@@ -80,7 +82,7 @@ void trackConsole(){
         for(int i=0;command[i] && i<10;i++){
             if (command[i] == ' ' || command[i] == '\r'){
                 command[i] = 0;
-                if(op++ == 1){
+                if(op++ == 0){
                     op1 = command + i + 1;
                 } else {
                     op2 = command + i + 1;
@@ -92,9 +94,11 @@ void trackConsole(){
         if(!strcmp("tr", cmd)){
             operand1 = stringToNum(op1, 10);
             operand2 = stringToNum(op2, 10);
+	    //bwprintf(COM2, "Train: %s, %d, %d\r\n", cmd, operand1, operand2);
             setSpeedConductor(conductor, operand1, operand2);
         } else if(!strcmp("sw", cmd)){
             operand1 = stringToNum(op1, 10);
+	    //bwprintf(COM2, "Switch: %s, %d, %c\r\n", cmd, operand1, op2[0]);
             switchConductor(conductor, operand1, op2[0]);
         } else if(!strcmp("rv", cmd)){
             operand1 = stringToNum(op1, 10);

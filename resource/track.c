@@ -18,18 +18,18 @@ void startTrack(int uart){
     PutCN(uart, 1, command, 1, true);
 }
 
-void engineSpeedTrack(int uart, int train, int speed){
+void engineSpeedTrack(int uart, int clk, int train, int speed){
     char command[2];
     command[0] = speed;
     command[1] = train;
-    PutCN(uart, 1, command, 2, true);
+    // PutCN(uart, 1, command, 2, true);
+    Putc(uart, 1, command[0]);
+    Delay(clk, 1);
+    Putc(uart, 1, command[1]);   
 }
 
-void reverseTrack(int uart, int train){
-    char command[2];
-    command[0] = 15;
-    command[1] = train;
-    PutCN(uart, 1, command, 2, true);
+void reverseTrack(int uart, int clk, int train){
+    engineSpeedTrack(uart, clk, train, 15);
 }
 
 void branchTrack(int uart, int clk, int location, char direction){
