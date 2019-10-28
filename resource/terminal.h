@@ -49,6 +49,7 @@ void hideCursor(TerminalOutput* payload);
 void deleteLine(TerminalOutput* payload);
 void saveCursor(TerminalOutput* payload);
 void restoreCursor(TerminalOutput* payload);
+void backSpace(TerminalOutput* payload, int num);
 void attachMessage(TerminalOutput* payload, char* message);
 
 #endif

@@ -63,7 +63,7 @@ void trackConsole(){
             }
         }
 
-        bwprintf(COM2, "%s", command);
+        // bwprintf(COM2, "%s", command);
         char* cmd = command;
         char* op1;
         int operand1;

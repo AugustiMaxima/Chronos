@@ -13,6 +13,4 @@ void tuiThread();
 
 int createTUI(int RX, int TX, int CLK, Conductor* conductor, TUIRenderState* prop);
 
-void drawInput();
-
 #endif

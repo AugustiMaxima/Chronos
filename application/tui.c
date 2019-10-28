@@ -5,14 +5,50 @@
 #include <uartServer.h>
 #include <conductor.h>
 #include <terminal.h>
+#include <charay.h>
 #include <tui.h>
 #include <bwio.h>
 
-void drawInput(int TX2, char* buffer, int length){
-    PutCN(TX2, 2, buffer, length, true);
+
+//universal sanitization loop
+int inputProcessing(char* source, int length, char* dest, int size){
+    int di = 0, si = 0;
+    for(si = 0; si < length && di < size; si++){
+        if(source[si] == '\r'){
+            dest[di++] = source[si];
+            if(si+1<length && source[si+1] == '\n'){
+                //do nothing            
+            } else {
+                dest[di++] = '\n';
+            }
+        } else if(source[si] == 8){
+            //backspace
+            di--;
+        } else {
+            dest[di++] = source[si];
+        }
+    }
+    return di;
 }
 
-
+int drawInput(int RX2, int TX2, int index){
+    const int inSize = 32;
+    char buffer[inSize];
+    int status = GleanUART(RX2, 2, index, buffer, inSize);
+    if(status > 0){
+        char processed[40];
+        int length = inputProcessing(buffer, status, processed, 40);
+        if(length < 0){
+            TerminalOutput output;
+            flush(&output);
+            backSpace(&output, -length);
+            PutCN(TX2, 2, output.compositePayload, output.length, true);
+        } else {
+            PutCN(TX2, 2, processed, length, true);
+        }
+    }
+    return status + index;
+}
 
 
 //Needs the value of TX2 and RX2
@@ -44,7 +80,6 @@ void tuiThread(){
     Receive(&value, (char*)&prop, sizeof(prop));
     Reply(value, NULL, 0);
 
-    char buffer[256];
     int index = 0;
     int event;
 
@@ -62,11 +97,7 @@ void tuiThread(){
     while(1){
         //Practically any event happening related to the user ui or train track should result in this call
         event = AwaitMultipleEvent(&value, 2, INT_UART1, INT_UART2);
-        int status = GleanUART(RX2, 2, index, buffer, 256);
-        if(status > 0){
-            index+=status;
-            drawInput(TX2, buffer, status);
-        }
+        index = drawInput(RX2, TX2, index);
     }
 }
 

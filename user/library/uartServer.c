@@ -202,7 +202,7 @@ void txWorker(){
                 buffer->cursor++;
             }
         }
-	    if(caller == messenger)
+	    if(caller != notifier)
 	        Reply(messenger, NULL, 0);
     }
 }
@@ -300,7 +300,6 @@ void rxServer(){
                 pushAsyncTaskQueue(&queue, &request, tId);
                 if(status == -1){
                     //File off request, if that is possible
-                    bwprintf(COM2, "Setting delimiter %d\r\n", request.length);
                     delimit.maxSize = request.length;
                     delimit.enabled = false;
                     delimit.found = false;
