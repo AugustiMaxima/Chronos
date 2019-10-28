@@ -91,13 +91,12 @@ void tuiThread(){
     jumpCursor(&formatter, 0, 0);
     attachMessage(&formatter, "UI thread booted!\r\n");
     jumpCursor(&formatter, 7, 0);
-    // bwprintf(COM2, "Ready: Formatter props: %d", formatter.length);
-    PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
+    //PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
 
     while(1){
         //Practically any event happening related to the user ui or train track should result in this call
         event = AwaitMultipleEvent(&value, 2, INT_UART1, INT_UART2);
-        index = drawInput(RX2, TX2, index);
+        //index = drawInput(RX2, TX2, index);
     }
 }
 

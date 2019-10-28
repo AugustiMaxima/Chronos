@@ -164,7 +164,7 @@ void rxWorker(){
             }
         }
         if (!serverWaiting) {
-	    } else if (delimit->enabled && !delimit->found && delimit->maxSize < getBufferFill(buffer)) {
+	    } else if (delimit->enabled && !delimit->found && delimit->maxSize > getBufferFill(buffer)) {
         } else if(!delimit->enabled && delimit->maxSize > getBufferFill(buffer)){
 	    } else {
 	        serverWaiting = false;
@@ -317,7 +317,7 @@ void rxServer(){
                 status = readUntilDelimiter(&buffer, request.payload, request.length, delimiter);
             if(status>=0 || !request.opt || status == -2){
                 Reply(tId, (const char*)&status, sizeof(status));
-            } else {                    
+            } else {
                 pushAsyncTaskQueue(&queue, &request, tId);
                 *request.payload = delimiter;
                 if(status == -1){

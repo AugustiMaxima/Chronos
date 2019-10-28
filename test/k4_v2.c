@@ -49,7 +49,8 @@ void trackConsole(){
             //processing buffered data with backspace and cursors into correct command
             index = 0;
             length = 0;
-            for(bufDex = 0; bufDex < status; bufDex++){
+	    int bufDex = 0;
+            for(; bufDex < status; bufDex++){
                 //backspace
                 if(cmdBuffer[bufDex] == 8){
                     if(index>0){
@@ -61,6 +62,10 @@ void trackConsole(){
                     length++;
                 }
             }
+	    
+	    for(int i=0; i<length; i++){
+		bwprintf(COM2, "Char: %c, %d\r\n", command[i], command[i]);
+	    }
         }
 
         // bwprintf(COM2, "%s", command);
@@ -84,7 +89,7 @@ void trackConsole(){
             }
         }
 
-        if(!strcmp("rv", cmd)){
+        if(!strcmp("tr", cmd)){
             operand1 = stringToNum(op1, 10);
             operand2 = stringToNum(op2, 10);
             setSpeedConductor(conductor, operand1, operand2);
