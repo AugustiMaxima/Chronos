@@ -144,7 +144,7 @@ int strlen(const char* str){
     return i;
 }
 
-void formatStrn(char* result, int length, char* format, ...){
+int formatStrn(char* result, int length, char* format, ...){
     int fi;
     int i = 0;
     int mode = 0;
@@ -187,6 +187,7 @@ void formatStrn(char* result, int length, char* format, ...){
     }
     va_end(varag);
     result[i] = 0;
+    return i;
 }
 
 // https://code.woboq.org/userspace/glibc/string/test-strlen.c.htmlsize_t

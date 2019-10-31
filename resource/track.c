@@ -24,7 +24,7 @@ void engineSpeedTrack(int uart, int clk, int train, int speed){
     command[1] = train;
     // PutCN(uart, 1, command, 2, true);
     Putc(uart, 1, command[0]);
-    Delay(clk, 1);
+    Delay(clk, 2);
     Putc(uart, 1, command[1]);   
 }
 
@@ -53,7 +53,7 @@ void branchTrack(int uart, int clk, int location, char direction){
     //here is a temporary solution until we find something permenant
     Putc(uart, 1, command[0]);
     //Modern problems calls for modern solutions
-    Delay(clk, 1);
+    Delay(clk, 2);
     Putc(uart, 1, command[1]);
 }
 

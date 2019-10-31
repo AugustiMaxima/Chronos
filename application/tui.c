@@ -50,6 +50,25 @@ int drawInput(int RX2, int TX2, int index){
     return status + index;
 }
 
+void renderTime(int TX2, int time){
+    int hours, minutes, seconds, miliseconds;
+    miliseconds = time%100;
+    time/=100;
+    seconds = time%60;
+    time/=60;
+    minutes = time%60;
+    time/=60;
+    hours = time;
+    char timeBuff[12];
+    formatStrn(timeBuff, 12 , "%d:%d:%d:%d", hours, minutes, seconds, miliseconds);
+    TerminalOutput output;
+    flush(&output);
+    saveCursor(&output);
+    jumpCursor(&output, 0, 64);
+    attachMessage(&output, timeBuff);
+    restoreCursor(&output);
+    PutCN(TX2, 2, output.compositePayload, output.length, true);
+}
 
 //Needs the value of TX2 and RX2
 //Low prioirity should be fine for this task
@@ -91,12 +110,32 @@ void tuiThread(){
     jumpCursor(&formatter, 0, 0);
     attachMessage(&formatter, "UI thread booted!\r\n");
     jumpCursor(&formatter, 7, 0);
-    //PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
+    PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
+
+    int time = 0;
+
 
     while(1){
         //Practically any event happening related to the user ui or train track should result in this call
-        event = AwaitMultipleEvent(&value, 2, INT_UART1, INT_UART2);
+        event = AwaitMultipleEvent(&value, 3, TC1UI_DEV_ID, INT_UART1, INT_UART2);
         index = drawInput(RX2, TX2, index);
+        if(event == TC1UI_DEV_ID){
+            time++;
+            prop->timeUpdate = true;
+        }
+
+        if(prop->timeUpdate){
+            prop->timeUpdate = false;
+            renderTime(TX2, time);
+        }
+
+        if(prop->sensorUpdate){
+
+        }
+
+        if(prop->switchUpdate){
+
+        }
     }
 }
 
