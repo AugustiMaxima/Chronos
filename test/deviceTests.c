@@ -112,7 +112,7 @@ void controlServer(){
     int clock = Create(-1, clockServer);
 
     Conductor conductor;
-    initializeConductor(&conductor, RX1, TX1, clock);
+    initializeConductor(&conductor, RX1, TX1, clock, 2);
 }
 
 

@@ -42,7 +42,7 @@ CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I incl
 #LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -lk4_v2 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lterminal -ltui -lconductor -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -lk4_v2 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lterminal -ltui -lconductor -ltrack_data -lgcc
 
 all: kernel.elf
 
@@ -52,7 +52,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a deviceTests.a uart.a transmitBuffer.a uartServer.a track.a terminal.a k4_v2.a tui.a conductor.a
+kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a deviceTests.a uart.a transmitBuffer.a uartServer.a track.a terminal.a k4_v2.a tui.a conductor.a track_data.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 a0.s: a0.c
@@ -395,6 +395,15 @@ track.o: track.s
 
 track.a: track.o
 	$(AR) $(ARFLAGS) $@ track.o
+
+track_data.s: resource/track_data.c
+	$(CC) -S $(CFLAGS) resource/track_data.c
+
+track_data.o: track_data.s
+	$(AS) $(ASFLAGS) -o track_data.o track_data.s
+
+track_data.a: track_data.o
+	$(AR) $(ARFLAGS) $@ track_data.o
 
 terminal.s: resource/terminal.c
 	$(CC) -S $(CFLAGS) resource/terminal.c

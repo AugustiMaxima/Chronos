@@ -177,7 +177,6 @@ void txWorker(){
     TransmitBuffer* buffer;
     int config;
     int tId;
-    int messenger;
     int caller;
     Receive(&tId, (char*)&config, sizeof(config));
     Reply(tId, NULL, 0);
@@ -188,9 +187,7 @@ void txWorker(){
     while(1){
         Receive(&caller, NULL, 0);
 	    if(caller == notifier)
-	        Reply(notifier, NULL, 0);
-        else
-            messenger = caller;
+	        Reply(caller, NULL, 0);
         while(buffer->cursor < buffer->length){
             int status = putUart(config, buffer->buffer[getPhysicalBufferIndex(buffer->cursor)]);
             if(status & TXFF_MASK){
@@ -203,7 +200,7 @@ void txWorker(){
             }
         }
 	    if(caller != notifier)
-	        Reply(messenger, NULL, 0);
+	        Reply(caller, NULL, 0);
     }
 }
 

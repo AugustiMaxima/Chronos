@@ -2,6 +2,7 @@
 #include <clockServer.h>
 #include <track.h>
 #include <chlib.h>
+#include <track_data.h>
 #include <bwio.h>
 
 #define MAXSPEED 15

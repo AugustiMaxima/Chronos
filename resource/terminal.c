@@ -41,8 +41,10 @@ void setColor(TerminalOutput* payload, int color){
     case COLOR_WHITE:
 	    color_code = WHITE;
 	    break;
+    default:
+        color_code = RESET;
     }
-    attachMessage(payload, color_code); 
+    attachMessage(payload, color_code);
 }
 
 void jumpCursor(TerminalOutput* payload, int r, int c){

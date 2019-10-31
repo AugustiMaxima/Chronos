@@ -1,4 +1,5 @@
 #include <chlib.h>
+#include <bwio.h>
 
 void * memcpy (void *dest, const void *src, size_t len) {
     char *d = dest;
@@ -8,21 +9,30 @@ void * memcpy (void *dest, const void *src, size_t len) {
     return dest;
 }
 
-void * memset ( void * ptr, int value, size_t num ){
-    unsigned char value_downcast = value;
-    value = value_downcast * 0x01010101;
-    char* start = ptr;
-    char* end = start + num;
-    for(;(int)start%4 && start<end;start++){
-        *start = value_downcast;
-    }
-    int* block = (int*)start;
-    for(;block + 1 <= (int*)end;block++){
-        *block = value;
-    }
-    start = (char*)block;
-    for(;start<end;start++){
-        *start = value_downcast;
-    }
-    return ptr;
+// Note: This does work everytime I've tested it, but seems to not play well with the compiler
+// void * memset ( void * ptr, int value, size_t num ){
+//     unsigned char value_downcast = value;
+//     value = value_downcast * 0x01010101;
+//     char* start = ptr;
+//     char* end = start + num;
+//     for(;(int)start%sizeof(value) && start<end;start++){
+//         *start = value_downcast;
+//     }
+//     int* block = (int*)start;
+//     for(;(char*)(block + 1) <= end;block++){
+//         *block = value;
+//     }
+//     start = (char*)block;
+//     for(;start<end;start++){
+//         *start = value_downcast;
+//     }
+//     return ptr;
+// }
+// Keeping it if I can figure out how to properly fix it
+
+//In the meanwhile, this is the weak sauce version
+void *memset(void *s, int c, unsigned int n) {
+  unsigned char *p = s;
+  while(n --> 0) { *p++ = (unsigned char)c; }
+  return s;
 }

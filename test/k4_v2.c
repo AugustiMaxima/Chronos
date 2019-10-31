@@ -127,8 +127,22 @@ void k4_v2(){
     int rx2 = createRxServer(2);
     int tx2 = createTxServer(2);
     Conductor conductor;
-    bwprintf(COM2, "Initializing track\r\n");
-    initializeConductor(&conductor, rx1, tx1, clk);
+    //Takes either A or B
+    bwprintf(COM2, "Please enter the track name you are running this demo on: (A/B):    ");
+    char track;
+    //will block until you enter something here
+    GetCN(rx2, 2, &track, 1, true);
+    if(track == 'A' || track == 'a')
+        track = 1;
+    else if(track == 'B' || track == 'b')
+        track = 2;
+    else{
+        //TODO: make q work with this
+        bwprintf(COM2, "Invalid track! Ok ciao!\r\n");
+        return;
+    }
+    bwprintf(COM2, "\r\nInitializing track\r\n");
+    initializeConductor(&conductor, rx1, tx1, clk, track);
     bwprintf(COM2, "Track finished, spinning up controller and ui thread\r\n");
     TUIRenderState prop;
     int tui = createTUI(rx2, tx2, clk, &conductor, &prop);
