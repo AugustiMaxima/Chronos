@@ -253,7 +253,7 @@ transmitBuffer.a: transmitBuffer.o
 	$(AR) $(ARFLAGS) $@ transmitBuffer.o
 
 chlib.s: util/chlib.c
-	$(CC) -S $(CFLAGS) util/chlib.c
+	$(CC) -S $(CFLAGS) -ffreestanding util/chlib.c
 
 chlib.o: chlib.s
 	$(AS) $(ASFLAGS) -o chlib.o chlib.s

@@ -20,22 +20,28 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK, int trac
 
     //160 bytes is actually cheaper than any competing abstract data structure for storage
     //also faster
+    bwprintf(COM2, "Ready for duty\r\n");
     for(int i=0; i<160; i++){
         conductor->index.switchToIndex[i] = (char)255; //indicates invalid
     }
 
+    bwprintf(COM2, "%d, %d\r\n", branchIndex, sensorIndex);
+
     for(int i=0; i<TRACK_MAX; i++){
         if(conductor->trackNodes[i].type == NODE_BRANCH){
-	    bwprintf(COM2, "Branch: Index: %d, Label: %d\r\n", branchIndex, conductor->trackNodes[i].num);
+	    bwprintf(COM2, "Branch Index: %d, Label: %d\r\n", branchIndex, conductor->trackNodes[i].num);
             conductor->index.indexToSwitch[branchIndex] = conductor->trackNodes[i].num;
             conductor->index.switchToIndex[conductor->trackNodes[i].num] = branchIndex;
             conductor->index.indexToNode[branchIndex++] = i;
         }
         else if(conductor->trackNodes[i].type == NODE_SENSOR){
-	    bwprintf(COM2, "Sensor: Index: %d\r\n");
+	    bwprintf(COM2, "Sensor Index: %d\r\n", sensorIndex);
             conductor->index.sensorToNode[sensorIndex++] = i;
         }
     }
+
+    bwprintf(COM2, "%d, %d\r\n", branchIndex, sensorIndex);
+
 
     conductor->RX = RX;
     conductor->TX = TX;

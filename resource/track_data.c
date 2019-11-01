@@ -1,12 +1,15 @@
 /* THIS FILE IS GENERATED CODE -- DO NOT EDIT */
 
+#include <bwio.h>
+#include <chlib.h>
 #include "track_data.h"
 
+/*
 static void *memset(void *s, int c, unsigned int n) {
   unsigned char *p = s;
   while(n --> 0) { *p++ = (unsigned char)c; }
   return s;
-}
+}*/
 
 void init_tracka(track_node *track) {
   memset(track, 0, TRACK_MAX*sizeof(track_node));
@@ -1190,7 +1193,7 @@ void init_tracka(track_node *track) {
   track[143].name = "EX10";
   track[143].type = NODE_EXIT;
   track[143].reverse = &track[142];
-}
+} 
 
 void init_trackb(track_node *track) {
   memset(track, 0, TRACK_MAX*sizeof(track_node));
