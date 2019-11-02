@@ -34,7 +34,6 @@ void trackConsole(){
     char cmdBuffer[16];
     int bufDex;
     char command[10];
-    int index;
     int length;
     //used to support arrow keys
     //we will leave this for another day as it introduces significant complexities
@@ -47,27 +46,20 @@ void trackConsole(){
             continue;
         } else {
             //processing buffered data with backspace and cursors into correct command
-            index = 0;
             length = 0;
-	    int bufDex = 0;
-	    //TODO: Fix the backspace
-	    //Works for one stroke, but freak out over 2 strokes
+	        int bufDex = 0;
+	        //TODO: Fix the backspace
+	        //Works for one stroke, but freak out over 2 strokes
             for(; bufDex < status; bufDex++){
                 //backspace
                 if(cmdBuffer[bufDex] == 8){
-                    if(index>0){
-                        index--;
+                    if(length>0){
                         length--;
                     }
                 } else {
-                    command[index++] = cmdBuffer[bufDex];
-                    length++;
+                    command[length++] = cmdBuffer[bufDex];
                 }
             }
-	    
-	    for(int i=0; i<length; i++){
-		//bwprintf(COM2, "Char: %c, %d\r\n", command[i], command[i]);
-	    }
         }
 
         // bwprintf(COM2, "%s", command);

@@ -5,6 +5,7 @@
 #include <uartServer.h>
 #include <conductor.h>
 #include <terminal.h>
+#include <uiHelper.h>
 #include <charay.h>
 #include <tui.h>
 #include <bwio.h>
@@ -51,22 +52,8 @@ int drawInput(int RX2, int TX2, int index){
 }
 
 void renderTime(int TX2, int time){
-    int hours, minutes, seconds, miliseconds;
-    miliseconds = time%100;
-    time/=100;
-    seconds = time%60;
-    time/=60;
-    minutes = time%60;
-    time/=60;
-    hours = time;
-    char timeBuff[12];
-    formatStrn(timeBuff, 12 , "%d:%d:%d:%d", hours, minutes, seconds, miliseconds);
     TerminalOutput output;
-    flush(&output);
-    saveCursor(&output);
-    jumpCursor(&output, 0, 64);
-    attachMessage(&output, timeBuff);
-    restoreCursor(&output);
+    uiTimeStamp(&output, time);
     PutCN(TX2, 2, output.compositePayload, output.length, true);
 }
 
@@ -99,21 +86,19 @@ void tuiThread(){
     Receive(&value, (char*)&prop, sizeof(prop));
     Reply(value, NULL, 0);
 
-    int index = 0;
+    int index = 1;
     int event;
 
     //initialization message
     TerminalOutput formatter;
     flush(&formatter);
     clear(&formatter);
-    setColor(&formatter, COLOR_GREEN);
-    jumpCursor(&formatter, 0, 0);
-    attachMessage(&formatter, "UI thread booted!\r\n");
-    jumpCursor(&formatter, 7, 0);
+    setWindowBoundary(&formatter, 16, 48);
+    jumpCursor(&formatter, 16, 0);
+    
     PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
 
     int time = 0;
-
 
     while(1){
         //Practically any event happening related to the user ui or train track should result in this call

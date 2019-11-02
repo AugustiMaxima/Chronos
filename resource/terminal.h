@@ -50,6 +50,7 @@ void deleteLine(TerminalOutput* payload);
 void saveCursor(TerminalOutput* payload);
 void restoreCursor(TerminalOutput* payload);
 void backSpace(TerminalOutput* payload, int num);
+void setWindowBoundary(TerminalOutput* payload, int top, int bottom);
 void attachMessage(TerminalOutput* payload, char* message);
 
 #endif

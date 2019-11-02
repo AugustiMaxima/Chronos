@@ -13,34 +13,29 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK, int trac
         init_trackb(conductor->trackNodes);
     }
 
-    bwprintf(COM2, "So far so not broken yet\r\n");
-
     int branchIndex = 0;
     int sensorIndex = 0;
 
     //160 bytes is actually cheaper than any competing abstract data structure for storage
     //also faster
-    bwprintf(COM2, "Ready for duty\r\n");
     for(int i=0; i<160; i++){
         conductor->index.switchToIndex[i] = (char)255; //indicates invalid
     }
 
-    bwprintf(COM2, "%d, %d\r\n", branchIndex, sensorIndex);
-
     for(int i=0; i<TRACK_MAX; i++){
         if(conductor->trackNodes[i].type == NODE_BRANCH){
-	    bwprintf(COM2, "Branch Index: %d, Label: %d\r\n", branchIndex, conductor->trackNodes[i].num);
+	    // bwprintf(COM2, "Branch Index: %d, Label: %d\r\n", branchIndex, conductor->trackNodes[i].num);
             conductor->index.indexToSwitch[branchIndex] = conductor->trackNodes[i].num;
             conductor->index.switchToIndex[conductor->trackNodes[i].num] = branchIndex;
             conductor->index.indexToNode[branchIndex++] = i;
         }
         else if(conductor->trackNodes[i].type == NODE_SENSOR){
-	    bwprintf(COM2, "Sensor Index: %d\r\n", sensorIndex);
+	    // bwprintf(COM2, "Sensor Index: %d\r\n", sensorIndex);
             conductor->index.sensorToNode[sensorIndex++] = i;
         }
     }
 
-    bwprintf(COM2, "%d, %d\r\n", branchIndex, sensorIndex);
+    // bwprintf(COM2, "%d, %d\r\n", branchIndex, sensorIndex);
 
 
     conductor->RX = RX;
@@ -49,7 +44,6 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK, int trac
     startTrack(TX);
     Delay(CLK, 100);
     
-bwprintf(COM2, "So far so not broken yet 2\r\n");
     //get the switches set
     for(int i=0;i<SWITCH_COUNT;i++){
         conductor->switches[i] = 'S';
@@ -79,7 +73,6 @@ bwprintf(COM2, "So far so not broken yet 2\r\n");
     // Consider doing something here
     // get the sensor stat
     getSensorData(conductor);
-    bwprintf(COM2, "So far so not broken yet 2\r\n");
 }
 
 void setSpeedConductor(Conductor* conductor, int train, int speed){

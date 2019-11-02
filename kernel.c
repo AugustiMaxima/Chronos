@@ -17,9 +17,11 @@
 
 //Devices and abstractions
 #include <chlib.h>
-#include <clock.h>
 #include <timer.h>
 #include <uart.h>
+#include <clock.h>
+#include <terminal.h>
+#include <uiHelper.h>
 
 //User programs
 #include <userprogram.h>
@@ -83,6 +85,7 @@ int main( int argc, char* argv[] ) {
 
     Task idler;
     initializeTask(&idler, -1, 0, -1, HALTED, idle);
+    
 
     while(1) {
         timeElapsed(&clock);
@@ -98,8 +101,10 @@ int main( int argc, char* argv[] ) {
             rate = (end - last - utilTime)*1000/((unsigned)end - (unsigned)last);
             utilTime = 0;
             last = end;
-	    // bwprintf(COM2, "%d\r\n", rate);
-            //do display here
+            TerminalOutput output;
+            flush(&output);
+            uiUtilizationRate(&output, rate);
+            bwprintf(COM2, "%s", output.compositePayload);
         }
 	    scheduler->currentTask = &idler;
 	    exitKernel(idler.stackEntry);

@@ -93,6 +93,18 @@ void backSpace(TerminalOutput* payload, int num){
     attachMessage(payload, "D");
 }
 
+void setWindowBoundary(TerminalOutput* payload, int top, int bottom){
+    char num[4];
+    //will only support numerals up to 999, anything beyond that is ridiculous
+    attachMessage(payload, MOVETO_PREF);
+    noneZeroIntString(num, 4, top, 10);
+    attachMessage(payload, num);
+    attachMessage(payload, MOVETO_SEPARATOR);
+    noneZeroIntString(num, 4, bottom, 10);
+    attachMessage(payload, num);
+    attachMessage(payload, "r");
+}
+
 void attachMessage(TerminalOutput* payload, char* message){
     int i;
     for(i=0; payload->length<PAYLOAD_SIZE-1 && message[i]; payload->length++, i++){

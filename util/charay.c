@@ -20,11 +20,7 @@ int noneZeroIntString(char* writeBuffer, int buflen, int num, int base){
         divider /= base;
 	    writeBuffer[cursor++] = digit + (digit < 10? '0':('a' - 10));
     }
-    if(buflen){
-        writeBuffer[cursor] = 0;
-    } else {
-        writeBuffer[cursor - 1] = 0;
-    }
+    writeBuffer[cursor] = 0;
     return cursor;
 }
 

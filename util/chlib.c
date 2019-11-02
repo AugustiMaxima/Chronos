@@ -15,7 +15,6 @@ void * memset ( void * ptr, int value, size_t num ){
     value = value_downcast * 0x01010101;
     char* start = ptr;
     char* end = start + num;
-    bwprintf(COM2, "Request: %x - %x\r\n", start, end);
     for(;(int)start%sizeof(value) && start<end;start++){
         *start = value_downcast;
     }
@@ -28,7 +27,6 @@ void * memset ( void * ptr, int value, size_t num ){
 	//bwprintf(COM2, "%x\r\n", start);
         *start = value_downcast;
     }
-    bwprintf(COM2, "Signing off, %x - %x\r\n", start, end);
     return ptr;
 }
 // Keeping it if I can figure out how to properly fix it
