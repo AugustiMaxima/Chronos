@@ -71,25 +71,29 @@ void renderTime(int TX2, int time){
 }
 
 void renderSensor(int TX2, char sensors[SENSOR_COUNT], Conductor* conductor){
-    int newSensorList[5];
+    int newSensorList[8];
     int newSensorCount = 0;
     for(int i=0; i<SENSOR_COUNT; i++){
         if(conductor->sensor[i] != sensors[i]){
             sensors[i] = conductor->sensor[i];
-            newSensorList[newSensorCount++] = i;
-            if(newSensorCount == 5)
-                break;
+            if(newSensorCount < 8 && sensors[i])
+                newSensorList[newSensorCount++] = i;
         }
     }
     TerminalOutput output;
     flush(&output);
     saveCursor(&output);
     for(int i=0; i<newSensorCount; i++){
+        sensorPn %= 8;
         jumpCursor(&output, 3, 8*sensorPn + 2);
         attachMessage(&output, "    ");
         jumpCursor(&output, 3, 8*sensorPn++);
         attachMessage(&output, conductor->trackNodes[(int)conductor->index.sensorToNode[newSensorList[i]]].name);
     }
+    jumpCursor(&output, 4, 8*(sensorPn - 1));
+    if(sensorPn == 1)
+        deleteLine(&output);
+    attachMessage(&output, "=>");
     restoreCursor(&output);
     PutCN(TX2, 2, output.compositePayload, output.length, true);
 }
