@@ -10,11 +10,52 @@
 #include <bwio.h>
 
 
+void processUserRequest(char command[10], Conductor* conductor, TUIRenderState* prop){
+    char* cmd = command;
+    char* op1;
+    int operand1;
+    char* op2;
+    int operand2;
+
+    int op = 0;
+
+    for(int i=0;command[i] && i<10;i++){
+        if (command[i] == ' ' || command[i] == '\r'){
+            command[i] = 0;
+            if(op++ == 0){
+                op1 = command + i + 1;
+            } else {
+                op2 = command + i + 1;
+                break;
+            }
+        }
+    }
+
+    if(!strcmp("tr", cmd)){
+        operand1 = stringToNum(op1, 10);
+        operand2 = stringToNum(op2, 10);
+        setSpeedConductor(conductor, operand1, operand2);
+    } else if(!strcmp("sw", cmd)){
+        operand1 = stringToNum(op1, 10);
+        switchConductor(conductor, operand1, op2[0]);
+        prop->switchUpdate = true;
+    } else if(!strcmp("rv", cmd)){
+        operand1 = stringToNum(op1, 10);
+        reverseConductor(conductor, operand1);
+    } else if(!strcmp("q", cmd)){
+        Shutdown();
+    } else {
+        //do something warning text here
+    }
+}
+
+
 //handles console command and dispatches tasks
 //will be blocked on next input
 void trackConsole(){
     //args:
     int RX;
+    int CLK;
     Conductor* conductor;
     TUIRenderState* prop;
 
@@ -22,6 +63,8 @@ void trackConsole(){
     int parent;
 
     Receive(&value, (char*)&RX, sizeof(RX));
+    Reply(value, NULL, 0);
+    Receive(&value, (char*)&CLK, sizeof(CLK));
     Reply(value, NULL, 0);
     Receive(&value, (char*)&conductor, sizeof(conductor));
     Reply(value, NULL, 0);
@@ -39,10 +82,18 @@ void trackConsole(){
     //we will leave this for another day as it introduces significant complexities
     char postfix[10];
     while(1){
-        int status = GetLN(RX, 2, cmdBuffer, 10, 13, true);
-        if(status<0){
+        int status = GetLN(RX, 2, cmdBuffer, 10, 13, false);
+        if(status == -2){
             clearRXBuffer(RX, 2);
             //Consider showing an error message using TUI
+            Delay(CLK, 10);
+            continue;
+        } else if(status==-1){
+            //not enough key strokes
+            //opportunity for sensor update
+            getSensorData(conductor);
+            prop->sensorUpdate = true;
+            Delay(CLK, 10);
             continue;
         } else {
             //processing buffered data with backspace and cursors into correct command
@@ -60,50 +111,15 @@ void trackConsole(){
                     command[length++] = cmdBuffer[bufDex];
                 }
             }
-        }
-
-        // bwprintf(COM2, "%s", command);
-        char* cmd = command;
-        char* op1;
-        int operand1;
-        char* op2;
-        int operand2;
-
-        int op = 0;
-
-        for(int i=0;command[i] && i<10;i++){
-            if (command[i] == ' ' || command[i] == '\r'){
-                command[i] = 0;
-                if(op++ == 0){
-                    op1 = command + i + 1;
-                } else {
-                    op2 = command + i + 1;
-                    break;
-                }
-            }
-        }
-
-        if(!strcmp("tr", cmd)){
-            operand1 = stringToNum(op1, 10);
-            operand2 = stringToNum(op2, 10);
-	    //bwprintf(COM2, "Train: %s, %d, %d\r\n", cmd, operand1, operand2);
-            setSpeedConductor(conductor, operand1, operand2);
-        } else if(!strcmp("sw", cmd)){
-            operand1 = stringToNum(op1, 10);
-	    //bwprintf(COM2, "Switch: %s, %d, %c\r\n", cmd, operand1, op2[0]);
-            switchConductor(conductor, operand1, op2[0]);
-        } else if(!strcmp("rv", cmd)){
-            operand1 = stringToNum(op1, 10);
-            reverseConductor(conductor, operand1);
-        } else if(!strcmp("q", cmd)){
-
+            processUserRequest(command, conductor, prop);
         }
     }
 }
 
-int createTrackConsole(int RX, Conductor* conductor, TUIRenderState* prop){
+int createTrackConsole(int RX, int CLK, Conductor* conductor, TUIRenderState* prop){
     int console = Create(-1, trackConsole);
     Send(console, (const char*)&RX, sizeof(RX), NULL, 0);
+    Send(console, (const char*)&CLK, sizeof(CLK), NULL, 0);
     Send(console, (const char*)&conductor, sizeof(conductor), NULL, 0);
     Send(console, (const char*)&prop, sizeof(prop), NULL, 0);
     return console;
@@ -131,14 +147,14 @@ void k4_v2(){
     else{
         //TODO: make q work with this
         bwprintf(COM2, "Invalid track! Ok ciao!\r\n");
-        return;
+        Shutdown();
     }
     bwprintf(COM2, "\r\nInitializing track\r\n");
     initializeConductor(&conductor, rx1, tx1, clk, track);
     bwprintf(COM2, "Track finished, spinning up controller and ui thread\r\n");
     TUIRenderState prop;
     int tui = createTUI(rx2, tx2, clk, &conductor, &prop);
-    int console = createTrackConsole(rx2, &conductor, &prop);
+    int console = createTrackConsole(rx2, clk, &conductor, &prop);
     //Lock K4 to the console thread, so that K4 will not prematurely exit and destroy the shared state
     Send(console, NULL, 0, NULL, 0);
 }

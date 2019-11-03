@@ -12,6 +12,8 @@
 
 static const char shellMsg[16] = "ChronoShell: ";
 
+int sensorPn = 0;
+
 //universal sanitization loop
 int inputProcessing(char* source, int length, char* dest, int size){
     int di = 0, si = 0;
@@ -68,6 +70,34 @@ void renderTime(int TX2, int time){
     PutCN(TX2, 2, output.compositePayload, output.length, true);
 }
 
+void renderSensor(int TX2, char sensors[SENSOR_COUNT], Conductor* conductor){
+    int newSensorList[5];
+    int newSensorCount = 0;
+    for(int i=0; i<SENSOR_COUNT; i++){
+        if(conductor->sensor[i] != sensors[i]){
+            sensors[i] = conductor->sensor[i];
+            newSensorList[newSensorCount++] = i;
+            if(newSensorCount == 5)
+                break;
+        }
+    }
+    TerminalOutput output;
+    flush(&output);
+    saveCursor(&output);
+    for(int i=0; i<newSensorCount; i++){
+        jumpCursor(&output, 3, 8*sensorPn + 2);
+        attachMessage(&output, "    ");
+        jumpCursor(&output, 3, 8*sensorPn++);
+        attachMessage(&output, conductor->trackNodes[(int)conductor->index.sensorToNode[newSensorList[i]]].name);
+    }
+    restoreCursor(&output);
+    PutCN(TX2, 2, output.compositePayload, output.length, true);
+}
+
+void renderSwitches(){
+
+}
+
 //Needs the value of TX2 and RX2
 //Low prioirity should be fine for this task
 //Needs more handle on the track state, working on getting this now
@@ -98,8 +128,24 @@ void tuiThread(){
     Receive(&value, (char*)&prop, sizeof(prop));
     Reply(value, NULL, 0);
 
-    int index = 1;
+    int index = 0;
     int event;
+
+    //Some state data for rendering branches and sensors
+    char switches[SWITCH_COUNT];
+    char sensor[SENSOR_COUNT];
+
+    //ignores any extra keystrokes generated during kernel initialization
+    index = GleanUART(RX2, 2, index, sensor, SENSOR_COUNT);
+
+    PutCN(TX2, 2, "UI Thread initializing\r\n", strlen("UI Thread initializing\r\n"), true);
+    for(int i=0; i<SWITCH_COUNT; i++){
+        switches[i] = conductor->switches[i];
+    }
+    for(int i=0; i<SENSOR_COUNT; i++){
+        sensor[i] = conductor->sensor[i];
+    }
+
 
     //initialization message
     TerminalOutput formatter;
@@ -107,6 +153,7 @@ void tuiThread(){
     clear(&formatter);
     setWindowBoundary(&formatter, 16, 48);
     jumpCursor(&formatter, 15, 0);
+    attachMessage(&formatter, "====================================================================\r\n");
     attachMessage(&formatter, shellMsg);
     PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
 
@@ -131,11 +178,18 @@ void tuiThread(){
         }
 
         if(prop->sensorUpdate){
-
+            renderSensor(TX2, sensor, conductor);
+            prop->sensorUpdate = false;
         }
 
         if(prop->switchUpdate){
+            renderSwitches(TX2, switches);
+            prop->switchUpdate = false;
+        }
 
+        if(!prop->message.read){
+            //Render warning message
+            prop->message.read = true;
         }
     }
 }

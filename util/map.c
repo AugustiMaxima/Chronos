@@ -234,7 +234,6 @@ Node* iterateNode(Node* node){
     }
     while((up=node->up)){
 	if(up->left == node){
-	    bwprintf(COM2, "Left\r\n");
 	    return up;
 	}
 	else {

@@ -6,6 +6,17 @@ typedef struct tui_Props{
     volatile bool sensorUpdate;
     volatile bool timeUpdate;
     volatile bool switchUpdate;
+    struct msg{
+        bool read;
+        int length;
+        char message[40];
+        enum {
+            INFO,
+            NOTIFICATION,
+            WARNING,
+            ERROR
+        } style;
+    } message;
 } TUIRenderState;
 
 
