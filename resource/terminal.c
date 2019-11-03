@@ -84,7 +84,7 @@ void backSpace(TerminalOutput* payload, int num){
     noneZeroIntString(buf, 3, num, 10);
     attachMessage(payload, buf);
     attachMessage(payload, "D");
-    for(int i=0; i<num && payload->length < PAYLOAD_SIZE - 5; i++){
+    for(int i=0; i<num && payload->length < PAYLOAD_SIZE - 6; i++){
         payload->compositePayload[payload->length++] = ' ';
     }
     payload->length += num;
@@ -108,8 +108,7 @@ void setWindowBoundary(TerminalOutput* payload, int top, int bottom){
 void attachMessage(TerminalOutput* payload, char* message){
     int i;
     for(i=0; payload->length<PAYLOAD_SIZE-1 && message[i]; payload->length++, i++){
-        // bwprintf(COM2, "Attaching the fucking message: %d", payload->length);
-	    payload->compositePayload[payload->length] = message[i];
+	payload->compositePayload[payload->length] = message[i];
     }
     payload->compositePayload[payload->length] = 0;
 }

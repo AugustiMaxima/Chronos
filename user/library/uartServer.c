@@ -329,7 +329,7 @@ void rxServer(){
                 }
             }
         } else if(request.method == CLEAR){
-            buffer.length = buffer.cursor;
+            buffer.cursor = buffer.length;
             Reply(tId, NULL, 0);
         } else if(request.method == NOTIFY){
             workerReady = processAsyncRxRequests(&buffer, &queue, &delimit);
@@ -399,7 +399,7 @@ void txServer(){
                 Reply(messenger, NULL, 0);
             }
         } else if(request.method == FLUSH){
-            buffer.length = buffer.cursor;
+            buffer.cursor = buffer.length;
             Reply(tId, NULL, 0);
         } else if(request.method == NOTIFY){
             workerReady = processAsyncTxRequests(&buffer, &queue);

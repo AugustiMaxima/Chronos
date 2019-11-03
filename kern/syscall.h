@@ -51,6 +51,10 @@ void sysAwaitEvent();
 
 void sysAwaitMultiple();
 
+void sysGetKernelMetaData();
+
+void sysShutdown();
+
 void setUpSWIHandler(void* handle_swi);
 
 #endif

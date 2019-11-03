@@ -1,5 +1,6 @@
 #include <ARM.h>
 #include <syscode.h>
+#include <kernel.h>
 #include <kern.h>
 #include <scheduler.h>
 #include <sendReceiveReply.h>
@@ -11,6 +12,8 @@
 extern Scheduler* scheduler;
 extern COMM* com;
 extern DeviceRegistry* registry;
+extern int kernelSwitch;
+extern KernelMetaData* kernelData;
 
 //handles the switch statements
 void jumpTable(int code){
@@ -46,9 +49,17 @@ void jumpTable(int code){
         case AWAITEVENT_CODE:
             sysAwaitEvent();
             break;
-	case AWAITMULTIPLE_CODE:
+        case AWAITMULTIPLE_CODE:
+            sysAwaitMultiple(); 
 	    sysAwaitMultiple(); 
-	    break;
+            sysAwaitMultiple(); 
+            break;
+        case METADATA_CODE:
+            sysGetKernelMetaData();
+            break;
+        case SHUTDOWN_CODE:
+            sysShutdown();
+            break;
         default:
             bwprintf(COM2, "Unknown SWI code %d!\r\n", code);
             while(1){}
@@ -238,6 +249,27 @@ void sysAwaitMultiple(){
 
     WaitMultipleDevice(registry, scheduler->currentTask, val, deviceCount, deviceList);
     scheduler->currentTask->status = BLOCKED;
+}
+
+void sysGetKernelMetaData(){
+    register int* sp asm("r0");
+    enter_sys_mode();
+    asm("MOV R0, SP");
+    exit_sys_mode();
+
+    scheduler->currentTask->stackEntry = sp;
+    sp[1] = (int)kernelData;
+}
+
+void sysShutdown(){
+    //techinically unnecessary since I'm about to finish executing
+    register int* sp asm("r0");
+    enter_sys_mode();
+    asm("MOV R0, SP");
+    exit_sys_mode();
+    scheduler->currentTask->stackEntry = sp;
+    
+    kernelSwitch = 0;
 }
 
 void setUpSWIHandler(void* handle_swi) {

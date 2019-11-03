@@ -158,3 +158,15 @@ int AwaitMultipleEvent(int* val, int deviceCount, ...){
 
     return ret;
 }
+
+KernelMetaData* getKernelMetaData(){
+    save_user_context();
+    asm("SWI " TOSTRING(METADATA_CODE) ::: "r0");
+    KernelMetaData* ret;
+    asm("MOV %0, R0" : "=r" (ret));
+    return ret;
+}
+
+void Shutdown(){
+    asm("SWI " TOSTRING(SHUTDOWN_CODE));
+}

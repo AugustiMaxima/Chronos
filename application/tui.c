@@ -47,8 +47,10 @@ int drawInput(int RX2, int TX2, int index){
         } else {
             PutCN(TX2, 2, processed, length, true);
         }
+	return status + index;
+    } else {
+	return index;
     }
-    return status + index;
 }
 
 void renderTime(int TX2, int time){
@@ -93,9 +95,9 @@ void tuiThread(){
     TerminalOutput formatter;
     flush(&formatter);
     clear(&formatter);
-    setWindowBoundary(&formatter, 16, 48);
-    jumpCursor(&formatter, 16, 0);
-    
+    //setWindowBoundary(&formatter, 16, 48);
+    jumpCursor(&formatter, 15, 0);
+    attachMessage(&formatter, "Chrons:\r\n");
     PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
 
     int time = 0;
@@ -125,7 +127,7 @@ void tuiThread(){
 }
 
 int createTUI(int RX, int TX, int CLK, Conductor* conductor, TUIRenderState* prop){
-    int tui = Create(-1, tuiThread);
+    int tui = Create(1, tuiThread);
     Send(tui, (const char*)&RX, sizeof(RX), NULL, 0);
     Send(tui, (const char*)&TX, sizeof(TX), NULL, 0);
     Send(tui, (const char*)&CLK, sizeof(CLK), NULL, 0);

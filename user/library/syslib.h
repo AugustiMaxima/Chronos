@@ -1,3 +1,4 @@
+#include <kernel.h>
 /*
     Library exposing syscall functionalities to user programs
 */
@@ -23,3 +24,7 @@ int Reply( int tid, const char *reply, int replylen );
 int AwaitEvent(int eventId);
 
 int AwaitMultipleEvent(int* val, int deviceCount, ...);
+
+KernelMetaData* getKernelMetaData();
+
+void Shutdown();

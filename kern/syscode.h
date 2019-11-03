@@ -16,5 +16,7 @@
 #define REPLY_CODE 8
 #define AWAITEVENT_CODE 9
 #define AWAITMULTIPLE_CODE 10
+#define METADATA_CODE 11
+#define SHUTDOWN_CODE 12
 
 #endif

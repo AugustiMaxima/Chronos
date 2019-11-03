@@ -57,6 +57,8 @@ int glean(TransmitBuffer* buffer, char* dest, int offset, int maxlen){
     if(signalen > TRANSMIT_BUFFER_SIZE){
         //indicates character loss
         return -1;
+    } else if(signalen < 0){
+	return -2;
     }
     int i;
     int length = maxlen < signalen ? maxlen : signalen; 

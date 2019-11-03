@@ -7,6 +7,7 @@
 #include <ARM.h>
 
 //Kernel
+#include <kernel.h>
 #include <kern.h>
 #include <syscall.h>
 #include <scheduler.h>
@@ -33,19 +34,21 @@
 #include <maptest.h>
 #include <dump.h>
 #include <deviceTests.h>
+#include <uiTest.h>
 
 #include <bwio.h>
 
 Scheduler* scheduler;
 COMM* com;
 DeviceRegistry* registry;
+KernelMetaData* kernelData;
 
 // each task-local seed is derived as seed = seedSeed + MyTid()
 const unsigned seedSeed = 0xdeadbeef;
 
 int nsTid = -1;
 
-int kernelRunning = 1;
+int kernelSwitch = 1;
 
 int main( int argc, char* argv[] ) {
 
@@ -76,6 +79,7 @@ int main( int argc, char* argv[] ) {
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
     
     scheduleTask(scheduler, 0, 0, k4_v2);
+    //scheduleTask(scheduler, 0, 0, cursorTest);
 
     unsigned long last = 0;
     unsigned long utilTime = 0;
@@ -85,26 +89,22 @@ int main( int argc, char* argv[] ) {
 
     Task idler;
     initializeTask(&idler, -1, 0, -1, HALTED, idle);
-    
 
-    while(1) {
+    KernelMetaData metaData;
+    kernelData = &metaData;
+
+    while(kernelSwitch) {
         timeElapsed(&clock);
         begin = getOscilation(&clock);
-        if (!kernelRunning) {
-            break;
-        }
-        while (-1 != runFirstAvailableTask(scheduler));
+        while (kernelSwitch && -1 != runFirstAvailableTask(scheduler));
         timeElapsed(&clock);
         end = getOscilation(&clock);
         utilTime+=end - begin;
-        if(end - last > 508000){//only polls for changes in the last 100 miliseconds
+        if(end - last > 508 * 100){//only polls for changes in the last 100 miliseconds
             rate = (end - last - utilTime)*1000/((unsigned)end - (unsigned)last);
             utilTime = 0;
             last = end;
-            TerminalOutput output;
-            flush(&output);
-            uiUtilizationRate(&output, rate);
-            bwprintf(COM2, "%s", output.compositePayload);
+            metaData.utilizationRate = rate;
         }
 	    scheduler->currentTask = &idler;
 	    exitKernel(idler.stackEntry);
