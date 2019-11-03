@@ -10,6 +10,7 @@
 #include <tui.h>
 #include <bwio.h>
 
+static const char shellMsg[16] = "ChronoShell: ";
 
 //universal sanitization loop
 int inputProcessing(char* source, int length, char* dest, int size){
@@ -21,6 +22,8 @@ int inputProcessing(char* source, int length, char* dest, int size){
                 //do nothing            
             } else {
                 dest[di++] = '\n';
+                for(int i = 0; shellMsg[i] && di<size; i++)
+                    dest[di++] = shellMsg[i];
             }
         } else if(source[si] == 8){
             //backspace
@@ -37,8 +40,8 @@ int drawInput(int RX2, int TX2, int index){
     char buffer[inSize];
     int status = GleanUART(RX2, 2, index, buffer, inSize);
     if(status > 0){
-        char processed[40];
-        int length = inputProcessing(buffer, status, processed, 40);
+        char processed[64];
+        int length = inputProcessing(buffer, status, processed, 64);
         if(length < 0){
             TerminalOutput output;
             flush(&output);
@@ -51,6 +54,12 @@ int drawInput(int RX2, int TX2, int index){
     } else {
 	return index;
     }
+}
+
+void renderUtilizationRate(int TX2, int rate){
+    TerminalOutput output;
+    uiUtilizationRate(&output, rate);
+    PutCN(TX2, 2, output.compositePayload, output.length, true);
 }
 
 void renderTime(int TX2, int time){
@@ -69,6 +78,7 @@ void tuiThread(){
     int CLK;
     Conductor* conductor;
     TUIRenderState* prop;
+    KernelMetaData* metadata = getKernelMetaData();
 
     //if state is NULL, will rerender everything everytime, very costly
 
@@ -95,9 +105,9 @@ void tuiThread(){
     TerminalOutput formatter;
     flush(&formatter);
     clear(&formatter);
-    //setWindowBoundary(&formatter, 16, 48);
+    setWindowBoundary(&formatter, 16, 48);
     jumpCursor(&formatter, 15, 0);
-    attachMessage(&formatter, "Chrons:\r\n");
+    attachMessage(&formatter, shellMsg);
     PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
 
     int time = 0;
@@ -114,6 +124,10 @@ void tuiThread(){
         if(prop->timeUpdate){
             prop->timeUpdate = false;
             renderTime(TX2, time);
+        }
+
+        if(time%10 == 0){
+            renderUtilizationRate(TX2, metadata->utilizationRate);
         }
 
         if(prop->sensorUpdate){

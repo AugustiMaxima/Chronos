@@ -51,8 +51,6 @@ void jumpTable(int code){
             break;
         case AWAITMULTIPLE_CODE:
             sysAwaitMultiple(); 
-	    sysAwaitMultiple(); 
-            sysAwaitMultiple(); 
             break;
         case METADATA_CODE:
             sysGetKernelMetaData();

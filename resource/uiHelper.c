@@ -93,7 +93,7 @@ void uiUtilizationRate(TerminalOutput* payload, int utilRate){
     char buffer[5];
     attachMessage(payload, "Utilization Rate:");
     formatStrn(buffer, 5, "%d.%d", percentile, subp);
-    /*if(percentile > 75){
+    if(percentile > 75){
         setColor(payload, COLOR_GREEN);
     } else if(percentile > 50){
         setColor(payload, COLOR_CYAN);
@@ -101,7 +101,7 @@ void uiUtilizationRate(TerminalOutput* payload, int utilRate){
         setColor(payload, COLOR_YELLOW);
     } else {
         setColor(payload, COLOR_RED);
-    }*/
+    }
     attachMessage(payload, buffer);
     setColor(payload, COLOR_RESET);
     attachMessage(payload, " "); 

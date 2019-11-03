@@ -100,7 +100,7 @@ int main( int argc, char* argv[] ) {
         timeElapsed(&clock);
         end = getOscilation(&clock);
         utilTime+=end - begin;
-        if(end - last > 508 * 100){//only polls for changes in the last 100 miliseconds
+        if(end - last > 508* 500){//only polls for changes in the last 100 miliseconds
             rate = (end - last - utilTime)*1000/((unsigned)end - (unsigned)last);
             utilTime = 0;
             last = end;

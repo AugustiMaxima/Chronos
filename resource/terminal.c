@@ -105,7 +105,7 @@ void setWindowBoundary(TerminalOutput* payload, int top, int bottom){
     attachMessage(payload, "r");
 }
 
-void attachMessage(TerminalOutput* payload, char* message){
+void attachMessage(TerminalOutput* payload, const char* message){
     int i;
     for(i=0; payload->length<PAYLOAD_SIZE-1 && message[i]; payload->length++, i++){
 	payload->compositePayload[payload->length] = message[i];
@@ -113,7 +113,7 @@ void attachMessage(TerminalOutput* payload, char* message){
     payload->compositePayload[payload->length] = 0;
 }
 
-void attachMessageExplicit(TerminalOutput* payload, char* message, int length){
+void attachMessageExplicit(TerminalOutput* payload, const char* message, int length){
     int i;
     for(i=0; payload->length<PAYLOAD_SIZE-1 && i<length; payload->length++, i++){
 	    payload->compositePayload[payload->length] = message[i];
