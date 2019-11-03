@@ -57,11 +57,11 @@ int createTxServer(int config);
 
 int Getc(int tid, int channel);
 
-int Putc(int tid, int channel, char ch);
+int Putc(int tid, int channel, const char ch);
 
 int GetCN(int tid, int channel, char* buffer, int length, bool async);
 
-int PutCN(int tid, int channel, char* buffer, int length, bool async);
+int PutCN(int tid, int channel, const char* buffer, int length, bool async);
 
 int GleanUART(int tid, int channel, int offset, char* buffer, int length);
 

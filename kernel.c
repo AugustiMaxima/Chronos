@@ -115,7 +115,7 @@ int main( int argc, char* argv[] ) {
     // set all ICU masks off
     setEnabledDevices(0x0, 0x0);
 
-    warnAtEndOfKernel(com);
+    // warnAtEndOfKernel(com);
 
     return 0;
 }

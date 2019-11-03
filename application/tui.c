@@ -157,9 +157,9 @@ void tuiThread(){
     clear(&formatter);
     setWindowBoundary(&formatter, 16, 48);
     jumpCursor(&formatter, 15, 0);
-    attachMessage(&formatter, "====================================================================\r\n");
-    attachMessage(&formatter, shellMsg);
     PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
+    PutCN(TX2, 2, "________________________________________________________________\r\n", 66, true);
+    PutCN(TX2, 2, shellMsg, strlen(shellMsg), true);
 
     int time = 0;
 

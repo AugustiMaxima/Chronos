@@ -452,7 +452,7 @@ int GetCN(int tid, int channel, char* buffer, int length, bool async){
     return response;
 }
 
-int PutCN(int tid, int channel, char* buffer, int length, bool async){
+int PutCN(int tid, int channel, const char* buffer, int length, bool async){
     uartRequest request;
     request.endpoint = channel;
     request.method = POST;

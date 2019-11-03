@@ -88,7 +88,7 @@ void trackConsole(){
             //Consider showing an error message using TUI
             Delay(CLK, 10);
             continue;
-        } else if(status==-1){
+        } else if(status == -1){
             //not enough key strokes
             //opportunity for sensor update
             getSensorData(conductor);
