@@ -457,7 +457,7 @@ int PutCN(int tid, int channel, const char* buffer, int length, bool async){
     request.endpoint = channel;
     request.method = POST;
     request.length = length;
-    request.payload = buffer;
+    request.payload = (char*)buffer;
     request.opt = async;
     int response;
     Send(tid, (const char*)&request, sizeof(request), (char*)&response, sizeof(response));
