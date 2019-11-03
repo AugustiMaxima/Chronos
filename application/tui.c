@@ -90,11 +90,13 @@ void renderSensor(int TX2, char sensors[SENSOR_COUNT], Conductor* conductor){
         jumpCursor(&output, 3, 8*sensorPn++);
         attachMessage(&output, conductor->trackNodes[(int)conductor->index.sensorToNode[newSensorList[i]]].name);
     }
-    jumpCursor(&output, 4, 8*(sensorPn - 1));
-    if(sensorPn == 1)
-        deleteLine(&output);
-    attachMessage(&output, "=>");
-    restoreCursor(&output);
+    if(sensorPn){
+        jumpCursor(&output, 4, 8*(sensorPn - 1));
+        if(sensorPn == 1)
+            deleteLine(&output);
+        attachMessage(&output, "=>");
+        restoreCursor(&output);
+    }
     PutCN(TX2, 2, output.compositePayload, output.length, true);
 }
 

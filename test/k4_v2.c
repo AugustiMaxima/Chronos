@@ -10,7 +10,7 @@
 #include <bwio.h>
 
 
-void processUserRequest(char command[10], Conductor* conductor, TUIRenderState* prop){
+void processUserRequest(char* command, Conductor* conductor, TUIRenderState* prop){
     char* cmd = command;
     char* op1;
     int operand1;
@@ -91,6 +91,7 @@ void trackConsole(){
         } else if(status == -1){
             //not enough key strokes
             //opportunity for sensor update
+            Delay(CLK, 10);
             getSensorData(conductor);
             prop->sensorUpdate = true;
             Delay(CLK, 10);
