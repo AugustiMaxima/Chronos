@@ -79,7 +79,18 @@ void uiTimeStamp(TerminalOutput* payload, int time){
     time/=60;
     hours = time;
     char timeBuff[12];
-    formatStrn(timeBuff, 12 , "%d:%d:%d:%d", hours, minutes, seconds, miliseconds);
+	timeBuff[0] = '0' + hours / 10;
+	timeBuff[1] = '0' + hours % 10;
+	timeBuff[2] = ':';
+	timeBuff[3] = '0' + minutes / 10;
+	timeBuff[4] = '0' + minutes % 10;
+	timeBuff[5] = ':';
+	timeBuff[6] = '0' + seconds / 10;
+	timeBuff[7] = '0' + seconds % 10;
+	timeBuff[8] = ':';
+	timeBuff[9] = '0' + miliseconds / 10;
+	timeBuff[10] = '0' + miliseconds % 10;
+	timeBuff[11] = 0;
     attachMessage(payload, timeBuff);
     restoreCursor(payload);
 }
@@ -88,10 +99,10 @@ void uiUtilizationRate(TerminalOutput* payload, int utilRate){
     flush(payload);
     saveCursor(payload);
     jumpCursor(payload, 0, 0);
-    int percentile = utilRate / 10;
-    int subp = utilRate % 10;
+    int percentile = utilRate / 100;
+    int subp = utilRate % 100;
     char buffer[5];
-    attachMessage(payload, "Utilization Rate:");
+    attachMessage(payload, "Utilization Rate: ");
     formatStrn(buffer, 5, "%d.%d", percentile, subp);
     if(percentile > 75){
         setColor(payload, COLOR_GREEN);
@@ -104,7 +115,5 @@ void uiUtilizationRate(TerminalOutput* payload, int utilRate){
     }
     attachMessage(payload, buffer);
     setColor(payload, COLOR_RESET);
-    attachMessage(payload, " "); 
-    attachMessage(payload, frame[(utilBlinker++)%56]);
     restoreCursor(payload);
 }

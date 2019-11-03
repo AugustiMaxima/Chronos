@@ -117,8 +117,8 @@ void tuiThread(){
         event = AwaitMultipleEvent(&value, 3, TC1UI_DEV_ID, INT_UART1, INT_UART2);
         index = drawInput(RX2, TX2, index);
         if(event == TC1UI_DEV_ID){
-            time++;
-            prop->timeUpdate = true;
+            if(++time%10 == 0)
+                prop->timeUpdate = true;
         }
 
         if(prop->timeUpdate){
@@ -126,7 +126,7 @@ void tuiThread(){
             renderTime(TX2, time);
         }
 
-        if(time%10 == 0){
+        if(time%100 == 0){
             renderUtilizationRate(TX2, metadata->utilizationRate);
         }
 

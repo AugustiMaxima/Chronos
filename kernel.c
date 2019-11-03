@@ -101,7 +101,7 @@ int main( int argc, char* argv[] ) {
         end = getOscilation(&clock);
         utilTime+=end - begin;
         if(end - last > 508* 500){//only polls for changes in the last 100 miliseconds
-            rate = (end - last - utilTime)*1000/((unsigned)end - (unsigned)last);
+            rate = (end - last - utilTime)/(((unsigned)end - (unsigned)last)/10000);
             utilTime = 0;
             last = end;
             metaData.utilizationRate = rate;
