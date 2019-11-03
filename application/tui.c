@@ -100,8 +100,22 @@ void renderSensor(int TX2, char sensors[SENSOR_COUNT], Conductor* conductor){
     PutCN(TX2, 2, output.compositePayload, output.length, true);
 }
 
-void renderSwitches(){
-
+void renderSwitches(int TX2, char* switches, Conductor* conductor){
+    TerminalOutput output;
+    flush(&output);
+    saveCursor(&output);
+    char buff[2];
+    buff[1] = 0;
+    for(int i=0; i<SWITCH_COUNT; i++){
+        if(switches[i] != conductor->switches[i]){
+            jumpCursor(&output, 5, i*3);
+            switches[i] = conductor->switches[i];
+            buff[0] = switches[i];
+            attachMessage(&output, buff);
+        }
+    }
+    restoreCursor(&output);
+    PutCN(TX2, 2, output.compositePayload, output.length, true);
 }
 
 //Needs the value of TX2 and RX2
@@ -145,6 +159,7 @@ void tuiThread(){
     index = GleanUART(RX2, 2, index, sensor, SENSOR_COUNT);
 
     PutCN(TX2, 2, "UI Thread initializing\r\n", strlen("UI Thread initializing\r\n"), true);
+    
     for(int i=0; i<SWITCH_COUNT; i++){
         switches[i] = conductor->switches[i];
     }
@@ -189,7 +204,7 @@ void tuiThread(){
         }
 
         if(prop->switchUpdate){
-            renderSwitches(TX2, switches);
+            renderSwitches(TX2, switches, conductor);
             prop->switchUpdate = false;
         }
 
