@@ -115,7 +115,7 @@ void renderSwitches(int TX2, char* switches, Conductor* conductor){
     buff[1] = 0;
     for(int i=0; i<SWITCH_COUNT; i++){
         if(switches[i] != conductor->switches[i]){
-            jumpCursor(&output, 5, i*3);
+            jumpCursor(&output, 5, i*3 + 1);
             switches[i] = conductor->switches[i];
             buff[0] = switches[i];
             attachMessage(&output, buff);

@@ -102,7 +102,7 @@ void uiUtilizationRate(StringFormatter* payload, int utilRate){
     int percentile = utilRate / 100;
     int subp = utilRate % 100;
     char buffer[5];
-    attachMessage(payload, "Utilization Rate: ");
+    attachMessage(payload, "Idle Percentage: ");
     formatStrn(buffer, 5, "%d.%d", percentile, subp);
     if(percentile > 75){
         setColor(payload, COLOR_GREEN);
