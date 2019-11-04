@@ -5,9 +5,9 @@
 
 //Should always return the length of the string
 
-void uiTimeStamp(TerminalOutput* payload, int time);
+void uiTimeStamp(StringFormatter* payload, int time);
 
-void uiUtilizationRate(TerminalOutput* payload, int utilRate);
+void uiUtilizationRate(StringFormatter* payload, int utilRate);
 
 //think about what else you need to do to get this to run
 //int uiSwitchStatements(char* payloa);

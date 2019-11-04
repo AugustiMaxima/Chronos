@@ -66,7 +66,7 @@ char frame[56][10] = {
             };
 
 
-void uiTimeStamp(TerminalOutput* payload, int time){
+void uiTimeStamp(StringFormatter* payload, int time){
     flush(payload);
     saveCursor(payload);
     jumpCursor(payload, 0, 64);
@@ -95,7 +95,7 @@ void uiTimeStamp(TerminalOutput* payload, int time){
     restoreCursor(payload);
 }
 
-void uiUtilizationRate(TerminalOutput* payload, int utilRate){
+void uiUtilizationRate(StringFormatter* payload, int utilRate){
     flush(payload);
     saveCursor(payload);
     jumpCursor(payload, 0, 0);

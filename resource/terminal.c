@@ -2,16 +2,22 @@
 #include <bwio.h>
 #include <terminal.h>
 
-void flush(TerminalOutput* payload){
-    payload->compositePayload[0] = 0;
+void initializeString(StringFormatter* payload, char* buffer, int size){
+    payload->size = size;
+    payload->content = buffer;
+    flush(payload);
+}
+
+void flush(StringFormatter* payload){
+    payload->content[0] = 0;
     payload->length = 0;
 }
 
-void clear(TerminalOutput* payload){
+void clear(StringFormatter* payload){
     attachMessage(payload, CLEAR);
 }
 
-void setColor(TerminalOutput* payload, int color){
+void setColor(StringFormatter* payload, int color){
     char* color_code;
     switch (color) {
     case COLOR_RESET:
@@ -47,7 +53,7 @@ void setColor(TerminalOutput* payload, int color){
     attachMessage(payload, color_code);
 }
 
-void jumpCursor(TerminalOutput* payload, int r, int c){
+void jumpCursor(StringFormatter* payload, int r, int c){
     char num[4];
     //will only support numerals up to 999, anything beyond that is ridiculous
     r %= 1000;
@@ -61,31 +67,31 @@ void jumpCursor(TerminalOutput* payload, int r, int c){
     attachMessage(payload, MOVETO_SUFF);
 }
 
-void hideCursor(TerminalOutput* payload){
+void hideCursor(StringFormatter* payload){
     attachMessage(payload, HIDE);
 }
 
-void deleteLine(TerminalOutput* payload){
+void deleteLine(StringFormatter* payload){
     attachMessage(payload, DELETE);
 }
 
-void saveCursor(TerminalOutput* payload){
+void saveCursor(StringFormatter* payload){
     attachMessage(payload, SAVECURSOR);
 }
 
-void restoreCursor(TerminalOutput* payload){
+void restoreCursor(StringFormatter* payload){
     attachMessage(payload, RESTORECURSOR);
 }
 
 //only backspaces to a max
-void backSpace(TerminalOutput* payload, int num){
+void backSpace(StringFormatter* payload, int num){
     attachMessage(payload, MOVETO_PREF);
     char buf[3];
     noneZeroIntString(buf, 3, num, 10);
     attachMessage(payload, buf);
     attachMessage(payload, "D");
-    for(int i=0; i<num && payload->length < PAYLOAD_SIZE - 6; i++){
-        payload->compositePayload[payload->length++] = ' ';
+    for(int i=0; i<num && payload->length < payload->size - 6; i++){
+        payload->content[payload->length++] = ' ';
     }
     payload->length += num;
     attachMessage(payload, MOVETO_PREF);
@@ -93,7 +99,7 @@ void backSpace(TerminalOutput* payload, int num){
     attachMessage(payload, "D");
 }
 
-void setWindowBoundary(TerminalOutput* payload, int top, int bottom){
+void setWindowBoundary(StringFormatter* payload, int top, int bottom){
     char num[4];
     //will only support numerals up to 999, anything beyond that is ridiculous
     attachMessage(payload, MOVETO_PREF);
@@ -105,19 +111,19 @@ void setWindowBoundary(TerminalOutput* payload, int top, int bottom){
     attachMessage(payload, "r");
 }
 
-void attachMessage(TerminalOutput* payload, const char* message){
+void attachMessage(StringFormatter* payload, const char* message){
     int i;
-    for(i=0; payload->length<PAYLOAD_SIZE-1 && message[i]; payload->length++, i++){
-	payload->compositePayload[payload->length] = message[i];
+    for(i=0; payload->length<payload->size-1 && message[i]; payload->length++, i++){
+	payload->content[payload->length] = message[i];
     }
-    payload->compositePayload[payload->length] = 0;
+    payload->content[payload->length] = 0;
 }
 
-void attachMessageExplicit(TerminalOutput* payload, const char* message, int length){
+void attachMessageExplicit(StringFormatter* payload, const char* message, int length){
     int i;
-    for(i=0; payload->length<PAYLOAD_SIZE-1 && i<length; payload->length++, i++){
-	    payload->compositePayload[payload->length] = message[i];
+    for(i=0; payload->length<payload->size-1 && i<length; payload->length++, i++){
+	    payload->content[payload->length] = message[i];
     }
-    payload->compositePayload[payload->length] = 0;
+    payload->content[payload->length] = 0;
 }
 

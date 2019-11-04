@@ -34,23 +34,23 @@
 #define COLOR_CYAN 7
 #define COLOR_WHITE 8
 
-#define PAYLOAD_SIZE 64
-
-typedef struct terminal_Formatter{
-    char compositePayload[PAYLOAD_SIZE];
+typedef struct stringFormatter{
+    char* content;
     int length;
-} TerminalOutput;
+    int size;
+} StringFormatter;
 
-void flush(TerminalOutput* payload);
-void clear(TerminalOutput* payload);
-void setColor(TerminalOutput* payload, int color);
-void jumpCursor(TerminalOutput* payload, int r, int c);
-void hideCursor(TerminalOutput* payload);
-void deleteLine(TerminalOutput* payload);
-void saveCursor(TerminalOutput* payload);
-void restoreCursor(TerminalOutput* payload);
-void backSpace(TerminalOutput* payload, int num);
-void setWindowBoundary(TerminalOutput* payload, int top, int bottom);
-void attachMessage(TerminalOutput* payload, const char* message);
+void initializeString(StringFormatter* payload, char* buffer, int size);
+void flush(StringFormatter* payload);
+void clear(StringFormatter* payload);
+void setColor(StringFormatter* payload, int color);
+void jumpCursor(StringFormatter* payload, int r, int c);
+void hideCursor(StringFormatter* payload);
+void deleteLine(StringFormatter* payload);
+void saveCursor(StringFormatter* payload);
+void restoreCursor(StringFormatter* payload);
+void backSpace(StringFormatter* payload, int num);
+void setWindowBoundary(StringFormatter* payload, int top, int bottom);
+void attachMessage(StringFormatter* payload, const char* message);
 
 #endif

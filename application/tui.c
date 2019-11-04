@@ -45,10 +45,11 @@ int drawInput(int RX2, int TX2, int index){
         char processed[64];
         int length = inputProcessing(buffer, status, processed, 64);
         if(length < 0){
-            TerminalOutput output;
+            StringFormatter output;
+            initializeString(&output, buffer, inSize);
             flush(&output);
             backSpace(&output, -length);
-            PutCN(TX2, 2, output.compositePayload, output.length, true);
+            PutCN(TX2, 2, output.content, output.length, true);
         } else {
             PutCN(TX2, 2, processed, length, true);
         }
@@ -59,15 +60,19 @@ int drawInput(int RX2, int TX2, int index){
 }
 
 void renderUtilizationRate(int TX2, int rate){
-    TerminalOutput output;
+    char buffer[64];
+    StringFormatter output;
+    initializeString(&output, buffer, 64);
     uiUtilizationRate(&output, rate);
-    PutCN(TX2, 2, output.compositePayload, output.length, true);
+    PutCN(TX2, 2, output.content, output.length, true);
 }
 
 void renderTime(int TX2, int time){
-    TerminalOutput output;
+    char buffer[64];
+    StringFormatter output;
+    initializeString(&output, buffer, 64);
     uiTimeStamp(&output, time);
-    PutCN(TX2, 2, output.compositePayload, output.length, true);
+    PutCN(TX2, 2, output.content, output.length, true);
 }
 
 void renderSensor(int TX2, char sensors[SENSOR_COUNT], Conductor* conductor){
@@ -80,7 +85,9 @@ void renderSensor(int TX2, char sensors[SENSOR_COUNT], Conductor* conductor){
                 newSensorList[newSensorCount++] = i;
         }
     }
-    TerminalOutput output;
+    char buffer[128];
+    StringFormatter output;
+    initializeString(&output, buffer, 128);
     flush(&output);
     saveCursor(&output);
     for(int i=0; i<newSensorCount; i++){
@@ -90,18 +97,18 @@ void renderSensor(int TX2, char sensors[SENSOR_COUNT], Conductor* conductor){
         jumpCursor(&output, 3, 8*sensorPn++);
         attachMessage(&output, conductor->trackNodes[(int)conductor->index.sensorToNode[newSensorList[i]]].name);
     }
-    if(sensorPn){
-        jumpCursor(&output, 4, 8*(sensorPn - 1));
-        if(sensorPn == 1)
-            deleteLine(&output);
-        attachMessage(&output, "=>");
-        restoreCursor(&output);
-    }
-    PutCN(TX2, 2, output.compositePayload, output.length, true);
+    jumpCursor(&output, 4, 8*((sensorPn - 1 + 8)%8));
+    if(sensorPn == 1)
+        deleteLine(&output);
+    attachMessage(&output, "=>");
+    restoreCursor(&output);
+    PutCN(TX2, 2, output.content, output.length, true);
 }
 
 void renderSwitches(int TX2, char* switches, Conductor* conductor){
-    TerminalOutput output;
+    char buffer[96];
+    StringFormatter output;
+    initializeString(&output, buffer, 96);
     flush(&output);
     saveCursor(&output);
     char buff[2];
@@ -115,7 +122,7 @@ void renderSwitches(int TX2, char* switches, Conductor* conductor){
         }
     }
     restoreCursor(&output);
-    PutCN(TX2, 2, output.compositePayload, output.length, true);
+    PutCN(TX2, 2, output.content, output.length, true);
 }
 
 //Needs the value of TX2 and RX2
@@ -159,22 +166,35 @@ void tuiThread(){
     index = GleanUART(RX2, 2, index, sensor, SENSOR_COUNT);
 
     PutCN(TX2, 2, "UI Thread initializing\r\n", strlen("UI Thread initializing\r\n"), true);
-    
+
+    char strBuff[64];
+    StringFormatter formatter;
+    initializeString(&formatter, strBuff, 64);
+
+    flush(&formatter);
+    clear(&formatter);
+    jumpCursor(&formatter, 5, 0);
+    PutCN(TX2, 2, formatter.content, formatter.length, true);
+
+    strBuff[1] = ' ';
+    strBuff[2] = ' ';
+
     for(int i=0; i<SWITCH_COUNT; i++){
         switches[i] = conductor->switches[i];
+        strBuff[0] = switches[i];
+        PutCN(TX2, 2, strBuff, 3, true);
     }
+
     for(int i=0; i<SENSOR_COUNT; i++){
         sensor[i] = conductor->sensor[i];
     }
 
 
     //initialization message
-    TerminalOutput formatter;
     flush(&formatter);
-    clear(&formatter);
     setWindowBoundary(&formatter, 16, 48);
     jumpCursor(&formatter, 15, 0);
-    PutCN(TX2, 2, formatter.compositePayload, formatter.length, true);
+    PutCN(TX2, 2, formatter.content, formatter.length, true);
     PutCN(TX2, 2, "________________________________________________________________\r\n", 66, true);
     PutCN(TX2, 2, shellMsg, strlen(shellMsg), true);
 
