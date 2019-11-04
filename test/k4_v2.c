@@ -76,13 +76,13 @@ void trackConsole(){
 
     char cmdBuffer[16];
     int bufDex;
-    char command[10];
+    char command[16];
     int length;
     //used to support arrow keys
     //we will leave this for another day as it introduces significant complexities
     char postfix[10];
     while(1){
-        int status = GetLN(RX, 2, cmdBuffer, 10, 13, false);
+        int status = GetLN(RX, 2, cmdBuffer, 16, 13, false);
         if(status == -2){
             clearRXBuffer(RX, 2);
             //Consider showing an error message using TUI
@@ -147,7 +147,7 @@ void k4_v2(){
         track = 2;
     else{
         //TODO: make q work with this
-        bwprintf(COM2, "Invalid track! Ok ciao!\r\n");
+        bwprintf(COM2, "\r\nInvalid track! Ok ciao!\r\n");
         Shutdown();
     }
     bwprintf(COM2, "\r\nInitializing track\r\n");
