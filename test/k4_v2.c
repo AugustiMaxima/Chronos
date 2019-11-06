@@ -19,7 +19,7 @@ void processUserRequest(char* command, Conductor* conductor, TUIRenderState* pro
 
     int op = 0;
 
-    for(int i=0;command[i] && i<10;i++){
+    for(int i=0;command[i] && i<16;i++){
         if (command[i] == ' ' || command[i] == '\r'){
             command[i] = 0;
             if(op++ == 0){

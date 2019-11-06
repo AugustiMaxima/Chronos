@@ -95,7 +95,10 @@ void renderSensor(int TX2, char sensors[SENSOR_COUNT], Conductor* conductor){
         jumpCursor(&output, 3, 8*sensorPn + 2);
         attachMessage(&output, "    ");
         jumpCursor(&output, 3, 8*sensorPn++);
+        // char nubuf[5];
+        // noneZeroIntString(nubuf, 5, newSensorList[i], 10);
         attachMessage(&output, conductor->trackNodes[(int)conductor->index.sensorToNode[newSensorList[i]]].name);
+        // attachMessage(&output, nubuf);
     }
     jumpCursor(&output, 4, 8*((sensorPn - 1 + 8)%8));
     if(sensorPn == 1)

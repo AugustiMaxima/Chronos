@@ -109,7 +109,7 @@ void getSensorData(Conductor* conductor){
     getSensorReadingTrack(conductor->RX, sensorBank);
     for(int i=0; i<10; i++){
         for(int j=0;j<8;j++){
-            conductor->sensor[i*8 + j] = (sensorBank[i] & (1<<j) )>>j;
+            conductor->sensor[i*8 + j] = (sensorBank[i] & (1<<(7 - j)) )>> (7 - j);
         }
     }
 }
