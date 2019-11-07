@@ -1,7 +1,7 @@
 #include <pathFinder.h>
 
 
-void computePATH(track_node* tracks, PATH* path, int source, int dest){
+void computePath(track_node* tracks, PATH* path, int source, int dest){
     int inSet[TRACK_MAX];
     for(int i=0; i<TRACK_MAX; i++){
         path->cost[i] = -1;
@@ -21,7 +21,10 @@ void computePATH(track_node* tracks, PATH* path, int source, int dest){
 
         for(int i=0; i<scope; i++){
             int alpha = inSet[i];
-            int remote = (tracks[alpha].edge[0].dest - tracks) / sizeof(track_node);
+            if(tracks[alpha].type == NODE_EXIT){
+              continue;
+            }
+            int remote = tracks[alpha].edge[0].dest - tracks;
             if(path->cost[remote] == -1){
                 if(opt_w > tracks[alpha].edge[0].dist || opt_w == -1){
                     opt_w = tracks[alpha].edge[0].dist;
@@ -31,12 +34,12 @@ void computePATH(track_node* tracks, PATH* path, int source, int dest){
             }
 
             if(tracks[alpha].type == NODE_BRANCH){
-                int r2 = (tracks[alpha].edge[1].dest - tracks) / sizeof(track_node);
+                int r2 = tracks[alpha].edge[1].dest - tracks;
                 if(path->cost[r2] == -1){
-                    if(opt_w > tracks[alpha].edge[0].dist || opt_w == -1){
-                        opt_w = tracks[alpha].edge[0].dist;
+                    if(opt_w > tracks[alpha].edge[1].dist || opt_w == -1){
+                        opt_w = tracks[alpha].edge[1].dist;
                         opt_s = alpha;
-                        opt_e = 0;
+                        opt_e = 1;
                     }
                 }
             }
@@ -46,7 +49,7 @@ void computePATH(track_node* tracks, PATH* path, int source, int dest){
             break;
         }
 
-        int newMember = (tracks[opt_s].edge[opt_e].dest - tracks) / sizeof(track_node);
+        int newMember = tracks[opt_s].edge[opt_e].dest - tracks;
         path->cost[newMember] = path->cost[opt_s] + tracks[opt_s].edge[opt_e].dist;
         path->intermediate[newMember] = opt_s;        
         inSet[reachableSetSize++] = newMember;
@@ -61,7 +64,7 @@ void parsePath(track_node* tracks, PATH* path, TRACKEVENT* trackevents, int even
     int index = eventBufferSize - 2;
 
     for(int i=0; i<eventBufferSize; i++){
-        trackevents[i].sensorID = -1;
+        trackevents[i].id = -1;
     }
 
     trackevents[eventBufferSize - 1].type = END;
@@ -70,14 +73,19 @@ void parsePath(track_node* tracks, PATH* path, TRACKEVENT* trackevents, int even
     while(current!=source && index>=0){
         if(tracks[current].type == NODE_BRANCH){
             trackevents[index].type = BRANCH;
+            trackevents[index].id = tracks[current].num;
             if(tracks[current].edge[0].dest == tracks + prev){
                 trackevents[index].auxiliary = 0;
             } else if(tracks[current].edge[1].dest == tracks + prev){
                 trackevents[index].auxiliary = 1;
             }
+            index--;
         } else if(tracks[current].type == NODE_SENSOR){
-            if(trackevents[index].sensorID == -1)
-                trackevents[index--].sensorID = tracks[current].num;
+            if(trackevents[index + 1].type != SENSOR){
+                trackevents[index].type = SENSOR;
+                trackevents[index].id = tracks[current].num;
+                index--;
+            }
         }
         prev = current;
         current = path->intermediate[current];
@@ -85,7 +93,7 @@ void parsePath(track_node* tracks, PATH* path, TRACKEVENT* trackevents, int even
 
     for(int i=index + 1, j=0; i<eventBufferSize; i++, j++){
         trackevents[j].auxiliary = trackevents[i].auxiliary;
-        trackevents[j].sensorID = trackevents[i].sensorID;
+        trackevents[j].id = trackevents[i].id;
         trackevents[j].type = trackevents[i].type;
     }
 
@@ -103,6 +111,7 @@ void generatePath(track_node* tracks, PATH* path, char* buffer, int dest){
         }
         buffer[index++] = '<';
         buffer[index++] = '-';
+        current = path->intermediate[current];
     }
     buffer[index] = 0;
 }

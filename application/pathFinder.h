@@ -11,12 +11,13 @@ typedef struct pathSet{
 
 //all event processing is based on the most adjacent sensor
 typedef struct trackEvents{
-    int sensorID;
     enum trackEventType{
+        SENSOR,
         REVERSE,
         BRANCH,
         END
     } type;
+    int id;
     int auxiliary;
 } TRACKEVENT;
 
