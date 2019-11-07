@@ -1,5 +1,5 @@
+#include <chlib.h>
 #include <pathFinder.h>
-
 
 void computePath(track_node* tracks, PATH* path, int source, int dest){
     int inSet[TRACK_MAX];
@@ -69,6 +69,8 @@ void parsePath(track_node* tracks, PATH* path, TRACKEVENT* trackevents, int even
 
     trackevents[eventBufferSize - 1].type = END;
     trackevents[eventBufferSize - 1].id = dest;
+
+    current = path->intermediate[current];
 
     //when done, move by index + 1
     while(current!=source && index>=0){

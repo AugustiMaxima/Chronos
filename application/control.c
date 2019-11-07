@@ -11,14 +11,6 @@
 #include <bwio.h>
 
 
-//it is expensive, but i dont want to write a hash
-int nameAttribution(char* name, track_node* nodes){
-    for(int i=0; i<TRACK_MAX; i++){
-        if(!strcmp(name, nodes[i].name))
-            return i;
-    }
-    return -1;
-}
 
 void processUserRequestV2(char* command, Conductor* conductor, TUIRenderState* prop){
     char* cmd = command;
@@ -103,68 +95,6 @@ void processUserRequestV2(char* command, Conductor* conductor, TUIRenderState* p
 //handles console command and dispatches tasks
 //will be blocked on next input
 void trackController(){
-    //args:
-    int RX;
-    int CLK;
-    Conductor* conductor;
-    TUIRenderState* prop;
-
-    int value;
-    int parent;
-
-    Receive(&value, (char*)&RX, sizeof(RX));
-    Reply(value, NULL, 0);
-    Receive(&value, (char*)&CLK, sizeof(CLK));
-    Reply(value, NULL, 0);
-    Receive(&value, (char*)&conductor, sizeof(conductor));
-    Reply(value, NULL, 0);
-    Receive(&value, (char*)&prop, sizeof(prop));
-    Reply(value, NULL, 0);
-
-    //Important to reply at the end, otherwise this will never be cleaned up
-    Receive(&parent, NULL, 0);
-
-    char cmdBuffer[16];
-    int bufDex;
-    char command[16];
-    int length;
-    //used to support arrow keys
-    //we will leave this for another day as it introduces significant complexities
-    char postfix[10];
-    while(1){
-        int status = GetLN(RX, 2, cmdBuffer, 16, 13, false);
-        if(status == -2){
-            clearRXBuffer(RX, 2);
-            //Consider showing an error message using TUI
-            Delay(CLK, 10);
-            continue;
-        } else if(status == -1){
-            //not enough key strokes
-            //opportunity for sensor update
-            Delay(CLK, 10);
-            getSensorData(conductor);
-            prop->sensorUpdate = true;
-            Delay(CLK, 10);
-            continue;
-        } else {
-            //processing buffered data with backspace and cursors into correct command
-            length = 0;
-	        int bufDex = 0;
-	        //TODO: Fix the backspace
-	        //Works for one stroke, but freak out over 2 strokes
-            for(; bufDex < status; bufDex++){
-                //backspace
-                if(cmdBuffer[bufDex] == 8){
-                    if(length>0){
-                        length--;
-                    }
-                } else {
-                    command[length++] = cmdBuffer[bufDex];
-                }
-            }
-            processUserRequestV2(command, conductor, prop);
-        }
-    }
 }
 
 int createTrackController(int RX, int CLK, Conductor* conductor, TUIRenderState* prop){

@@ -5,19 +5,10 @@
 #include <uartServer.h>
 #include <track.h>
 #include <conductor.h>
-#include <pathFinder.h>
 #include <tui.h>
 #include <charay.h>
 #include <bwio.h>
 
-//it is expensive, but i dont want to write a hash
-int nameAttribution(const char* name, track_node* nodes){
-    for(int i=0; i<TRACK_MAX; i++){
-        if(!strcmp(name, nodes[i].name))
-            return i;
-    }
-    return -1;
-}
 
 void processUserRequest(char* command, Conductor* conductor, TUIRenderState* prop){
     char* cmd = command;
@@ -29,17 +20,13 @@ void processUserRequest(char* command, Conductor* conductor, TUIRenderState* pro
     int op = 0;
 
     for(int i=0;command[i] && i<16;i++){
-	//bwprintf(COM2, "%d %d\r\n", i, command[i]);
         if (command[i] == ' ' || command[i] == '\r'){
             command[i] = 0;
-            if(op == 0){
-		//bwprintf(COM2, "op1 index: %d\r\n", i);
+            if(op++ == 0){
                 op1 = command + i + 1;
-		op++;
-            } else if(op == 1) {
-		//bwprintf(COM2, "op2 index: %d\r\n", i);
+            } else {
                 op2 = command + i + 1;
-		op++;
+                break;
             }
         }
     }
@@ -55,61 +42,13 @@ void processUserRequest(char* command, Conductor* conductor, TUIRenderState* pro
     } else if(!strcmp("rv", cmd)){
         operand1 = stringToNum(op1, 10);
         reverseConductor(conductor, operand1);
-    } else if(!strcmp("go", cmd)) {
-        //note to self, refactor this
-        int source = nameAttribution(op1, conductor->trackNodes);
-        int dest = nameAttribution(op2, conductor->trackNodes);
-
-        PATH path;
-        computePath(conductor->trackNodes, &path, source, dest);
-        if(path.cost[dest] == -1){
-            return;
-        }
-        TRACKEVENT events[64];
-        parsePath(conductor->trackNodes, &path, events, 64, dest);
-        //time to use the track event
-
-        int eventProcessed = 0; 
-        //figure out the stoppin condition later
-        int sensor = -1;
-        int distance;
-        for(int i=0; events[i].type != END; i++){
-            if(events[i].type == BRANCH){
-                Delay(conductor->CLK, 30);
-                switchConductor(conductor, events[i].id, (events[i].auxiliary == 1 ? 'C' : 'S'));
-            } else if(events[i].type == SENSOR){
-                sensor = events[i].id;
-            }
-        }
-	    Delay(conductor->CLK, 30);
-        setSpeedConductor(conductor, 24, 12);
-
-        distance = path.cost[dest] - path.cost[conductor->index.sensorToNode[sensor]];
-
-        while(true){
-	        Delay(conductor->CLK, 8);
-            getSensorData(conductor);
-	        prop->sensorUpdate = true;
-            
-	        for(int i=0; i<80; i++){
-		        if(conductor->sensor[i]){
-		            // bwprintf(COM2, "%d ", i);
-		        }
-	        }
-	        // bwprintf(COM2, "\r\n");
-	        if(conductor->sensor[sensor]){
-                break;
-            }
-        }
-	    Delay(conductor->CLK, 10);
-        setSpeedConductor(conductor, 24, 0);
-
     } else if(!strcmp("q", cmd)){
         Shutdown();
     } else {
         //do something warning text here
     }
 }
+
 
 //handles console command and dispatches tasks
 //will be blocked on next input

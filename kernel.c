@@ -35,7 +35,6 @@
 #include <dump.h>
 #include <deviceTests.h>
 #include <uiTest.h>
-
 #include <bwio.h>
 
 Scheduler* scheduler;
