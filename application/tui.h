@@ -7,10 +7,10 @@ typedef struct tui_Props{
     volatile bool timeUpdate;
     volatile bool switchUpdate;
     struct msg{
-        bool read;
-        int length;
+        volatile bool read;
+        volatile int length;
         char message[40];
-        enum {
+        volatile enum {
             INFO,
             NOTIFICATION,
             WARNING,
@@ -18,7 +18,6 @@ typedef struct tui_Props{
         } style;
     } message;
 } TUIRenderState;
-
 
 void tuiThread();
 
