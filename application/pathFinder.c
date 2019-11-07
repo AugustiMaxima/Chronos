@@ -68,6 +68,7 @@ void parsePath(track_node* tracks, PATH* path, TRACKEVENT* trackevents, int even
     }
 
     trackevents[eventBufferSize - 1].type = END;
+    trackevents[eventBufferSize - 1].id = dest;
 
     //when done, move by index + 1
     while(current!=source && index>=0){
@@ -105,7 +106,7 @@ void generatePath(track_node* tracks, PATH* path, char* buffer, int dest){
     int source = path->source;
     int index = 0;
     while(current!=source){
-        char* name = tracks[current].name;
+        const char* name = tracks[current].name;
         for(int i=0; name[i]; i++){
             buffer[index++] = name[i];
         }

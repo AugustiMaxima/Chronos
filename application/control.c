@@ -34,7 +34,7 @@ void processUserRequestV2(char* command, Conductor* conductor, TUIRenderState* p
             command[i] = 0;
             if(op++ == 0){
                 op1 = command + i + 1;
-            } else {
+            } else if(op++==1) {
                 op2 = command + i + 1;
                 break;
             }
@@ -52,11 +52,46 @@ void processUserRequestV2(char* command, Conductor* conductor, TUIRenderState* p
     } else if(!strcmp("rv", cmd)){
         operand1 = stringToNum(op1, 10);
         reverseConductor(conductor, operand1);
-    } else if(!strcmp("path", cmd)) {
-        int source = nameAttribution(operand1, conductor->trackNodes);
-        int dest = nameAttribution(operand2, conductor->trackNodes);
+    } else if(!strcmp("go", cmd)) {
+        //note to self, refactor this
+        int source = nameAttribution(op1, conductor->trackNodes);
+        int dest = nameAttribution(op2, conductor->trackNodes);
         PATH path;
-        
+        computePath(conductor->trackNodes, &path, source, dest);
+        if(path.cost[dest] == -1){
+            return;
+        }
+        TRACKEVENT events[64];
+        parsePath(conductor->trackNodes, &path, events, 64, dest);
+        //time to use the track event
+
+        int eventProcessed = 0; 
+        //figure out the stoppin condition later
+        int sensor = -1;
+        int distance;
+        for(int i=0; events[i].type != END; i++){
+            if(events[i].type == BRANCH){
+                Delay(conductor->CLK, 5);
+                switchConductor(conductor, events[i].id, (events[i].auxiliary == 1 ? 'C' : 'S'));
+            } else if(events[i].type == SENSOR){
+                sensor = events[i].id;
+            }
+        }
+        setSpeedConductor(conductor, 1, 14);
+
+        distance = path.cost[dest] - path.cost[conductor->index.sensorToNode[sensor]];
+
+        while(true){
+            getSensorData(conductor);            
+            if(conductor->sensor[sensor]){
+                break;
+            }
+
+
+
+        }
+        setSpeedConductor(conductor, 1, 0);
+
     } else if(!strcmp("q", cmd)){
         Shutdown();
     } else {
