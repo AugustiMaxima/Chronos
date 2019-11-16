@@ -1,0 +1,27 @@
+CS452 Final Project Proposal - Initial D
+Lennox Fei
+
+Overview:
+The project will allow some trains to perform multi track drifting on specific parts of the parallel track. This would visually look like https://i.imgur.com/CSesPv5.mp4 and resemble a drifting car. Evaluators should expect to see the train drift along with its front and back on two distinct tracks, moving parallel to the tracks.
+
+Technical Challenges:
+Both software challenges and hardware challenges exist for the proper facilitation of multi-track drifting.
+
+On the software side, the timing precision required for switching will need to be between the first wheel leaving the switch and the second wheel entering the switch section. This requires very accurate timinig estimates, which is even more dire because of the lack of sensors on the track.
+
+On the hardware side, the main challenge resides with the physical turn cap on the trains. But irregardless, in order to facilitate multi track drfiting, we need a way to address the fundamental hardware issues present in prevent mutli track drifting.
+
+Technical Solutions:
+Software Solution:
+It is unlikely to produce a timing so precise that it will work everytime, in fact it would be difficult to produce a timing that allows me to perform the right switch 50% of the time, however, assuming that we have an algorithm that successfully perform a multi track drifting with 33$ probability, the expected number of attempts before a success is 3. This means that with a good probablistic margin, we can easily achieve multi track drifting over retries.
+
+
+
+
+Hardware Solution:
+
+I have strong reasons to believe that this can be drastically increased with a simple mod that does not affect the functionality of the train set itself. The wheel set is able to turn by a significant margin, and is freely rotating without the barrier of the train's shell. Further research found exmaples of disassembled base plate conforming on multiple tracks. https://www.instagram.com/p/_MxOpQNrDQ/
+
+As a result, for the best performance, we can solve the limitation by modding the trains to have less barrier on the bottom, increasing its turn cap and making it more flexible on difficult track conditions. Depending how the shell is addressed, is probably not reversable, but I do not expect the functionality of the train engine to be harmed in any way. 
+
+There is however a less intrusive apporach, at the cost of visual consistency. The way to achieve multitrack drifting is to have a front part of the train body be in a different track than the later part of the train body. The current issue is the lack of flexibility with only one train, we can instead achieve this with two trains, one train will represent the logical front wheel, another train represent the logical rear wheel set, with a connecting piece that is flexible enough to allow for drifting across the two parallel tracks. A likely candidate is a piece of string tied to both trains. While this lacks the pinache of the first solution, it is fundamentally the same problem, and making this work will basically imply we have a working solution for the first version as well.
