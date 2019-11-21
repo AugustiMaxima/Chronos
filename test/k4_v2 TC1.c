@@ -3,7 +3,6 @@
 #include <nameServer.h>
 #include <clockServer.h>
 #include <uartServer.h>
-#include <marklinServer.h>
 #include <track.h>
 #include <conductor.h>
 #include <pathFinder.h>
@@ -36,11 +35,11 @@ void processUserRequest(char* command, Conductor* conductor, TUIRenderState* pro
             if(op == 0){
 		//bwprintf(COM2, "op1 index: %d\r\n", i);
                 op1 = command + i + 1;
-		        op++;
+		op++;
             } else if(op == 1) {
 		//bwprintf(COM2, "op2 index: %d\r\n", i);
                 op2 = command + i + 1;
-		        op++;
+		op++;
             }
         }
     }
@@ -193,8 +192,8 @@ void k4_v2(){
     bwprintf(COM2, "Constructing child threads...\r\n");
     int ns = Create(-1, nameServer);
     int clk = Create(-1, clockServer);
-    int rx1 = Create(-2, marklinRxServer);
-    int tx1 = Create(-2, marklinTxServer);
+    int rx1 = createRxServer(1);
+    int tx1 = createTxServer(1);
     int rx2 = createRxServer(2);
     int tx2 = createTxServer(2);
     Conductor conductor;

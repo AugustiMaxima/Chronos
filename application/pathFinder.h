@@ -1,6 +1,7 @@
 #ifndef PATH_FINDER
 #define PATH_FINDER
 
+#include <stdbool.h>
 #include <track_data.h>
 
 typedef struct pathSet{
@@ -22,7 +23,7 @@ typedef struct trackEvents{
 } TRACKEVENT;
 
 
-void computePath(track_node* tracks, PATH* path, int source, int dest);
+void computePath(track_node* tracks, PATH* path, bool* graphMask, int source, int dest);
 
 void parsePath(track_node* tracks, PATH* path, TRACKEVENT* trackevents, int eventBufferSize, int dest);
 

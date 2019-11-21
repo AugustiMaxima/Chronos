@@ -12,6 +12,8 @@
 
 #define UARTCLK 7372800
 
+#define UART_Modem_Stat 0x0104
+
 void initializeUART(int channel, int bitRate, bool fifo, bool RTIE, bool TIE, bool RIE, bool MSIE);
 
 int putUart(int channel, char Byte);

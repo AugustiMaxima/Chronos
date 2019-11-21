@@ -23,10 +23,7 @@ void engineSpeedTrack(int uart, int clk, int train, int speed){
     char command[2];
     command[0] = speed;
     command[1] = train;
-    // PutCN(uart, 1, command, 2, true);
-    Putc(uart, 1, command[0]);
-    Delay(clk, 2);
-    Putc(uart, 1, command[1]);   
+    PutCN(uart, 1, command, 2, true);
 }
 
 void reverseTrack(int uart, int clk, int train){
@@ -49,13 +46,7 @@ void branchTrack(int uart, int clk, int location, char direction){
             break;
     }
     command[1] = location;
-    //PutCN(uart, 1, command, 2, true);
-    //apparently if you don't wait long enough between the two the console will ignore the second character
-    //here is a temporary solution until we find something permenant
-    Putc(uart, 1, command[0]);
-    //Modern problems calls for modern solutions
-    Delay(clk, 2);
-    Putc(uart, 1, command[1]);
+    PutCN(uart, 1, command, 2, true);
 }
 
 void turnOutTrack(int uart){

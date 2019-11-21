@@ -78,7 +78,7 @@ int main( int argc, char* argv[] ) {
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
     
     scheduleTask(scheduler, 0, 0, k4_v2);
-    //scheduleTask(scheduler, 0, 0, cursorTest);
+    // scheduleTask(scheduler, 0, 0, cursorTest);
 
     unsigned long last = 0;
     unsigned long utilTime = 0;

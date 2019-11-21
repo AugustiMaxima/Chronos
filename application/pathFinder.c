@@ -1,7 +1,9 @@
 #include <chlib.h>
 #include <pathFinder.h>
 
-void computePath(track_node* tracks, PATH* path, int source, int dest){
+#define REVERSE_COST 10
+
+void computePath(track_node* tracks, PATH* path, bool* graphMask, int source, int dest){
     int inSet[TRACK_MAX];
     for(int i=0; i<TRACK_MAX; i++){
         path->cost[i] = -1;
@@ -25,7 +27,7 @@ void computePath(track_node* tracks, PATH* path, int source, int dest){
               continue;
             }
             int remote = tracks[alpha].edge[0].dest - tracks;
-            if(path->cost[remote] == -1){
+            if(path->cost[remote] == -1 && graphMask[remote]){
                 if(opt_w > tracks[alpha].edge[0].dist || opt_w == -1){
                     opt_w = tracks[alpha].edge[0].dist;
                     opt_s = alpha;
@@ -35,12 +37,21 @@ void computePath(track_node* tracks, PATH* path, int source, int dest){
 
             if(tracks[alpha].type == NODE_BRANCH){
                 int r2 = tracks[alpha].edge[1].dest - tracks;
-                if(path->cost[r2] == -1){
+                if(path->cost[r2] == -1 && graphMask[r2]){
                     if(opt_w > tracks[alpha].edge[1].dist || opt_w == -1){
                         opt_w = tracks[alpha].edge[1].dist;
                         opt_s = alpha;
                         opt_e = 1;
                     }
+                }
+            }
+
+            int r3 = tracks[alpha].reverse - tracks;
+            if(path->cost[r3] == -1 && graphMask[r3]){
+                if(opt_w > REVERSE_COST || opt_w == -1){
+                    opt_w = REVERSE_COST;
+                    opt_s = alpha;
+                    opt_e = -1;
                 }
             }
         }

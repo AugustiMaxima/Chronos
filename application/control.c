@@ -11,7 +11,7 @@
 #include <bwio.h>
 
 
-
+/*
 void processUserRequestV2(char* command, Conductor* conductor, TUIRenderState* prop){
     char* cmd = command;
     char* op1;
@@ -99,7 +99,7 @@ void trackController(){
 
 int createTrackController(int RX, int CLK, Conductor* conductor, TUIRenderState* prop){
     int console = Create(-1, trackController);
-    Send(console, (const char*)&RX, sizeof(RX), NULL, 0);
+    Send(console, (const char*)&RX, sizeof(RcomputePathX), NULL, 0);
     Send(console, (const char*)&CLK, sizeof(CLK), NULL, 0);
     Send(console, (const char*)&conductor, sizeof(conductor), NULL, 0);
     Send(console, (const char*)&prop, sizeof(prop), NULL, 0);
@@ -139,3 +139,4 @@ void TC1(){
     //Lock K4 to the console thread, so that K4 will not prematurely exit and destroy the shared state
     Send(console, NULL, 0, NULL, 0);
 }
+*/
