@@ -16,15 +16,23 @@ void marklinRxNotifier(){
     Receive(&rxWorker, NULL, 0);
     Reply(rxWorker, NULL, 0);
     enableDeviceInterrupt(INT_UART1);
+    enableDeviceInterrupt(UART1RX_DEV_ID);
+
+    int device, val;
 
     while(1){
-        int val = AwaitEvent(INT_UART1);
-        if(val & 0x8){
-            //Receive Timeout
-            Send(rxWorker, NULL, 0 ,NULL, 0);
-        } else if(val & 0x2){
-            //RX
-            Send(rxWorker, NULL, 0 ,NULL, 0);
+        device = AwaitMultipleEvent(&val, 2, INT_UART1, UART1RX_DEV_ID);
+        //device = AwaitEvent(INT_UART1);
+	if (device == INT_UART1){
+            if(val & 0x8){
+                //Receive Timeout
+                Send(rxWorker, NULL, 0 ,NULL, 0);
+            } else if(val & 0x2){
+                //RX
+                Send(rxWorker, NULL, 0 ,NULL, 0);
+            }
+        } else {
+            Send(rxWorker, NULL, 0, NULL, 0);
         }
     }
 }
@@ -51,7 +59,8 @@ void marklinRxWorker(){
     TransmitBuffer* buffer;
     int server;
     int caller;
-    int notifier = Create(-3, marklinRxNotifier);
+    int notifier = Create(-3, marklinRxNotifier); 
+
     Send(notifier, NULL, 0, NULL, 0);
     Receive(&server, (char*)&buffer, sizeof(buffer));
     Reply(server, NULL, 0);
@@ -72,7 +81,6 @@ void marklinRxWorker(){
                 setReceiveTimeout(1, true);
                 break;
             } else {
-                bwprintf(COM2, "Consumed a new char: %d\r\n", getBufferFill(buffer));
                 buffer->buffer[getPhysicalBufferIndex(buffer->length++)] = retainer;
             }
         }
@@ -87,7 +95,7 @@ void marklinTxWorker(){
     TransmitBuffer* buffer;
     int server;
     int caller;
-    int notifier = Create(-3, marklinTxNotifier);
+    int notifier = Create(-2, marklinTxNotifier);
     Send(notifier, NULL, 0, NULL, 0);
     Receive(&server, (char*)&buffer, sizeof(buffer));
     Reply(server, NULL, 0);
@@ -136,7 +144,7 @@ void marklinRxServer(){
 
     initializeTransmitBuffer(&RX);
 
-    int RXWorker = Create(-2, marklinRxWorker);
+    int RXWorker = Create(-3, marklinRxWorker);
     void* buff = &RX;
     Send(RXWorker, (const char*)&buff, sizeof(buff), NULL, 0);
 
@@ -147,8 +155,10 @@ void marklinRxServer(){
         Receive(&caller, (char*)&request, sizeof(request));
         if(request.method == GET){
             do{
+                bwprintf(COM2, "Size: %d, total: %d\r\n", getBufferFill(buff), RX.length);
                 Send(RXWorker, NULL, 0, NULL, 0);
                 status = fetchBuffer(&RX, request.payload, request.length);
+                bwprintf(COM2, "Retrying fetch!\r\n");
             } while(status < 0);
             Reply(caller, (const char*)&status, sizeof(status));
         }

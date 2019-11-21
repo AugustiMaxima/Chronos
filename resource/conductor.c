@@ -48,7 +48,6 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK, int trac
     for(int i=0;i<SWITCH_COUNT;i++){
         conductor->switches[i] = 'S';
         branchTrack(TX, CLK, conductor->index.indexToSwitch[i], 'S');
-        Delay(CLK, 10);
     }
     turnOutTrack(TX);
     

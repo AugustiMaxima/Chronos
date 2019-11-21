@@ -62,7 +62,7 @@ void processUserRequest(char* command, Conductor* conductor, TUIRenderState* pro
         int dest = nameAttribution(op2, conductor->trackNodes);
 
         PATH path;
-        computePath(conductor->trackNodes, &path, source, dest);
+        // computePath(conductor->trackNodes, &path, source, dest);
         if(path.cost[dest] == -1){
             return;
         }
@@ -144,7 +144,9 @@ void trackConsole(){
     //we will leave this for another day as it introduces significant complexities
     char postfix[10];
     while(1){
-        int status = GetLN(RX, 2, cmdBuffer, 16, 13, false);
+        int status = GetLN(RX, 2, cmdBuffer, 16, 13, false);            
+        bwprintf(COM2, "Command status: %d\r\n", status);
+        bwprintf(COM2, "%s\r\n", command);
         if(status == -2){
             clearRXBuffer(RX, 2);
             //Consider showing an error message using TUI
