@@ -21,19 +21,23 @@ void marklinRxNotifier(){
     int device, val;
 
     while(1){
-        device = AwaitMultipleEvent(&val, 2, INT_UART1, UART1RX_DEV_ID);
-        //device = AwaitEvent(INT_UART1);
-	if (device == INT_UART1){
+	//bwprintf(COM2, "Fuck!\r\n");
+        //device = AwaitMultipleEvent(&val, 2, INT_UART1, UART1RX_DEV_ID);
+        val = AwaitEvent(INT_UART1);
+	//if (device == INT_UART1){
             if(val & 0x8){
+		bwprintf(COM2, "Timeout\r\n");
                 //Receive Timeout
                 Send(rxWorker, NULL, 0 ,NULL, 0);
             } else if(val & 0x2){
                 //RX
+		bwprintf(COM2, "Buffer\r\n");
                 Send(rxWorker, NULL, 0 ,NULL, 0);
             }
-        } else {
-            Send(rxWorker, NULL, 0, NULL, 0);
-        }
+        //} else {
+         //   Send(rxWorker, NULL, 0, NULL, 0);
+        //}
+	//bwprintf(COM2, "%d\r\n", val);
     }
 }
 

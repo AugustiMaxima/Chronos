@@ -207,6 +207,7 @@ void tc2(){
         bwprintf(COM2, "\r\nInvalid track! Ok ciao!\r\n");
         Shutdown();
     }
+    clearRXBuffer(rx2, 2);
     bwprintf(COM2, "\r\nInitializing track\r\n");
     initializeConductor(&conductor, rx1, tx1, clk, track);
     bwprintf(COM2, "Track finished, spinning up controller and ui thread\r\n");

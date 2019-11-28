@@ -42,7 +42,7 @@ CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I incl
 #LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lterminal -ltui -lconductor -ltrack_data -luiHelper -luiTest -lpathFinder -lmarklinServer -ltc1 -ltc2 -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -ltc2 -ltc1 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lterminal -ltui -lconductor -ltrack_data -luiHelper -luiTest -lpathFinder -lmarklinServer -lgcc
 
 all: kernel.elf
 

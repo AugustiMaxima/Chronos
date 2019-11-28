@@ -79,7 +79,7 @@ int main( int argc, char* argv[] ) {
     Clock clock;
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
     
-    scheduleTask(scheduler, 0, 0, tc1);
+    scheduleTask(scheduler, 0, 0, tc2);
     // scheduleTask(scheduler, 0, 0, cursorTest);
 
     unsigned long last = 0;
