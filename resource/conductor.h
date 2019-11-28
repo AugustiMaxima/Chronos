@@ -26,7 +26,7 @@ typedef struct conductor{
     int TX;
     int CLK;
 
-    bool sensor[SENSOR_COUNT];
+    char sensor[SENSOR_COUNT];
     //records last speed command sent
     int trainSpeed[TRAIN_COUNT];
     //Switches are named weirdly, beware

@@ -1,3 +1,6 @@
-void k4_main();
+#ifndef K4_H
+#define K4_H
 
-void k4_v2();
+void k4();
+
+#endif

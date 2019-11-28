@@ -1,15 +1,17 @@
 #include <stdlib.h>
 #include <syslib.h>
-#include <nameServer.h>
-#include <clockServer.h>
-#include <uartServer.h>
-#include <marklinServer.h>
-#include <track.h>
+#include <track_data.h>
 #include <conductor.h>
 #include <pathFinder.h>
 #include <tui.h>
+#include <nameServer.h>
+#include <clockServer.h>
+#include <uartServer.h>
 #include <charay.h>
+#include "tc1.h"
 #include <bwio.h>
+
+bool graphMask[144];
 
 //it is expensive, but i dont want to write a hash
 int nameAttribution(const char* name, track_node* nodes){
@@ -20,7 +22,8 @@ int nameAttribution(const char* name, track_node* nodes){
     return -1;
 }
 
-void processUserRequest(char* command, Conductor* conductor, TUIRenderState* prop){
+
+void processUserRequestTC1(char* command, Conductor* conductor, TUIRenderState* prop){
     char* cmd = command;
     char* op1;
     int operand1;
@@ -36,11 +39,11 @@ void processUserRequest(char* command, Conductor* conductor, TUIRenderState* pro
             if(op == 0){
 		//bwprintf(COM2, "op1 index: %d\r\n", i);
                 op1 = command + i + 1;
-		        op++;
+		op++;
             } else if(op == 1) {
 		//bwprintf(COM2, "op2 index: %d\r\n", i);
                 op2 = command + i + 1;
-		        op++;
+		op++;
             }
         }
     }
@@ -62,7 +65,7 @@ void processUserRequest(char* command, Conductor* conductor, TUIRenderState* pro
         int dest = nameAttribution(op2, conductor->trackNodes);
 
         PATH path;
-        // computePath(conductor->trackNodes, &path, source, dest);
+        computePath(conductor->trackNodes, &path, graphMask, source, dest);
         if(path.cost[dest] == -1){
             return;
         }
@@ -85,7 +88,7 @@ void processUserRequest(char* command, Conductor* conductor, TUIRenderState* pro
 	    Delay(conductor->CLK, 30);
         setSpeedConductor(conductor, 24, 12);
 
-        distance = path.cost[dest] - path.cost[conductor->index.sensorToNode[sensor]];
+        distance = path.cost[dest] - path.cost[(int)(conductor->index.sensorToNode[sensor])];
 
         while(true){
 	        Delay(conductor->CLK, 8);
@@ -114,7 +117,11 @@ void processUserRequest(char* command, Conductor* conductor, TUIRenderState* pro
 
 //handles console command and dispatches tasks
 //will be blocked on next input
-void trackConsole(){
+void trackConsoleTC1(){
+
+    for(int i=0; i<144; i++)
+        graphMask[i] = true;
+
     //args:
     int RX;
     int CLK;
@@ -144,9 +151,7 @@ void trackConsole(){
     //we will leave this for another day as it introduces significant complexities
     char postfix[10];
     while(1){
-        int status = GetLN(RX, 2, cmdBuffer, 16, 13, false);            
-        bwprintf(COM2, "Command status: %d\r\n", status);
-        bwprintf(COM2, "%s\r\n", command);
+        int status = GetLN(RX, 2, cmdBuffer, 16, 13, false);
         if(status == -2){
             clearRXBuffer(RX, 2);
             //Consider showing an error message using TUI
@@ -176,13 +181,13 @@ void trackConsole(){
                     command[length++] = cmdBuffer[bufDex];
                 }
             }
-            processUserRequest(command, conductor, prop);
+            processUserRequestTC1(command, conductor, prop);
         }
     }
 }
 
-int createTrackConsole(int RX, int CLK, Conductor* conductor, TUIRenderState* prop){
-    int console = Create(-1, trackConsole);
+int createTrackConsoleTC1(int RX, int CLK, Conductor* conductor, TUIRenderState* prop){
+    int console = Create(-1, trackConsoleTC1);
     Send(console, (const char*)&RX, sizeof(RX), NULL, 0);
     Send(console, (const char*)&CLK, sizeof(CLK), NULL, 0);
     Send(console, (const char*)&conductor, sizeof(conductor), NULL, 0);
@@ -191,12 +196,12 @@ int createTrackConsole(int RX, int CLK, Conductor* conductor, TUIRenderState* pr
 }
 
 //sets up and spawns every service related to train control
-void k4_v2(){
+void tc1(){
     bwprintf(COM2, "Constructing child threads...\r\n");
     int ns = Create(-1, nameServer);
     int clk = Create(-1, clockServer);
-    int rx1 = Create(-2, marklinRxServer);
-    int tx1 = Create(-2, marklinTxServer);
+    int rx1 = createRxServer(1);
+    int tx1 = createTxServer(1);
     int rx2 = createRxServer(2);
     int tx2 = createTxServer(2);
     Conductor conductor;
@@ -219,7 +224,7 @@ void k4_v2(){
     bwprintf(COM2, "Track finished, spinning up controller and ui thread\r\n");
     TUIRenderState prop;
     int tui = createTUI(rx2, tx2, clk, &conductor, &prop);
-    int console = createTrackConsole(rx2, clk, &conductor, &prop);
+    int console = createTrackConsoleTC1(rx2, clk, &conductor, &prop);
     //Lock K4 to the console thread, so that K4 will not prematurely exit and destroy the shared state
     Send(console, NULL, 0, NULL, 0);
 }

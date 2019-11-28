@@ -1,5 +1,5 @@
-#ifndef CLOCKSERVER_H
-#define CLOCKSERVER_H
+#ifndef CLOCKSERVER
+#define CLOCKSERVER
 
 typedef struct async_Work{
     int tId;

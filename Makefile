@@ -33,7 +33,7 @@ ASFLAGS = -mfloat-abi=soft
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource -I application
+CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I include -I arch -I kern -I lib -I task -I user -I user/library -I util -I comm -I misc -I test -I devices -I resource -I components -I application
 
 # -static: force static linking
 # -e: set entry point
@@ -42,7 +42,7 @@ CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I incl
 #LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -lk4_v2 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lterminal -ltui -lconductor -ltrack_data -luiHelper -luiTest -lpathFinder -lcontrol -lmarklinServer -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lterminal -ltui -lconductor -ltrack_data -luiHelper -luiTest -lpathFinder -lmarklinServer -ltc1 -ltc2 -lgcc
 
 all: kernel.elf
 
@@ -52,7 +52,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a deviceTests.a uart.a transmitBuffer.a uartServer.a track.a terminal.a k4_v2.a tui.a conductor.a track_data.a uiHelper.a uiTest.a pathFinder.a control.a marklinServer.a
+kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a deviceTests.a uart.a transmitBuffer.a uartServer.a track.a terminal.a tui.a conductor.a track_data.a uiHelper.a uiTest.a pathFinder.a marklinServer.a tc1.a tc2.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 a0.s: a0.c
@@ -73,8 +73,8 @@ dump.o: dump.s
 dump.a: dump.o
 	$(AR) $(ARFLAGS) $@ dump.o
 
-tui.s: application/tui.c
-	$(CC) -S $(CFLAGS) application/tui.c
+tui.s: components/tui.c
+	$(CC) -S $(CFLAGS) components/tui.c
 
 tui.o: tui.s
 	$(AS) $(ASFLAGS) -o tui.o tui.s
@@ -82,8 +82,8 @@ tui.o: tui.s
 tui.a: tui.o
 	$(AR) $(ARFLAGS) $@ tui.o
 
-pathFinder.s: application/pathFinder.c
-	$(CC) -S $(CFLAGS) application/pathFinder.c
+pathFinder.s: components/pathFinder.c
+	$(CC) -S $(CFLAGS) components/pathFinder.c
 
 pathFinder.o: pathFinder.s
 	$(AS) $(ASFLAGS) -o pathFinder.o pathFinder.s
@@ -91,14 +91,23 @@ pathFinder.o: pathFinder.s
 pathFinder.a: pathFinder.o
 	$(AR) $(ARFLAGS) $@ pathFinder.o
 
-control.s: application/control.c
-	$(CC) -S $(CFLAGS) application/control.c
+tc1.s: application/tc1.c
+	$(CC) -S $(CFLAGS) application/tc1.c
 
-control.o: control.s
-	$(AS) $(ASFLAGS) -o control.o control.s
+tc1.o: tc1.s
+	$(AS) $(ASFLAGS) -o tc1.o tc1.s
 
-control.a: control.o
-	$(AR) $(ARFLAGS) $@ control.o
+tc1.a: tc1.o
+	$(AR) $(ARFLAGS) $@ tc1.o
+
+tc2.s: application/tc2.c
+	$(CC) -S $(CFLAGS) application/tc2.c
+
+tc2.o: tc2.s
+	$(AS) $(ASFLAGS) -o tc2.o tc2.s
+
+tc2.a: tc2.o
+	$(AR) $(ARFLAGS) $@ tc2.o
 
 fast_hsv2rgb.s: misc/fast_hsv2rgb.c
 	$(CC) -S $(CFLAGS) misc/fast_hsv2rgb.c
@@ -171,15 +180,6 @@ k4.o: k4.s
 
 k4.a: k4.o
 	$(AR) $(ARFLAGS) $@ k4.o
-
-k4_v2.s: test/k4_v2.c
-	$(CC) -S $(CFLAGS) test/k4_v2.c -o k4_v2.s
-
-k4_v2.o: k4_v2.s
-	$(AS) $(ASFLAGS) -o k4_v2.o k4_v2.s
-
-k4_v2.a: k4_v2.o
-	$(AR) $(ARFLAGS) $@ k4_v2.o
 bwio.s: misc/bwio.c
 	$(CC) -S $(CFLAGS) misc/bwio.c
 

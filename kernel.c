@@ -31,6 +31,8 @@
 #include <k2.h>
 #include <k3.h>
 #include <k4.h>
+#include <tc1.h>
+#include <tc2.h>
 #include <maptest.h>
 #include <dump.h>
 #include <deviceTests.h>
@@ -77,7 +79,7 @@ int main( int argc, char* argv[] ) {
     Clock clock;
     initializeClock(&clock, 3, 508000, 0, 0, 0, 0);
     
-    scheduleTask(scheduler, 0, 0, k4_v2);
+    scheduleTask(scheduler, 0, 0, tc1);
     // scheduleTask(scheduler, 0, 0, cursorTest);
 
     unsigned long last = 0;
