@@ -10,6 +10,7 @@
 #include <tui.h>
 #include <charay.h>
 #include "tc1.h"
+#include "tc2.h"
 #include <bwio.h>
 
 
@@ -138,8 +139,8 @@ void trackConsoleTC2(){
     char postfix[10];
     while(1){
         int status = GetLN(RX, 2, cmdBuffer, 16, 13, false);            
-        bwprintf(COM2, "Command status: %d\r\n", status);
-        bwprintf(COM2, "%s\r\n", command);
+        //bwprintf(COM2, "Command status: %d\r\n", status);
+        //bwprintf(COM2, "%s\r\n", command);
         if(status == -2){
             clearRXBuffer(RX, 2);
             //Consider showing an error message using TUI
@@ -148,10 +149,8 @@ void trackConsoleTC2(){
         } else if(status == -1){
             //not enough key strokes
             //opportunity for sensor update
-            Delay(CLK, 10);
             getSensorData(conductor);
             prop->sensorUpdate = true;
-            Delay(CLK, 10);
             continue;
         } else {
             //processing buffered data with backspace and cursors into correct command
@@ -188,8 +187,9 @@ void tc2(){
     bwprintf(COM2, "Constructing child threads...\r\n");
     int ns = Create(-1, nameServer);
     int clk = Create(-1, clockServer);
-    int rx1 = Create(-2, marklinRxServer);
-    int tx1 = Create(-2, marklinTxServer);
+    int rx1 = Create(-3, marklinRxServer);
+    //int rx1 = createRxServer(1);
+    int tx1 = Create(-3, marklinTxServer);
     int rx2 = createRxServer(2);
     int tx2 = createTxServer(2);
     Conductor conductor;
@@ -212,7 +212,7 @@ void tc2(){
     initializeConductor(&conductor, rx1, tx1, clk, track);
     bwprintf(COM2, "Track finished, spinning up controller and ui thread\r\n");
     TUIRenderState prop;
-    //int tui = createTUI(rx2, tx2, clk, &conductor, &prop);
+    int tui = createTUI(rx2, tx2, clk, &conductor, &prop);
     int console = createTrackConsoleTC2(rx2, clk, &conductor, &prop);
     //Lock K4 to the console thread, so that K4 will not prematurely exit and destroy the shared state
     Send(console, NULL, 0, NULL, 0);

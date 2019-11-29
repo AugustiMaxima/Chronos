@@ -15,29 +15,23 @@ void marklinRxNotifier(){
     int rxWorker;
     Receive(&rxWorker, NULL, 0);
     Reply(rxWorker, NULL, 0);
-    enableDeviceInterrupt(INT_UART1);
+    //enableDeviceInterrupt(INT_UART1);
     enableDeviceInterrupt(UART1RX_DEV_ID);
 
-    int device, val;
+    //int device, val;
 
     while(1){
-	//bwprintf(COM2, "Fuck!\r\n");
-        //device = AwaitMultipleEvent(&val, 2, INT_UART1, UART1RX_DEV_ID);
-        val = AwaitEvent(INT_UART1);
-	//if (device == INT_UART1){
-            if(val & 0x8){
-		bwprintf(COM2, "Timeout\r\n");
-                //Receive Timeout
-                Send(rxWorker, NULL, 0 ,NULL, 0);
-            } else if(val & 0x2){
-                //RX
-		bwprintf(COM2, "Buffer\r\n");
-                Send(rxWorker, NULL, 0 ,NULL, 0);
-            }
-        //} else {
-         //   Send(rxWorker, NULL, 0, NULL, 0);
-        //}
-	//bwprintf(COM2, "%d\r\n", val);
+        /*val = AwaitEvent(INT_UART1);
+        if(val & 0x8){
+            //Receive Timeout
+            Send(rxWorker, NULL, 0, NULL, 0);
+        } else if(val & 0x2){
+            //RX
+            Send(rxWorker, NULL, 0, NULL, 0);
+        }*/
+	AwaitEvent(UART1RX_DEV_ID);
+	//bwprintf(COM2, "Print\r\n");
+	Send(rxWorker, NULL, 0, NULL, 0);
     }
 }
 
@@ -54,8 +48,12 @@ void marklinTxNotifier(){
             Send(txWorker, NULL, 0, NULL, 0);
         } else if(val & 0x1){
             //MODEM
-            Send(txWorker, NULL, 0, NULL, 0);
-        }
+	    if(getUartFlag(1) & CTS_MASK)
+		Send(txWorker, NULL, 0, NULL, 0);
+        } else if(!val){
+	    if(getUartFlag(1) & CTS_MASK)
+		Send(txWorker, NULL, 0, NULL, 0);
+	}
     }
 }
 
@@ -63,7 +61,7 @@ void marklinRxWorker(){
     TransmitBuffer* buffer;
     int server;
     int caller;
-    int notifier = Create(-3, marklinRxNotifier); 
+    int notifier = Create(-4, marklinRxNotifier); 
 
     Send(notifier, NULL, 0, NULL, 0);
     Receive(&server, (char*)&buffer, sizeof(buffer));
@@ -73,14 +71,15 @@ void marklinRxWorker(){
     bool serverBlocked = false;
     while(1){
         Receive(&caller, NULL, 0);
-        if(caller != server){
-            Reply(caller, NULL, 0);
+        if(caller == notifier){
+            Reply(notifier, NULL, 0);
         } else {
             serverBlocked = true;
         }
         while(getBufferCapacity(buffer) > 0){
             status = getUart(1, &retainer);
             if(status){
+		//bwprintf(COM2, "%d %d\r\n", getBufferFill(buffer), buffer->length);
                 setReceiveInterrupt(1, true);
                 setReceiveTimeout(1, true);
                 break;
@@ -99,14 +98,15 @@ void marklinTxWorker(){
     TransmitBuffer* buffer;
     int server;
     int caller;
-    int notifier = Create(-2, marklinTxNotifier);
+    int notifier = Create(-4, marklinTxNotifier);
     Send(notifier, NULL, 0, NULL, 0);
     Receive(&server, (char*)&buffer, sizeof(buffer));
     Reply(server, NULL, 0);
     bool serverBlocked = false;
+    bool writable = true;
     while(1){
         Receive(&caller, NULL, 0);
-        if(caller!=server){
+        if(caller==notifier){
             Reply(caller, NULL, 0);
         } else {
             serverBlocked = true;
@@ -120,19 +120,10 @@ void marklinTxWorker(){
                 break;
             } else {
                 buffer->cursor++;
-                //loop of cts handling
 
-                // bwprintf(COM2, "Write succees\r\n");
-                while(getUartFlag(1) & CTS_MASK){
-                    Receive(&caller, NULL, 0);
-                    Reply(caller, NULL, 0);
-                }
-                // bwprintf(COM2, "CTS down\r\n");
-                while(!(getUartFlag(1) & CTS_MASK)){
-                    Receive(&caller, NULL, 0);
-                    Reply(caller, NULL, 0);
-                }
-                // bwprintf(COM2, "CTS Reup\r\n");
+                Receive(&caller, NULL, 0);
+                Reply(caller, NULL, 0);
+                //bwprintf(COM2, "CTS Reup\r\n");
             }
         }
         if(serverBlocked){
@@ -148,7 +139,7 @@ void marklinRxServer(){
 
     initializeTransmitBuffer(&RX);
 
-    int RXWorker = Create(-3, marklinRxWorker);
+    int RXWorker = Create(-4, marklinRxWorker);
     void* buff = &RX;
     Send(RXWorker, (const char*)&buff, sizeof(buff), NULL, 0);
 
@@ -159,10 +150,11 @@ void marklinRxServer(){
         Receive(&caller, (char*)&request, sizeof(request));
         if(request.method == GET){
             do{
-                bwprintf(COM2, "Size: %d, total: %d\r\n", getBufferFill(buff), RX.length);
+		//bwprintf(COM2, "B");
                 Send(RXWorker, NULL, 0, NULL, 0);
+		//bwprintf(COM2, "F");
                 status = fetchBuffer(&RX, request.payload, request.length);
-                bwprintf(COM2, "Retrying fetch!\r\n");
+		//bwprintf(COM2, "%d\r\n", status);
             } while(status < 0);
             Reply(caller, (const char*)&status, sizeof(status));
         }
@@ -177,7 +169,7 @@ void marklinTxServer(){
 
     initializeTransmitBuffer(&TX);
 
-    int TXWorker = Create(-2, marklinTxWorker);
+    int TXWorker = Create(-3, marklinTxWorker);
     void* buff = &TX;
     Send(TXWorker, (const char*)&buff, sizeof(buff), NULL, 0);
 
@@ -187,6 +179,7 @@ void marklinTxServer(){
     while(1){
         Receive(&caller, (char*)&request, sizeof(request));
         if(request.method == POST){
+	    //bwprintf(COM2, "POST\r\n");
             do{
                 status = fillBuffer(&TX, request.payload, request.length);
                 Send(TXWorker, NULL, 0, NULL, 0);

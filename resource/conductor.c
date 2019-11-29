@@ -42,7 +42,6 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK, int trac
     conductor->TX = TX;
     conductor->CLK = CLK;
     startTrack(TX);
-    Delay(CLK, 10);
     
     //get the switches set
     for(int i=0;i<SWITCH_COUNT;i++){
@@ -51,19 +50,15 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK, int trac
     }
     turnOutTrack(TX);
     
-    Delay(CLK, 10);
 
-/*
+
     //get the switches set
     for(int i=0;i<SWITCH_COUNT;i++){
         conductor->switches[i] = 'C';
         branchTrack(TX, CLK, conductor->index.indexToSwitch[i], 'C');
-        Delay(CLK, 30);
     }
     turnOutTrack(TX);
 
-    Delay(CLK, 40);
-*/
     //get the trains set
     /*for(int i=1;i<TRAIN_COUNT;i++){
         setSpeedConductor(conductor, i, 0);
@@ -86,7 +81,6 @@ void reverseConductor(Conductor* conductor, int train){
     engineSpeedTrack(conductor->TX, conductor->CLK, train, 0);
     Delay(conductor->CLK, 2*speed*speed);
     engineSpeedTrack(conductor->TX, conductor->CLK, train, 15);
-    Delay(conductor->CLK, 10);
     engineSpeedTrack(conductor->TX, conductor->CLK, train, speed);
 }
 

@@ -22,7 +22,6 @@
 #include <uart.h>
 #include <clock.h>
 #include <terminal.h>
-#include <uiHelper.h>
 
 //User programs
 #include <userprogram.h>

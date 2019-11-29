@@ -116,10 +116,14 @@ int getUart(int channel, char* byte) {
 
 unsigned processUartInterrupt(int channel){
     unsigned flag = *(volatile unsigned*)(getUARTBase(channel) + UART_INTR_OFFSET);
+    if(channel == 1)
+    //bwprintf(COM2, "Flag: %d\r\n", flag);
     // refer to the docs on UART1IntIDIntClr for how this is done
     if(flag & 0x1){
         //MIS cleared by writing to the register
         *(volatile unsigned*)(getUARTBase(channel) + UART_INTR_OFFSET) &= ~0x1;
+	//if(channel == 1)
+	    //bwprintf(COM2, "%d\r\n", getUartFlag(1));
     }
     if(flag & 0x2){
         setReceiveInterrupt(channel, false);
