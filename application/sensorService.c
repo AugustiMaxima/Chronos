@@ -7,10 +7,10 @@ void sensorService(){
     TUIRenderState* prop;
     int controller;
     int clock;
-    Receive(&controller, (char*)conductor, sizeof(conductor));
+    Receive(&controller, (char*)&conductor, sizeof(conductor));
     Reply(controller, NULL, 0);
     clock = conductor->CLK;
-    Receive(&controller, (char*)prop, sizeof(prop));
+    Receive(&controller, (char*)&prop, sizeof(prop));
     Reply(controller, NULL, 0);
     while(1){
         //debatable whether this is needed, will be a subject of change later

@@ -5,11 +5,11 @@
 void controllerService(){
     Conductor* conductor;
     int TS1, TS2, caller;
-    Receive(&caller, (const char*)conductor, sizeof(conductor), NULL, 0);
+    Receive(&caller, (char*)&conductor, sizeof(conductor));
     Reply(caller, NULL, 0);
-    Receive(&caller, (const char*)TS1, sizeof(TS1), NULL, 0);
+    Receive(&caller, (char*)&TS1, sizeof(TS1));
     Reply(caller, NULL, 0);
-    Receive(&caller, (const char*)TS2, sizeof(TS2), NULL, 0);
+    Receive(&caller, (char*)&TS2, sizeof(TS2));
     Reply(caller, NULL, 0);
     
     while(1){

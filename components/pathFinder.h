@@ -19,7 +19,9 @@ typedef struct trackEvents{
         END
     } type;
     int id;
+    int nodeId;
     int auxiliary;
+    int distance;
 } TRACKEVENT;
 
 
