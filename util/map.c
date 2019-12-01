@@ -1,12 +1,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 #include <map.h>
 #include <bwio.h>
 
-
-int max(int a, int b){
-    return a>b? a: b;
-}
 
 void initializeNode(Node* node, int key, void* value){
     node->key = key;
