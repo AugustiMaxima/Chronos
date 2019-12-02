@@ -8,7 +8,7 @@
 #include <bwio.h>
 
 //in mm
-#define SAFE_DISTANCE 400
+#define SAFE_DISTANCE 800
 
 //more accurately, 5.92 mm / tick
 //we are really only using this for low precision apporximation with high factors of safety so it should be ok
@@ -110,6 +110,8 @@ CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT*
 
     bwprintf(COM2, "Expected position: %s + %d\r\n", conductor->trackNodes[position].name, displacement);
 
+    displacement = 0;
+
     while(dist - displacement < SAFE_DISTANCE){
         if(events[current].type == REVERSE){
         //we don't really, or shouldn't really look ahead
@@ -158,19 +160,93 @@ CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT*
     return stat;
 }
 
+CollisionData collisionDetectionV2(Conductor* conductor, int position, TRACKEVENT* events, int eventIndex, int timeDisplacement){
+    int dist = 0;
+    int pruned[MAX_DIVERGENCE];
+    int pruned_dist[MAX_DIVERGENCE];
+    int size = pruneDistinctPathSensors(conductor->trackNodes, pruned, pruned_dist, 0, 0, position);
+    CollisionData stat = {.impendingCollision = false, .updateStat = 0, .updateTarget = 0};
+
+    bool graphMask[TRACK_MAX];
+    generateGraphMask(graphMask, conductor->sensor, conductor->trackNodes);
+
+    //consume events between this box
+    //anything beyond will not be looked at until the next iteration
+
+    int current = eventIndex;
+
+    int first = 0;
+
+    bwprintf(COM2, "Collision check!\r\n");
+    while(dist < SAFE_DISTANCE){
+        if(events[current].type == REVERSE){
+        //we don't really, or shouldn't really look ahead
+        //might be subject to change
+            break;
+        } else if(events[current].type == END){
+        //what can you do?
+            stat.updateStat = 3;
+            return stat;
+        } else if(events[current].type == SENSOR){
+	    if(first++==1){
+		bwprintf(COM2, "Expecting %s\r\n", conductor->trackNodes[events[current].nodeId].name);
+	    }
+            if(!graphMask[events[current].nodeId]){
+                //blocked
+                if(first==1){
+                    //activated trigger is within margin of error, likely just a figure of self
+                    stat.updateStat = 1;
+                    stat.updateTarget = current;
+                } else {
+                    //this is probably an impending collision
+                    stat.impendingCollision = true;
+                }
+            }
+        }
+        if(current>=1)
+            dist+=events[current - 1].distance;
+	//hack job for hard coded values
+        if(current++ == 144)
+	    break;
+    }
+
+    if(stat.updateStat){
+        return stat;
+    }
+
+    for(int i=0; i<size; i++){
+        int node = pruned[i];
+        if(!graphMask[node]){
+            //block
+            //distance
+            if(abs(pruned_dist[i]) < MARGIN_OF_ERROR){
+                //we assume that this means we might be here
+                stat.updateStat = 2;
+                stat.updateTarget = pruned[i];
+		bwprintf(COM2, "New position:%s\r\n", conductor->trackNodes[stat.updateTarget].name);
+                return stat;
+            }
+        }
+    }
+    return stat;
+}
+
+
+
 void dynamicPaths(TrainData* trainData){
     int status = collisionFreePaths(trainData->conductor, trainData->position, trainData->destination, &trainData->path, trainData->events, TRACK_MAX);
     if(!status){
 	TrainLogger(trainData, "Pathing successful!");
 	char superBuffer[256];
 	generatePath(trainData->conductor->trackNodes, &trainData->path, superBuffer, trainData->destination);
-	bwprintf(COM2, "%s\r\n", superBuffer);
+	bwprintf(COM2, "\337\33[6;0H%s\r\n\338", superBuffer);
         parsePath(trainData->conductor->trackNodes, &trainData->path, trainData->events, TRACK_MAX, trainData->destination);
         trainData->eventIndex = 0;
         trainData->timeDisplacement = Time(trainData->conductor->CLK);
-	TrainLogger(trainData, "Starting speeding");
+	TrainLogger(trainData, "Start the fucking train!!!!!");
         setSpeedConductor(trainData->conductor, trainData->id, 10);
         trainData->stalled = false;
+	processIncomingEvents(trainData);
     }
 }
 
@@ -233,7 +309,7 @@ void trainService(){
         }
 
 	TrainLogger(&T, "");
-        CollisionData stat = collisionDetection(T.conductor, T.position, T.events, T.eventIndex, T.timeDisplacement);
+        CollisionData stat = collisionDetectionV2(T.conductor, T.position, T.events, T.eventIndex, T.timeDisplacement);
         
         bool recomputePath = false;
 
@@ -254,8 +330,11 @@ void trainService(){
             recomputePath = true;
         } else if(stat.updateStat == 3){
             terminateTrain(&T);
-        }
+        } else {
+	    setSpeedConductor(T.conductor, T.id, 10);
+	}
         if(stat.impendingCollision){
+	    TrainLogger(&T, "Pausing");
             setSpeedConductor(T.conductor, T.id, 0);
             recomputePath = true;
         }

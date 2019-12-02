@@ -30,7 +30,7 @@ void controllerService(){
 
 
     int TS1Active = 1;
-    int TS2Active = 1;
+    int TS2Active = 0;
 
     while(1){
         Receive(&caller, NULL, 0);

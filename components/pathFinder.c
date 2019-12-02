@@ -24,6 +24,8 @@ void computePath(track_node* tracks, PATH* path, bool* graphMask, int source, in
         for(int i=0; i<scope; i++){
             int alpha = inSet[i];
 
+	    //enforces this rule to allow for sensor based path finding
+	    if(tracks[alpha].type == NODE_SENSOR){
             int r0 = tracks[alpha].reverse - tracks;
             
             if(path->cost[r0] == -1 && graphMask[r0]){
@@ -33,6 +35,7 @@ void computePath(track_node* tracks, PATH* path, bool* graphMask, int source, in
                     opt_i = r0;
                 }
             }
+	    }
             
             if(tracks[alpha].type == NODE_EXIT){
               continue;
