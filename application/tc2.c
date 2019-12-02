@@ -32,7 +32,7 @@ void duplex(Conductor* conductor, TUIRenderState* prop, int RX){
     int source = nameAttribution(bufferB, conductor->trackNodes);
     int destination = nameAttribution(bufferC, conductor->trackNodes);
     int ts1 = createTrainService(conductor, train, source, destination);
-    /*GetLN(RX, 2, inputBuffer, 15, 13, true);
+    GetLN(RX, 2, inputBuffer, 15, 13, true);
     token = tokenizeString(inputBuffer, ' ', 5);
     strncpy(inputBuffer, bufferA, token - inputBuffer - 1);
     token2 = tokenizeString(token, ' ', 5);
@@ -43,8 +43,6 @@ void duplex(Conductor* conductor, TUIRenderState* prop, int RX){
     source = nameAttribution(bufferB, conductor->trackNodes);
     destination = nameAttribution(bufferC, conductor->trackNodes);
     int ts2 = createTrainService(conductor, train, source, destination);
-*/
-    int ts2 = 0;
     int control = createControllerService(conductor, ts1, ts2, prop);
     Send(control, NULL, 0, NULL, 0);
 }

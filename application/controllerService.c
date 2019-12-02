@@ -30,19 +30,20 @@ void controllerService(){
 
 
     int TS1Active = 1;
-    int TS2Active = 0;
+    int TS2Active = 1;
 
-    while(1){
+    while(TS1Active || TS2Active){
         Receive(&caller, NULL, 0);
-        if(TS1Active || TS2Active)
+	if(TS1Active)
+            Send(TS1, NULL, 0, (char*)&TS1Active, sizeof(TS1Active));
+        if(TS2Active)
+            Send(TS2, NULL, 0, (char*)&TS2Active, sizeof(TS2Active));
+	if(TS1Active || TS2Active)
             Reply(caller, NULL, 0);
         else
             //if neither are active any more, means task complete
             Reply(caller, (const char*)&TS1Active, sizeof(TS1Active));
-        if(TS1Active)
-            Send(TS1, NULL, 0, (char*)&TS1Active, sizeof(TS1Active));
-        if(TS2Active)
-            Send(TS2, NULL, 0, (char*)&TS2Active, sizeof(TS2Active));
+ 
     }
 
     Reply(dominus, NULL, 0);

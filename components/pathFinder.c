@@ -86,18 +86,21 @@ void parsePath(track_node* tracks, PATH* path, TRACKEVENT* trackEvents, int even
 
     trackEvents[eventBufferSize - 1].type = END;
     trackEvents[eventBufferSize - 1].id = dest;
+    trackEvents[eventBufferSize - 1].nodeId = dest;
     trackEvents[eventBufferSize - 1].distance = 0;
 
     current = path->intermediate[current];
 
     //when done, move by index + 1
-    while(current!=source && index>=0){
+    while(index>=0){
         bool newEvent = false;
         if(tracks[current].reverse == tracks + prev){
             //indication that a reverse event has occured
             trackEvents[index].type = REVERSE;
             trackEvents[index].id = tracks[current].num;
-            newEvent = true;
+	    trackEvents[index].nodeId = prev;
+	    trackEvents[index].distance = 0;
+	    index--;
         }
         if(tracks[current].type == NODE_BRANCH){
             trackEvents[index].type = BRANCH;
@@ -120,6 +123,10 @@ void parsePath(track_node* tracks, PATH* path, TRACKEVENT* trackEvents, int even
             index--;
         }
 
+	if(current == source){
+	    break;
+	}
+
         prev = current;
         current = path->intermediate[current];
     }
@@ -127,6 +134,8 @@ void parsePath(track_node* tracks, PATH* path, TRACKEVENT* trackEvents, int even
     for(int i=index + 1, j=0; i<eventBufferSize; i++, j++){
         trackEvents[j].auxiliary = trackEvents[i].auxiliary;
         trackEvents[j].id = trackEvents[i].id;
+	trackEvents[j].nodeId = trackEvents[i].nodeId;
+	trackEvents[j].distance = trackEvents[i].distance;
         trackEvents[j].type = trackEvents[i].type;
     }
 
@@ -137,13 +146,15 @@ void generatePath(track_node* tracks, PATH* path, char* buffer, int dest){
     int current = dest;
     int source = path->source;
     int index = 0;
-    while(current!=source){
+    while(1){
         const char* name = tracks[current].name;
         for(int i=0; name[i]; i++){
             buffer[index++] = name[i];
         }
         buffer[index++] = '<';
         buffer[index++] = '-';
+	if(current == source)
+	    break;
         current = path->intermediate[current];
     }
     buffer[index] = 0;

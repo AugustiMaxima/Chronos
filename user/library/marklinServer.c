@@ -178,7 +178,7 @@ void marklinTxServer(){
     while(1){
         Receive(&caller, (char*)&request, sizeof(request));
         if(request.method == POST){
-	    //bwprintf(COM2, "POST\r\n");
+	    //bwprintf(COM2, "POST: %d %d\r\n", request.payload[0], caller);
             do{
                 status = fillBuffer(&TX, request.payload, request.length);
                 Send(TXWorker, NULL, 0, NULL, 0);

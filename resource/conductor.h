@@ -32,6 +32,8 @@ typedef struct conductor{
     //Switches are named weirdly, beware
     char switches[SWITCH_COUNT];
 
+    int reserved[TRACK_MAX];
+
     track_node trackNodes[TRACK_MAX];
 
     lEvUlUtIoN index;
