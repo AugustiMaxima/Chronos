@@ -3,6 +3,7 @@
 #include <syslib.h>
 #include <math.h>
 #include <clockServer.h>
+#include <conductor.h>
 #include "trainService.h"
 
 //in mm
@@ -17,9 +18,9 @@
 
 #define MAX_DIVERGENCE 4
 
-void generateGraphMask(bool* graphMask, bool* sensor, track_node* trackData){
+void generateGraphMask(bool* graphMask, char* sensor, track_node* trackData){
     for(int i=0;i<TRACK_MAX;i++){
-        if(trackData[i].type == SENSOR){
+        if(trackData[i].type == NODE_SENSOR){
             //if the sensor is true, it means it is currently occupied
             //mirrored and reflected for accurate operation
             graphMask[i] = !(sensor[trackData[i].num] || sensor[trackData[i].reverse->num]);
@@ -53,17 +54,17 @@ int pruneDistinctPathSensors(track_node* data, int* sensorArray, int* distArray,
         //either we find the root
         //or we will have multiple root in which case we branch out
 
-        if(pos->type == SENSOR || pos->type == BRANCH)
+        if(pos->type == NODE_SENSOR || pos->type == NODE_BRANCH)
             break;
         
         pos = pos->edge[DIR_STRAIGHT].dest;
         distance += pos->edge[DIR_STRAIGHT].dist;
     }
 
-    if(pos->type == BRANCH){
+    if(pos->type == NODE_BRANCH){
         pruned = pruneDistinctPathSensors(data, sensorArray, distArray, pruned, distance, pos->edge[0].dest - data);
-        pruned = pruneDistinctPathSensors(data, sensorArray, pruned, distance, pos->edge[1].dest - data);
-    } else if(pos->type == SENSOR){
+	pruned = pruneDistinctPathSensors(data, sensorArray, distArray, pruned, distance, pos->edge[1].dest - data);
+    } else if(pos->type == NODE_SENSOR){
         //if this was a parallel algorithm, I'd have to use a global lock
         sensorArray[pruned] = pos - data;
         sensorArray[pruned++] = distance;
@@ -92,7 +93,7 @@ CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT*
     int size = pruneDistinctPathSensors(conductor->trackNodes, pruned, pruned_dist, 0, 0, position);
     int time = Time(conductor->CLK);
     int displacement = (time - timeDisplacement)*AVG_TRAIN_MAX_SPEED;
-    CollisionData stat = {.impendingCollison = false, .updateStat = 0, .updateTarget = 0};
+    CollisionData stat = {.impendingCollision = false, .updateStat = 0, .updateTarget = 0};
 
     bool graphMask[TRACK_MAX];
     generateGraphMask(graphMask, conductor->sensor, conductor->trackNodes);
@@ -149,7 +150,7 @@ CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT*
     return stat;
 }
 
-void dynamicPaths(TrainData* TrainData){
+void dynamicPaths(TrainData* trainData){
     int status = collisionFreePaths(trainData->conductor, trainData->position, trainData->destination, &trainData->path, trainData->events, TRACK_MAX);
     if(!status){
         parsePath(trainData->conductor->trackNodes, &trainData->path, trainData->events, TRACK_MAX, trainData->destination);
@@ -161,7 +162,7 @@ void dynamicPaths(TrainData* TrainData){
 }
 
 int processIncomingEvents(TrainData* T){
-    for(int i=T->eventIndex; i<MAX_TRACK){
+    for(int i=T->eventIndex; i<TRACK_MAX; i++){
         if(T->events[i].type == SENSOR)
             //only process up to the last sensor, everything else should be executed then
             break;
@@ -180,6 +181,7 @@ void terminateTrain(TrainData* T){
     //termination
     setSpeedConductor(T->conductor, T->id, 0);
     //informs the controller of the heartbeat status
+    int caller;
     Receive(&caller, NULL, 0);
     int status = 0;
     Reply(caller, (const char*)&status, sizeof(status));
@@ -208,7 +210,7 @@ void trainService(){
     while(1){
         Receive(&caller, NULL, 0);
         Reply(caller, NULL, 0);
-        if(stalled){//exclusive branch, should not affected or be part of the loop to be followed
+        if(T.stalled){//exclusive branch, should not affected or be part of the loop to be followed
             dynamicPaths(&T);
             continue;
         }

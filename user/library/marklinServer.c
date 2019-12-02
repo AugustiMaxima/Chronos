@@ -103,7 +103,6 @@ void marklinTxWorker(){
     Receive(&server, (char*)&buffer, sizeof(buffer));
     Reply(server, NULL, 0);
     bool serverBlocked = false;
-    bool writable = true;
     while(1){
         Receive(&caller, NULL, 0);
         if(caller==notifier){

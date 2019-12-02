@@ -5,7 +5,7 @@ int max(int a, int b);
 
 int abs(int i);
 
-int exp(int i, int e);
+int expo(int i, int e);
 
 
 #endif

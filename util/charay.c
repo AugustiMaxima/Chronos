@@ -193,7 +193,7 @@ int chos_strlen (const char *s) {
   return p - s;
 }
 
-char* tokenizeString(const char* source, char delimiter, int length){
+char* tokenizeString(char* source, char delimiter, int length){
     int i;
     for(i=0; i<length && source[i]; i++){
         if(delimiter == source[i]){

@@ -44,7 +44,7 @@ void duplex(Conductor* conductor, TUIRenderState* prop, int RX){
     destination = nameAttribution(bufferC, conductor->trackNodes);
     int ts2 = createTrainService(conductor, train, source, destination);
 
-    int control = createControllerService(conductor, ts1, ts2);
+    int control = createControllerService(conductor, ts1, ts2, prop);
     Send(control, NULL, 0, NULL, 0);
 }
 
@@ -132,7 +132,7 @@ void processUserRequestTC2(char* command, Conductor* conductor, TUIRenderState* 
         }
 	    Delay(conductor->CLK, 10);
         setSpeedConductor(conductor, 24, 0);
-    }else if(!(strcmp("duplex"))){
+    }else if(!(strcmp("duplex", cmd))){
         duplex(conductor, prop, RX);
     } else if(!strcmp("q", cmd)){
         Shutdown();

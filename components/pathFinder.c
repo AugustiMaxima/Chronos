@@ -16,7 +16,6 @@ void computePath(track_node* tracks, PATH* path, bool* graphMask, int source, in
     int reachableSetSize = 1;
 
     while(path->cost[dest] == -1){
-        int opt_e = -1;
         int opt_s = -1;
         int opt_w = -1;
         int opt_i = -1;
@@ -31,7 +30,6 @@ void computePath(track_node* tracks, PATH* path, bool* graphMask, int source, in
                 if(opt_w > REVERSE_COST || opt_w == -1){
                     opt_w = REVERSE_COST;
                     opt_s = alpha;
-                    opt_e = -1;
                     opt_i = r0;
                 }
             }
@@ -45,7 +43,6 @@ void computePath(track_node* tracks, PATH* path, bool* graphMask, int source, in
                 if(opt_w > tracks[alpha].edge[0].dist || opt_w == -1){
                     opt_w = tracks[alpha].edge[0].dist;
                     opt_s = alpha;
-                    opt_e = 0;
                     opt_i = r1;
                 }
             }
@@ -56,7 +53,6 @@ void computePath(track_node* tracks, PATH* path, bool* graphMask, int source, in
                     if(opt_w > tracks[alpha].edge[1].dist || opt_w == -1){
                         opt_w = tracks[alpha].edge[1].dist;
                         opt_s = alpha;
-                        opt_e = 1;
                         opt_i = r2;
                     }
                 }

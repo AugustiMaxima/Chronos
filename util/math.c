@@ -10,14 +10,14 @@ int abs(int i){
 }
 
 
-int exp(int i, int e){
+int expo(int i, int e){
     if(e==1){
         return i;
     }
     int ep = e/2;
     int r = e%2;
 
-    int sp = exp(i, ep);
+    int sp = expo(i, ep);
     int result = sp*sp;
     if(r)
         result*=e;

@@ -1,6 +1,10 @@
 #ifndef TUI_H
 #define TUI_H
 
+#include <stdbool.h>
+
+typedef struct conductor Conductor;
+
 //Used to avoid rerendering or rechecking components that have not been updated
 typedef struct tui_Props{
     volatile bool sensorUpdate;
