@@ -51,14 +51,14 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK, int trac
     turnOutTrack(TX);
     
 
-
+/*
     //get the switches set
     for(int i=0;i<SWITCH_COUNT;i++){
         conductor->switches[i] = 'C';
         branchTrack(TX, CLK, conductor->index.indexToSwitch[i], 'C');
     }
     turnOutTrack(TX);
-
+*/
     //get the trains set
     /*for(int i=1;i<TRAIN_COUNT;i++){
         setSpeedConductor(conductor, i, 0);

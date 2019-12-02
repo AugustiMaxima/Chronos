@@ -5,6 +5,7 @@
 #include <clockServer.h>
 #include <conductor.h>
 #include "trainService.h"
+#include <bwio.h>
 
 //in mm
 #define SAFE_DISTANCE 400
@@ -17,6 +18,10 @@
 #define MARGIN_OF_ERROR 100
 
 #define MAX_DIVERGENCE 4
+
+void TrainLogger(TrainData* T, const char* message){
+   bwprintf(COM2, "Train: %d at %d:\t%s\r\n", T->id, T->position, message); 
+}
 
 void generateGraphMask(bool* graphMask, char* sensor, track_node* trackData){
     for(int i=0;i<TRACK_MAX;i++){
@@ -103,6 +108,8 @@ CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT*
 
     int current = eventIndex;
 
+    bwprintf(COM2, "Expected position: %s + %d\r\n", conductor->trackNodes[position].name, displacement);
+
     while(dist - displacement < SAFE_DISTANCE){
         if(events[current].type == REVERSE){
         //we don't really, or shouldn't really look ahead
@@ -143,6 +150,7 @@ CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT*
                 //we assume that this means we might be here
                 stat.updateStat = 2;
                 stat.updateTarget = pruned[i];
+		bwprintf(COM2, "New position:%s\r\n", conductor->trackNodes[stat.updateTarget].name);
                 return stat;
             }
         }
@@ -153,10 +161,15 @@ CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT*
 void dynamicPaths(TrainData* trainData){
     int status = collisionFreePaths(trainData->conductor, trainData->position, trainData->destination, &trainData->path, trainData->events, TRACK_MAX);
     if(!status){
+	TrainLogger(trainData, "Pathing successful!");
+	char superBuffer[256];
+	generatePath(trainData->conductor->trackNodes, &trainData->path, superBuffer, trainData->destination);
+	bwprintf(COM2, "%s\r\n", superBuffer);
         parsePath(trainData->conductor->trackNodes, &trainData->path, trainData->events, TRACK_MAX, trainData->destination);
         trainData->eventIndex = 0;
         trainData->timeDisplacement = Time(trainData->conductor->CLK);
-        setSpeedConductor(trainData->conductor, trainData->id, 14);
+	TrainLogger(trainData, "Starting speeding");
+        setSpeedConductor(trainData->conductor, trainData->id, 10);
         trainData->stalled = false;
     }
 }
@@ -188,8 +201,10 @@ void terminateTrain(TrainData* T){
     Destroy();
 }
 
+
 void trainService(){
     TrainData T;
+    T.stalled = true;
     int caller;
     Receive(&caller, (char*)&T.conductor, sizeof(T.conductor));
     Reply(caller, NULL, 0);
@@ -206,15 +221,18 @@ void trainService(){
 
     int status;
 
+    TrainLogger(&T, "Initializing");
 
     while(1){
         Receive(&caller, NULL, 0);
         Reply(caller, NULL, 0);
         if(T.stalled){//exclusive branch, should not affected or be part of the loop to be followed
+	    TrainLogger(&T, "Stalling, starting");
             dynamicPaths(&T);
             continue;
         }
 
+	TrainLogger(&T, "");
         CollisionData stat = collisionDetection(T.conductor, T.position, T.events, T.eventIndex, T.timeDisplacement);
         
         bool recomputePath = false;
@@ -228,9 +246,11 @@ void trainService(){
             if(status){
                 terminateTrain(&T);
             }
+	    bwprintf(COM2, "%d %s\r\n", T.id, T.conductor->trackNodes[T.position].name);
         } else if(stat.updateStat == 2){
             T.position = stat.updateTarget;
             T.timeDisplacement = Time(T.conductor->CLK);
+	    bwprintf(COM2, "%d %s\r\n", T.id, T.conductor->trackNodes[T.position].name);
             recomputePath = true;
         } else if(stat.updateStat == 3){
             terminateTrain(&T);
@@ -241,6 +261,7 @@ void trainService(){
         }
 
         if(recomputePath){
+	    TrainLogger(&T, "Recomputing due to events");
             dynamicPaths(&T);
         }
     }
