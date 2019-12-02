@@ -1,4 +1,4 @@
-
+#include <stdlib.h>
 #include <charay.h>
 #include <bwio.h>
 
@@ -191,4 +191,14 @@ int chos_strlen (const char *s) {
   const char *p;
   for (p = s; *p; ++p);
   return p - s;
+}
+
+char* tokenizeString(const char* source, char delimiter, int length){
+    int i;
+    for(i=0; i<length && source[i]; i++){
+        if(delimiter == source[i]){
+            return source + i + 1;
+        }
+    }
+    return source + i;
 }

@@ -24,4 +24,6 @@ int formatStrn(char* result, int length, char* format, ...);
 
 int chos_strlen (const char *s);
 
+char* tokenizeString(const char* source, char delimiter, int length);
+
 #endif

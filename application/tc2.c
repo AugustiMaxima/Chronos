@@ -1,9 +1,12 @@
 #include <stdlib.h>
+#include <stdbool.h>
 #include <syslib.h>
 #include <nameServer.h>
 #include <clockServer.h>
 #include <uartServer.h>
 #include <marklinServer.h>
+#include <trainService.h>
+#include <controllerService.h>
 #include <track.h>
 #include <conductor.h>
 #include <pathFinder.h>
@@ -13,8 +16,39 @@
 #include "tc2.h"
 #include <bwio.h>
 
+void duplex(Conductor* conductor, TUIRenderState* prop, int RX){
+    char inputBuffer[15];
+    GetLN(RX, 2, inputBuffer, 15, 13, true);
+    char bufferA[5];
+    char bufferB[5];
+    char bufferC[5];
+    char* token = tokenizeString(inputBuffer, ' ', 5);
+    strncpy(inputBuffer, bufferA, token - inputBuffer - 1);
+    char* token2 = tokenizeString(token, ' ', 5);
+    strncpy(token, bufferB, token2 - token - 1);
+    char* token3 = tokenizeString(token2, 13, 5);
+    strncpy(token2, bufferC, token3 - token2 - 1);
+    int train = stringToNum(bufferA, 10);
+    int source = nameAttribution(bufferB, conductor->trackNodes);
+    int destination = nameAttribution(bufferC, conductor->trackNodes);
+    int ts1 = createTrainService(conductor, train, source, destination);
+    GetLN(RX, 2, inputBuffer, 15, 13, true);
+    token = tokenizeString(inputBuffer, ' ', 5);
+    strncpy(inputBuffer, bufferA, token - inputBuffer - 1);
+    token2 = tokenizeString(token, ' ', 5);
+    strncpy(token, bufferB, token2 - token - 1);
+    token3 = tokenizeString(token2, 13, 5);
+    strncpy(token2, bufferC, token3 - token2 - 1);
+    train = stringToNum(bufferA, 10);
+    source = nameAttribution(bufferB, conductor->trackNodes);
+    destination = nameAttribution(bufferC, conductor->trackNodes);
+    int ts2 = createTrainService(conductor, train, source, destination);
 
-void processUserRequestTC2(char* command, Conductor* conductor, TUIRenderState* prop){
+    int control = createControllerService(conductor, ts1, ts2);
+    Send(control, NULL, 0, NULL, 0);
+}
+
+void processUserRequestTC2(char* command, Conductor* conductor, TUIRenderState* prop, int RX){
     char* cmd = command;
     char* op1;
     int operand1;
@@ -98,7 +132,8 @@ void processUserRequestTC2(char* command, Conductor* conductor, TUIRenderState* 
         }
 	    Delay(conductor->CLK, 10);
         setSpeedConductor(conductor, 24, 0);
-
+    }else if(!(strcmp("duplex"))){
+        duplex(conductor, prop, RX);
     } else if(!strcmp("q", cmd)){
         Shutdown();
     } else {
@@ -168,7 +203,7 @@ void trackConsoleTC2(){
                     command[length++] = cmdBuffer[bufDex];
                 }
             }
-            processUserRequestTC2(command, conductor, prop);
+            processUserRequestTC2(command, conductor, prop, RX);
         }
     }
 }

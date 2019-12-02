@@ -42,7 +42,7 @@ CFLAGS = -std=gnu99 -O3 -g -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I incl
 #LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L $(XLIBDIR2)
 LDFLAGS = -static -e main -nmagic -T linker.ld -L lib -L ../inc -L $(XLIBDIR1) -L $(XLIBDIR2) -lc
 
-LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -ltc2 -ltc1 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lterminal -ltui -lconductor -ltrack_data -luiHelper -luiTest -lpathFinder -lmarklinServer -lgcc
+LIBS = -lbwio -ldump -larm -lscheduler -lsyscall -luserprogram -lpriorityQueue -lqueue -lkern -ltask -lsyslib -lmap -lsendReceiveReply -lmaptest -ldeviceTests -lk1 -lk2 -lk3 -lk4 -ltc2 -ltc1 -lnameServer -lcharay -ltimer -lclock -lssrTest -lchlib -linterrupt -ldeviceRegistry -lminHeap -lclockServer -lidle -lfast_hsv2rgb -luart -ltransmitBuffer -luartServer -ltrack -lterminal -ltui -lconductor -ltrack_data -luiHelper -luiTest -lpathFinder -lmarklinServer -ltrainService -lsensorService -lcontrollerService -lgcc
 
 all: kernel.elf
 
@@ -52,7 +52,7 @@ kernel.s: kernel.c
 kernel.o: kernel.s
 	$(AS) $(ASFLAGS) -o kernel.o kernel.s
 
-kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a deviceTests.a uart.a transmitBuffer.a uartServer.a track.a terminal.a tui.a conductor.a track_data.a uiHelper.a uiTest.a pathFinder.a marklinServer.a tc1.a tc2.a
+kernel.elf: kernel.o dump.a arm.a bwio.a clock.a scheduler.a syscall.a ssrTest.a timer.a userprogram.a queue.a kern.a task.a priorityQueue.a syslib.a map.a sendReceiveReply.a charay.a nameServer.a maptest.a k1.a k2.a k3.a k4.a chlib.a interrupt.a deviceRegistry.a minHeap.a clockServer.a idle.a fast_hsv2rgb.a deviceTests.a uart.a transmitBuffer.a uartServer.a track.a terminal.a tui.a conductor.a track_data.a uiHelper.a uiTest.a pathFinder.a marklinServer.a tc1.a tc2.a trainService.a sensorService.a controllerService.a
 	$(LD) $(LDFLAGS) -o $@ kernel.o $(LIBS) $(LIBS)
 
 a0.s: a0.c
@@ -90,6 +90,33 @@ pathFinder.o: pathFinder.s
 
 pathFinder.a: pathFinder.o
 	$(AR) $(ARFLAGS) $@ pathFinder.o
+
+controllerService.s: application/controllerService.c
+	$(CC) -S $(CFLAGS) application/controllerService.c
+
+controllerService.o: controllerService.s
+	$(AS) $(ASFLAGS) -o controllerService.o controllerService.s
+
+controllerService.a: controllerService.o
+	$(AR) $(ARFLAGS) $@ controllerService.o
+
+sensorService.s: application/sensorService.c
+	$(CC) -S $(CFLAGS) application/sensorService.c
+
+sensorService.o: sensorService.s
+	$(AS) $(ASFLAGS) -o sensorService.o sensorService.s
+
+sensorService.a: sensorService.o
+	$(AR) $(ARFLAGS) $@ sensorService.o
+
+trainService.s: application/trainService.c
+	$(CC) -S $(CFLAGS) application/trainService.c
+
+trainService.o: trainService.s
+	$(AS) $(ASFLAGS) -o trainService.o trainService.s
+
+trainService.a: trainService.o
+	$(AR) $(ARFLAGS) $@ trainService.o
 
 tc1.s: application/tc1.c
 	$(CC) -S $(CFLAGS) application/tc1.c
@@ -323,6 +350,15 @@ charay.o: charay.s
 
 charay.a: charay.o
 	$(AR) $(ARFLAGS) $@ charay.o
+
+math.s: util/math.c
+	$(CC) -S $(CFLAGS) util/math.c
+
+math.o: math.s
+	$(AS) $(ASFLAGS) -o math.o math.s
+
+math.a: math.o
+	$(AR) $(ARFLAGS) $@ math.o
 
 sendReceiveReply.s: comm/sendReceiveReply.c
 	$(CC) -S $(CFLAGS) comm/sendReceiveReply.c
