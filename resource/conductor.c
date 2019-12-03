@@ -54,6 +54,9 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK, int trac
 	conductor->reserved[i] = 0;
     }
 
+    conductor->lastUser = 3;
+    conductor->wantToWrite[0] = 0;
+    conductor->wantToWrite[1] = 0;
 
 /*
     //get the switches set

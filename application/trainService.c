@@ -248,6 +248,7 @@ void acquire_lock(Conductor* conductor, int order){
     conductor->wantToWrite[order] = 1;
     int inverse = order ? 0 : 1;
     while(conductor->wantToWrite[inverse]){
+	bwprintf(COM2, "Lock acquire blocked, retrying...");
 	if(conductor->lastUser == order){
 	    conductor->wantToWrite[order] = 0;
 	    while(conductor->lastUser==order)
@@ -352,7 +353,9 @@ int freeReservation(Conductor* conductor, TRACKEVENT* events, int discardIndex, 
 
 void dynamicPaths(TrainData* trainData){
     setSpeedConductor(trainData->conductor, trainData->id, 0);
+    bwprintf(COM2, "Uart request succeeded %d\r\n", trainData->id);
     freeReservation(trainData->conductor, trainData->events, trainData->eventIndex, trainData->frontierIndex, trainData->id, trainData->order);
+    bwprintf(COM2, "Reservation freed %d\r\n", trainData->id);
     int status = collisionFreePaths(trainData->conductor, trainData->position, trainData->destination, &trainData->path, trainData->events, TRACK_MAX, trainData->id);
     if(!status){
 	TrainLogger(trainData, "New path!");
@@ -370,6 +373,7 @@ void dynamicPaths(TrainData* trainData){
 	processIncomingEvents(trainData);
     } else {
 	trainData->stalled = true;
+	bwprintf(COM2, "Dead! %d\r\n", trainData->id);
     }
 }
 
@@ -445,6 +449,7 @@ void trainService(){
 	if(T.stalled){//exclusive branch, should not affected or be part of the loop to be followed
             dynamicPaths(&T);
 	    Reply(caller, NULL, 0);
+	    bwprintf(COM2, "Replied %d\r\n", T.id);
             continue;
         }
 
