@@ -24,20 +24,28 @@ void controllerService(){
     int dominus;
     Receive(&dominus, NULL, 0);
 
+    int o = 0;
     //start
-    Send(TS1, NULL, 0, NULL, 0);
-    Send(TS2, NULL, 0, NULL, 0);
+    Send(TS1, (const char*)&o, sizeof(o), NULL, 0);
+    o++;
+    Send(TS2, (const char*)&o, sizeof(o), NULL, 0);
 
 
     int TS1Active = 1;
     int TS2Active = 1;
 
     while(TS1Active || TS2Active){
+	bwprintf(COM2, "Controller active\r\n");
         Receive(&caller, NULL, 0);
-	if(TS1Active)
+	bwprintf(COM2, "Received from sensor\r\n");
+	if(TS1Active){
             Send(TS1, NULL, 0, (char*)&TS1Active, sizeof(TS1Active));
-        if(TS2Active)
+	    bwprintf(COM2, "replied from ts1\r\n");
+	}
+        if(TS2Active){
             Send(TS2, NULL, 0, (char*)&TS2Active, sizeof(TS2Active));
+	    bwprintf(COM2, "replied from ts1\r\n");
+	}
 	if(TS1Active || TS2Active)
             Reply(caller, NULL, 0);
         else

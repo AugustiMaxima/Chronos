@@ -50,6 +50,10 @@ void initializeConductor(Conductor* conductor, int RX, int TX, int CLK, int trac
     }
     turnOutTrack(TX);
     
+    for(int i=0; i<TRACK_MAX; i++){
+	conductor->reserved[i] = 0;
+    }
+
 
 /*
     //get the switches set

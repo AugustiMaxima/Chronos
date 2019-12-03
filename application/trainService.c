@@ -9,6 +9,7 @@
 
 //in mm
 #define SAFE_DISTANCE 800
+#define RESERVE_DISTANCE 400
 
 //more accurately, 5.92 mm / tick
 //we are really only using this for low precision apporximation with high factors of safety so it should be ok
@@ -23,12 +24,14 @@ void TrainLogger(TrainData* T, const char* message){
    bwprintf(COM2, "Train: %d at %s:\t%s\r\n", T->id, T->conductor->trackNodes[T->position].name, message); 
 }
 
-void generateGraphMask(bool* graphMask, char* sensor, track_node* trackData){
+void generateGraphMask(bool* graphMask, Conductor* conductor, int id){
+    struct track_node* trackData = conductor->trackNodes;
+    char* sensor = conductor->sensor;
     for(int i=0;i<TRACK_MAX;i++){
         if(trackData[i].type == NODE_SENSOR){
             //if the sensor is true, it means it is currently occupied
             //mirrored and reflected for accurate operation
-            graphMask[i] = !(sensor[trackData[i].num] || sensor[trackData[i].reverse->num]);
+            graphMask[i] = !(sensor[trackData[i].num] || sensor[trackData[i].reverse->num] || (conductor->reserved[i] != id && conductor->reserved[i]));
         } else {
             //since we cannot detect occupation, we will default to optimistic case
             graphMask[i] = true;
@@ -37,9 +40,9 @@ void generateGraphMask(bool* graphMask, char* sensor, track_node* trackData){
 }
 
 
-int collisionFreePaths(Conductor* conductor, int position, int destination, PATH* path, TRACKEVENT* events, int eventLength){
+int collisionFreePaths(Conductor* conductor, int position, int destination, PATH* path, TRACKEVENT* events, int eventLength, int id){
     bool graphMask[TRACK_MAX];
-    generateGraphMask(graphMask, conductor->sensor, conductor->trackNodes);
+    generateGraphMask(graphMask, conductor, id);
     graphMask[position] = true;
 
     computePath(conductor->trackNodes, path, graphMask, position, destination);
@@ -84,7 +87,7 @@ int pruneDistinctPathSensors(track_node* data, int* sensorArray, int* distArray,
 //0:nothing
 //1:update position
 //2:you better update now
-CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT* events, int eventIndex, int timeDisplacement){
+CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT* events, int eventIndex, int timeDisplacement, int id){
     int dist = 0;
     //Two kinds of potential position updates:
     //expected: on the current path
@@ -101,7 +104,7 @@ CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT*
     CollisionData stat = {.impendingCollision = false, .updateStat = 0, .updateTarget = 0};
 
     bool graphMask[TRACK_MAX];
-    generateGraphMask(graphMask, conductor->sensor, conductor->trackNodes);
+    generateGraphMask(graphMask, conductor, id);
 
     //consume events between this box
     //anything beyond will not be looked at until the next iteration
@@ -160,7 +163,7 @@ CollisionData collisionDetection(Conductor* conductor, int position, TRACKEVENT*
     return stat;
 }
 
-CollisionData collisionDetectionV2(Conductor* conductor, int position, TRACKEVENT* events, int eventIndex, int timeDisplacement){
+CollisionData collisionDetectionV2(Conductor* conductor, int position, TRACKEVENT* events, int eventIndex, int timeDisplacement, int id){
     int dist = 0;
     int pruned[MAX_DIVERGENCE];
     int pruned_dist[MAX_DIVERGENCE];
@@ -168,7 +171,7 @@ CollisionData collisionDetectionV2(Conductor* conductor, int position, TRACKEVEN
     CollisionData stat = {.impendingCollision = false, .updateStat = 0, .updateTarget = 0};
 
     bool graphMask[TRACK_MAX];
-    generateGraphMask(graphMask, conductor->sensor, conductor->trackNodes);
+    generateGraphMask(graphMask, conductor, id);
 
     //consume events between this box
     //anything beyond will not be looked at until the next iteration
@@ -187,7 +190,7 @@ CollisionData collisionDetectionV2(Conductor* conductor, int position, TRACKEVEN
 	    if(first==0){
 		stat.updateStat = 3;
 	    }
-	    return stat;
+	    break;
         } else if(events[current].type == SENSOR){
 	    if(first++==0){
 		//bwprintf(COM2, "Expecting %s\r\n", conductor->trackNodes[events[current].nodeId].name);
@@ -212,46 +215,161 @@ CollisionData collisionDetectionV2(Conductor* conductor, int position, TRACKEVEN
         if(current>=1)
             dist+=events[current - 1].distance;
 	//hack job for hard coded values
-        if(current++ == 144)
+        if(current++ == 144){
+	    current--;
 	    break;
+	}
     }
 
-    if(stat.updateStat){
-        return stat;
-    }
+    stat.frontierIndex = current;
 
-    for(int i=0; i<size; i++){
-        int node = pruned[i];
-        if(!graphMask[node]){
-            //block
-            //distance
-            if(abs(pruned_dist[i]) < MARGIN_OF_ERROR){
-                //we assume that this means we might be here
-                stat.updateStat = 2;
-                stat.updateTarget = pruned[i];
-		//bwprintf(COM2, "New position:%s\r\n", conductor->trackNodes[stat.updateTarget].name);
-                return stat;
-            }
-        }
+    if(!stat.updateStat){
+	for(int i=0; i<size; i++){
+	    int node = pruned[i];
+	    if(!graphMask[node]){
+		//block
+		//distance
+		if(abs(pruned_dist[i]) < MARGIN_OF_ERROR){
+		    //we assume that this means we might be here
+		    stat.updateStat = 2;
+		    stat.updateTarget = pruned[i];
+		    //bwprintf(COM2, "New position:%s\r\n", conductor->trackNodes[stat.updateTarget].name);
+		    break;
+		}
+	    }
+	}
     }
     return stat;
+}
+
+void acquire_lock(Conductor* conductor, int order){
+
+    //acquire lock
+    conductor->wantToWrite[order] = 1;
+    int inverse = order ? 0 : 1;
+    while(conductor->wantToWrite[inverse]){
+	if(conductor->lastUser == order){
+	    conductor->wantToWrite[order] = 0;
+	    while(conductor->lastUser==order)
+		Yield();
+	    conductor->wantToWrite[order] = 1;
+	}
+    }
+
+}
+
+int try_lock(Conductor* conductor, int order){
+    
+    conductor->wantToWrite[order] = 1;
+    int inverse = order ? 0 : 1;
+    while(conductor->wantToWrite[inverse]){
+	if(conductor->lastUser == order){
+	    conductor->wantToWrite[order] = 0;
+	    return 1;
+	}
+    }
+
+    return 0;
+}
+
+void release_lock(Conductor* conductor, int order){
+
+    //release lock
+    conductor->lastUser = order;
+    conductor->wantToWrite[order] = 0;
+
+}
+
+
+//once we are certain of "in zone" collisions, we will worry about "outer collision" with transactional reservation
+int reservation(Conductor* conductor, TRACKEVENT* events, int frontierIndex, int currentIndex, int id, int order){
+
+    int status = try_lock(conductor, order);;
+
+    if(status){
+	return 1;
+    }
+
+    int* reservation = conductor->reserved;
+
+    status = 0;
+    
+    int nid = 0;
+    //it's techinically possible to create race conditions with memory sharing, so here is a dekker's alg for protection
+     for(int i = frontierIndex; i > currentIndex; i--){
+	int nid = events[i].nodeId;
+	bwprintf(COM2, "%d %s\r\n By %d", nid, conductor->trackNodes[nid].name, id);
+	if(!reservation[nid]){
+	    reservation[nid] = id;
+	    bwprintf(COM2, "%s reserved by %d\r\n", conductor->trackNodes[nid].name, id);
+	}
+	else if (reservation[nid] == id){
+	    bwprintf(COM2, "Already owned by self %d\r\n", id);
+	    break;
+	} else {
+	    bwprintf(COM2, "Can't reserve %s for %d\r\n", conductor->trackNodes[nid].name, id);
+	    status = 1;
+	    break;
+	}
+
+    }
+
+
+    int i = 0;
+    if(status){
+	while(i++ < frontierIndex)
+	nid = events[i].nodeId;
+	reservation[nid] = 0;
+    }
+
+    release_lock(conductor, order);
+
+    return status;
+
+}
+
+int freeReservation(Conductor* conductor, TRACKEVENT* events, int discardIndex, int currentIndex, int id, int order){
+    acquire_lock(conductor, order);
+
+    int* reservation = conductor->reserved;
+
+    int status = 0;
+    for(int i=discardIndex; i <= currentIndex; i++){
+	int nid = events[i].nodeId;
+	if(reservation[nid] == id){
+	    reservation[nid] = 0;
+	} else if(reservation[nid]!=0){
+	    status = 1;
+	}
+
+    }
+
+    release_lock(conductor, order);
+    return status;
 }
 
 
 
 void dynamicPaths(TrainData* trainData){
-    int status = collisionFreePaths(trainData->conductor, trainData->position, trainData->destination, &trainData->path, trainData->events, TRACK_MAX);
+    setSpeedConductor(trainData->conductor, trainData->id, 0);
+    freeReservation(trainData->conductor, trainData->events, trainData->eventIndex, trainData->frontierIndex, trainData->id, trainData->order);
+    int status = collisionFreePaths(trainData->conductor, trainData->position, trainData->destination, &trainData->path, trainData->events, TRACK_MAX, trainData->id);
     if(!status){
-	TrainLogger(trainData, "Pathing successful!");
+	TrainLogger(trainData, "New path!");
 	char superBuffer[256];
 	generatePath(trainData->conductor->trackNodes, &trainData->path, superBuffer, trainData->destination);
-	bwprintf(COM2, "\337\33[6;0H%s\r\n\338", superBuffer);
+	if(trainData->order)
+	bwprintf(COM2, "\337\33[8;0H%s\r\n\338", superBuffer);
+	else
+	bwprintf(COM2, "\337\33[7;0H%s\r\n\338", superBuffer);
         parsePath(trainData->conductor->trackNodes, &trainData->path, trainData->events, TRACK_MAX, trainData->destination);
         trainData->eventIndex = -1;
         trainData->timeDisplacement = Time(trainData->conductor->CLK);
         setSpeedConductor(trainData->conductor, trainData->id, 10);
         trainData->stalled = false;
 	processIncomingEvents(trainData);
+    } else {
+	trainData->stalled = true;
     }
 }
 
@@ -298,6 +416,8 @@ void terminateTrain(TrainData* T, int caller){
 void trainService(){
     TrainData T;
     T.stalled = true;
+    T.frontierIndex = 0;
+    T.eventIndex = -1;
     int caller;
     Receive(&caller, (char*)&T.conductor, sizeof(T.conductor));
     Reply(caller, NULL, 0);
@@ -309,8 +429,10 @@ void trainService(){
     Reply(caller, NULL, 0);
 
     //blocker, prevents the trains from starting until a explicit go signal
-    Receive(&caller, NULL, 0);
+    Receive(&caller, (char*)&T.order, sizeof(T.order));
     Reply(caller, NULL, 0);
+
+    bwprintf(COM2, "%d, %d\r\n", T.order, T.id);
 
     int status;
 
@@ -318,44 +440,54 @@ void trainService(){
 
     while(1){
         Receive(&caller, NULL, 0);
-        if(T.stalled){//exclusive branch, should not affected or be part of the loop to be followed
+        bwprintf(COM2, "%d Received controller udpate\r\n", T.id);
+
+	if(T.stalled){//exclusive branch, should not affected or be part of the loop to be followed
             dynamicPaths(&T);
 	    Reply(caller, NULL, 0);
             continue;
         }
 
-        CollisionData stat = collisionDetectionV2(T.conductor, T.position, T.events, T.eventIndex, T.timeDisplacement);
-        
+        CollisionData stat = collisionDetectionV2(T.conductor, T.position, T.events, T.eventIndex, T.timeDisplacement, T.id);
+       
+	bwprintf(COM2, "Block 1 \r\n");
+ 
         bool recomputePath = false;
 
         if(stat.updateStat == 1){
             //skips to node already reached
+	    int baseIndex = T.eventIndex;
             T.eventIndex = stat.updateTarget;
             T.position = T.events[T.eventIndex].nodeId;
             T.timeDisplacement = Time(T.conductor->CLK);
             status = processIncomingEvents(&T);
             if(status){
-		bwprintf(COM2, "Status?!\r\n");
+		bwprintf(COM2, "Reaching end\r\n");
                 terminateTrain(&T, caller);
             }
 	    bwprintf(COM2, "Position: %d %s\r\n", T.id, T.conductor->trackNodes[T.position].name);
+	    status = reservation(T.conductor, T.events, T.frontierIndex, T.eventIndex, T.id, T.order);
+	    freeReservation(T.conductor, T.events, baseIndex, T.eventIndex - 1, T.id, T.order);
+	    if(status){
+		recomputePath = true;
+	    }
         } else if(stat.updateStat == 2){
             T.position = stat.updateTarget;
             T.timeDisplacement = Time(T.conductor->CLK);
 	    bwprintf(COM2, "Position: %d %s\r\n", T.id, T.conductor->trackNodes[T.position].name);
             recomputePath = true;
         } else if(stat.updateStat == 3){
-	    bwprintf(COM2, "Cleared sensors?!");
+	    bwprintf(COM2, "Last sensor within reach\r\n");
             terminateTrain(&T, caller);
         }
+
+	bwprintf(COM2, "Block 2\r\n");
         if(stat.impendingCollision){
 	    TrainLogger(&T, "Pausing");
             setSpeedConductor(T.conductor, T.id, 0);
             recomputePath = true;
         }
-
         if(recomputePath){
-	    TrainLogger(&T, "Recomputing due to events");
             dynamicPaths(&T);
         }
         Reply(caller, NULL, 0);

@@ -9,14 +9,17 @@ typedef struct metaCollsion{
     bool impendingCollision;
     int updateStat;
     int updateTarget;
+    int frontierIndex;
 } CollisionData;
 
 
 typedef struct metaTrain{
     Conductor* conductor;
     int id;
+    int order;
     int position;
     int eventIndex;
+    int frontierIndex;
     int timeDisplacement;
     int destination;
     bool stalled;

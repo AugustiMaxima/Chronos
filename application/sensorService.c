@@ -18,12 +18,15 @@ void sensorService(){
     Reply(controller, NULL, 0);
     int status = 1;
     while(status){
+	bwprintf(COM2, "Fuck sensors\r\n");
         //debatable whether this is needed, will be a subject of change later
         Delay(clock, 1);
         getSensorData(conductor);
+	bwprintf(COM2, "Event non blocking\r\n");
         //notify the controller
         Send(controller, NULL, 0, (char*)&status, sizeof(status));
     }
+    bwprintf(COM2, "Early death\r\n");
     Destroy();
 }
 

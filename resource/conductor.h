@@ -36,6 +36,9 @@ typedef struct conductor{
 
     track_node trackNodes[TRACK_MAX];
 
+    volatile int lastUser;
+    volatile int wantToWrite[2];
+
     lEvUlUtIoN index;
 
 } Conductor;
