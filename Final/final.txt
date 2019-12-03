@@ -1,0 +1,14 @@
+CS452 Final Project Demo
+Lennox Fei
+
+Installation:
+pull the latest commit from master, and do "make install" to build a kernel.elf file in the ftfp directory with the given user id
+
+Changes:
+A new marklin server was added to account for the CTS quirk appropriately.
+Path-finding features a graphMask, allowing individual vertices to be cut from the graph.
+There is now a train service, a sensor service and a controller service that coordinate with each other.
+Train conductor, which is primarily memory shared, now contains a reservation array and a mutual exclusion system.
+
+TrainService contains logic about reservation, collision detection and path recalculations.
+

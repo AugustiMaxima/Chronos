@@ -252,6 +252,8 @@ void dynamicPaths(TrainData* trainData){
         setSpeedConductor(trainData->conductor, trainData->id, 10);
         trainData->stalled = false;
 	processIncomingEvents(trainData);
+    } else {
+	trainData->stalled = true;
     }
 }
 
